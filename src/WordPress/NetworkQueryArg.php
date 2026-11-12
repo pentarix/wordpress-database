@@ -17,7 +17,6 @@ class NetworkQueryArg implements QueryArg
     use SupportsQueryArguments;
 
     private IncludeExcludeQueryArg $networkIds;
-    private ?int $networkId = null;
     private ?string $domain = null;
     private ?string $path = null;
     private ?int $number = null;
@@ -32,9 +31,6 @@ class NetworkQueryArg implements QueryArg
     {
         $this->initialiseQueryArguments($queryArray);
         $this->networkIds = IncludeExcludeQueryArg::make(['network__in' => $queryArray['network__in'] ?? [], 'network__not_in' => $queryArray['network__not_in'] ?? []], ['includeKey' => 'network__in', 'excludeKey' => 'network__not_in']);
-        if (array_key_exists('network_id', $queryArray)) {
-            $this->networkId = (int) $queryArray['network_id'];
-        }
         if (array_key_exists('domain', $queryArray)) {
             $this->domain = (string) $queryArray['domain'];
         }
@@ -83,19 +79,11 @@ class NetworkQueryArg implements QueryArg
         return $this;
     }
 
-    public function networkId(int $id): self
-    {
-        $this->networkId = $id;
-
-        return $this;
-    }
-
     public function toArray(): array
     {
         $args = [];
         $args += $this->networkIds->toArray();
         $values = [
-            'network_id' => $this->networkId,
             'domain' => $this->domain,
             'path' => $this->path,
             'number' => $this->number,
