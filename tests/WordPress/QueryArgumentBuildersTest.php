@@ -422,8 +422,8 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame(5, $args['ID']);
         self::assertSame(8, $args['network_id']);
         self::assertSame('changed', $args['search']);
-        self::assertFalse($args['public']);
-        self::assertTrue($args['archived']);
+        self::assertSame(0, $args['public']);
+        self::assertSame(1, $args['archived']);
         self::assertSame([], SiteQueryArg::make()->toArray());
     }
 
