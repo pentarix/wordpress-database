@@ -592,6 +592,19 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame([1, 5], $args[4]['dayofweek_iso']);
             }
 
+    public function testUserQueryArgAcceptsMultipleMetaKeys(): void
+    {
+        self::assertSame(
+            ['meta_key' => ['first_key', 'second_key']],
+            UserQueryArg::make()->metaKey(['first_key', 'second_key'])->toArray()
+        );
+
+        self::assertSame(
+            ['meta_key' => ['first_key', 'second_key']],
+            UserQueryArg::make(['meta_key' => ['first_key', 'second_key']])->toArray()
+        );
+    }
+
     public function testUserQueryArgSupportsEmptyAndAlternativeSearchMethods(): void
     {
         self::assertSame([], UserQueryArg::make()->toArray());
