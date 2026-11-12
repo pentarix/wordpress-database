@@ -27,14 +27,14 @@ class CommentQueryArg implements QueryArg
     private ?string $authorUrl = null;
     private ?string $authorIp = null;
     private ?string $search = null;
-    private ?string $type = null;
-    private ?string $status = null;
+    private string|array|null $type = null;
+    private string|array|null $status = null;
     private ?int $number = null;
     private ?int $offset = null;
     private string|array|null $orderby = null;
     private ?string $order = null;
     private ?string $fields = null;
-    private ?bool $hierarchical = null;
+    private bool|string|null $hierarchical = null;
     private ?bool $count = null;
     private ?bool $noFoundRows = null;
     private ?bool $updateCommentMetaCache = null;
@@ -42,7 +42,6 @@ class CommentQueryArg implements QueryArg
 
     public function __construct(array $queryArray = [])
     {
-        unset($queryArray['user__in'], $queryArray['user__not_in']);
         $this->initialiseQueryArguments($queryArray);
         $this->commentIds = IncludeExcludeQueryArg::make(['comment__in' => $queryArray['comment__in'] ?? [], 'comment__not_in' => $queryArray['comment__not_in'] ?? []], ['includeKey' => 'comment__in', 'excludeKey' => 'comment__not_in']);
         $this->postIds = IncludeExcludeQueryArg::make(['post__in' => $queryArray['post__in'] ?? [], 'post__not_in' => $queryArray['post__not_in'] ?? []], ['includeKey' => 'post__in', 'excludeKey' => 'post__not_in']);
@@ -70,10 +69,10 @@ class CommentQueryArg implements QueryArg
             $this->search = (string) $queryArray['search'];
         }
         if (array_key_exists('type', $queryArray)) {
-            $this->type = (string) $queryArray['type'];
+            $this->type = $queryArray['type'];
         }
         if (array_key_exists('status', $queryArray)) {
-            $this->status = (string) $queryArray['status'];
+            $this->status = $queryArray['status'];
         }
         if (array_key_exists('number', $queryArray)) {
             $this->number = (int) $queryArray['number'];
@@ -91,7 +90,7 @@ class CommentQueryArg implements QueryArg
             $this->fields = (string) $queryArray['fields'];
         }
         if (array_key_exists('hierarchical', $queryArray)) {
-            $this->hierarchical = (bool) $queryArray['hierarchical'];
+            $this->hierarchical = $queryArray['hierarchical'];
         }
         if (array_key_exists('count', $queryArray)) {
             $this->count = (bool) $queryArray['count'];
