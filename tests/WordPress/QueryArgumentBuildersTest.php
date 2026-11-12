@@ -298,10 +298,13 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame(['value' => 2, 'compare' => '>='], $args['comment_count']);
     }
 
-    public function testPostQueryArgPreservesScalarPostTypeAndSpecialValues(): void
+    public function testPostQueryArgPreservesScalarPostTypeAndStatusValues(): void
     {
         self::assertSame(['post_type' => 'post'], PostQueryArg::make(['post_type' => 'post'])->toArray());
         self::assertSame(['post_type' => 'any'], PostQueryArg::make()->postType('any')->toArray());
+        self::assertSame(['post_status' => 'publish'], PostQueryArg::make(['post_status' => 'publish'])->toArray());
+        self::assertSame(['post_status' => 'draft'], PostQueryArg::make()->postStatus('draft')->toArray());
+        self::assertSame(['post_status' => ['draft', 'private']], PostQueryArg::make()->postStatus(['draft', 'private'])->toArray());
     }
 
     public function testPostQueryArgAcceptsArrayNestedQueriesAndEmptyDefaults(): void
@@ -422,6 +425,28 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertFalse($args['public']);
         self::assertTrue($args['archived']);
         self::assertSame([], SiteQueryArg::make()->toArray());
+    }
+
+    public function testSiteQueryArgNormalisesStatusFlagsToWordPressIntegers(): void
+    {
+        self::assertSame(
+            ['public' => 0, 'archived' => 1, 'mature' => 0, 'spam' => 1, 'deleted' => 0],
+            SiteQueryArg::make([
+                'public' => false,
+                'archived' => true,
+                'mature' => false,
+                'spam' => true,
+                'deleted' => false,
+            ])->toArray()
+        );
+
+        self::assertSame([], SiteQueryArg::make([
+            'public' => null,
+            'archived' => null,
+            'mature' => null,
+            'spam' => null,
+            'deleted' => null,
+        ])->toArray());
     }
 
     public function testTermQueryArgMapsTaxonomyAndTermOptions(): void
