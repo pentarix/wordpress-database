@@ -30,7 +30,7 @@ class PostQueryArg implements QueryArg
     private ?int $page = null;
     private ?int $offset = null;
     private string|array|null $orderBy = null;
-    private ?string $order = null;
+    private string|array|null $order = null;
     private ?string $postName = null;
     private array $postNameIn = [];
     private ?int $menuOrder = null;
@@ -92,7 +92,9 @@ class PostQueryArg implements QueryArg
             $this->orderBy = $queryArray['orderby'];
         }
         if (isset($queryArray['order'])) {
-            $this->order = 'ASC' === strtoupper((string) $queryArray['order']) ? 'ASC' : 'DESC';
+            $this->order = is_array($queryArray['order'])
+                ? $queryArray['order']
+                : ('ASC' === strtoupper((string) $queryArray['order']) ? 'ASC' : 'DESC');
         }
         if (isset($queryArray['name'])) {
             $this->postName = (string) $queryArray['name'];
@@ -167,12 +169,7 @@ class PostQueryArg implements QueryArg
     public function postStatus(string|array $statuses): self { $this->postStatusQuery->is($statuses);
 
         return $this; }
-    public function postStatusesIn(string|array $statuses): self { $this->postStatusQuery->include($statuses);
-
-        return $this; }
-    public function postStatusesNotIn(string|array $statuses): self { $this->postStatusQuery->exclude($statuses);
-
-        return $this; }
+    public function postStatusesIn(string|array $statuses): self { return $this->postStatus($statuses); }
     public function authorsIn(int|float|string|array $ids): self { $this->authorQuery->include($ids);
 
         return $this; }
@@ -209,7 +206,7 @@ class PostQueryArg implements QueryArg
     public function orderBy(string|array $column): self { $this->orderBy = $column;
 
         return $this; }
-    public function order(string $order): self { $this->order = 'ASC' === strtoupper($order) ? 'ASC' : 'DESC';
+    public function order(string|array $order): self { $this->order = is_array($order) ? $order : ('ASC' === strtoupper($order) ? 'ASC' : 'DESC');
 
         return $this; }
     public function fields(string $fields): self { $this->fields = $fields;
