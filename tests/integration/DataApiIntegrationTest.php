@@ -68,7 +68,7 @@ final class DataApiIntegrationTest extends WP_UnitTestCase
 
     public function testMetadataCanRegisterAndUnregisterObjectTypeMetadata(): void
     {
-        $metaKey = 'pentarix_registered_meta';
+        $metaKey = 'pentarix_registered_meta_' . wp_generate_uuid4();
 
         self::assertTrue(Metadata::register('post', $metaKey, [
             'type' => 'string',
@@ -76,7 +76,10 @@ final class DataApiIntegrationTest extends WP_UnitTestCase
             'show_in_rest' => false,
         ], 'post'));
 
+        self::assertTrue(registered_meta_key_exists('post', $metaKey, 'post'));
+        self::assertFalse(registered_meta_key_exists('post', $metaKey));
         self::assertTrue(Metadata::unregister('post', $metaKey, 'post'));
+        self::assertFalse(registered_meta_key_exists('post', $metaKey, 'post'));
     }
 
     public function testMetadataSupportsTermObjectTypes(): void
@@ -100,6 +103,9 @@ final class DataApiIntegrationTest extends WP_UnitTestCase
         self::assertSame('before', $meta->meta_value);
         self::assertTrue(Metadata::updateById('post', $metaId, 'after'));
         self::assertSame('after', get_post_meta($postId, 'pentarix_mid_key', true));
+        self::assertTrue(Metadata::updateById('post', $metaId, 'renamed', 'pentarix_renamed_mid_key'));
+        self::assertFalse(metadata_exists('post', $postId, 'pentarix_mid_key'));
+        self::assertSame('renamed', get_post_meta($postId, 'pentarix_renamed_mid_key', true));
         self::assertTrue(Metadata::deleteById('post', $metaId));
     }
 
