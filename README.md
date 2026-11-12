@@ -185,6 +185,46 @@ An existing offset is retained as the starting offset before the page offset is 
 
 The execution layer requires WordPress to be loaded. Argument builders remain independently usable without a WordPress runtime.
 
+### Site queries
+
+Use `SiteQuery` to execute a native `WP_Site_Query` while retaining its result contract:
+
+```php
+use Pentarix\WordPressDatabase\WordPress\SiteQuery;
+use Pentarix\WordPressDatabase\WordPress\SiteQueryArg;
+
+$query = SiteQuery::make(
+    SiteQueryArg::make([
+        'network_id' => 1,
+        'public' => 1,
+        'archived' => 0,
+        'orderby' => 'id',
+        'order' => 'ASC',
+    ])
+);
+
+$wpQuery = $query->execute(); // WP_Site_Query
+$sites = $query->get();       // Native site results
+$first = $query->first();     // First result, or null
+$total = $query->count();     // Total matching sites
+```
+
+`get()` preserves the native `count` and `fields` query arguments, returning an integer for `count => true`, site IDs for `fields => 'ids'`, or `WP_Site` objects otherwise. `first()` disables count mode and returns the first result in the configured fields format. `count()` runs a separate count query without a result limit or offset.
+
+For pagination, use the native query object:
+
+```php
+$results = $query->paginate(perPage: 20, page: 2);
+
+$sites = $results->sites;
+$total = $results->found_sites;
+$totalPages = $results->max_num_pages;
+```
+
+`paginate()` sets `number`, `offset`, and `no_found_rows` so WordPress calculates pagination metadata. An existing offset is retained as the starting offset before the page offset is added. Both pagination arguments must be positive integers.
+
+The execution layer requires WordPress to be loaded. Argument builders remain independently usable without a WordPress runtime.
+
 ## Available builders
 
 - `CommentQueryArg`
