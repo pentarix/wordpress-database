@@ -247,6 +247,61 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame('EXISTS', $array[3]['operator']);
     }
 
+    public function testMetaQueryArgWrapsAnExistingFirstOrderClauseBeforeAppending(): void
+    {
+        self::assertSame(
+            [
+                ['key' => 'visibility', 'value' => 1],
+                ['key' => 'featured', 'value' => 1, 'compare' => '=', 'type' => 'CHAR'],
+            ],
+            MetaQueryArg::make(['key' => 'visibility', 'value' => 1])
+                ->where('featured', 1)
+                ->toArray()
+        );
+
+        self::assertSame(
+            [
+                'relation' => 'OR',
+                ['key' => 'visibility', 'value' => 1],
+                ['key' => 'featured', 'value' => 1, 'compare' => '=', 'type' => 'CHAR'],
+            ],
+            MetaQueryArg::make(['key' => 'visibility', 'value' => 1])
+                ->orWhere('featured', 1)
+                ->toArray()
+        );
+    }
+
+    public function testTaxQueryArgWrapsAnExistingFirstOrderClauseBeforeAppending(): void
+    {
+        $initialClause = [
+            'taxonomy' => 'category',
+            'terms' => [1],
+            'field' => 'term_id',
+        ];
+
+        $additionalClause = [
+            'taxonomy' => 'post_tag',
+            'terms' => ['news'],
+            'field' => 'slug',
+            'operator' => 'IN',
+            'include_children' => true,
+        ];
+
+        self::assertSame(
+            [$initialClause, $additionalClause],
+            TaxQueryArg::make($initialClause)
+                ->where('post_tag', 'news', 'slug')
+                ->toArray()
+        );
+
+        self::assertSame(
+            ['relation' => 'OR', $initialClause, $additionalClause],
+            TaxQueryArg::make($initialClause)
+                ->orWhere('post_tag', 'news', 'slug')
+                ->toArray()
+        );
+    }
+
     public function testPostQueryArgMapsNestedQueriesAndFluentMethods(): void
     {
         $date = DateQueryArg::make()->year(2024);
@@ -312,10 +367,13 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame(['order' => 'DESC'], PostQueryArg::make(['order' => 'invalid'])->toArray());
         self::assertSame(['order' => 'DESC'], PostQueryArg::make()->order('invalid')->toArray());
         self::assertSame(['order' => 'ASC'], PostQueryArg::make()->order('asc')->toArray());
+    }
 
-        $orders = ['title' => 'DESC', 'menu_order' => 'ASC'];
-        self::assertSame(['order' => $orders], PostQueryArg::make(['order' => $orders])->toArray());
-        self::assertSame(['order' => $orders], PostQueryArg::make()->order($orders)->toArray());
+    public function testPostQueryArgRejectsArrayOrderArguments(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        PostQueryArg::make(['order' => ['title' => 'DESC']]);
     }
 
     public function testPostQueryArgPreservesScalarPostTypeAndStatusValues(): void
