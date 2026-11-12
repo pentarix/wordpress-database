@@ -165,6 +165,18 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame('OR', $query->toArray()[6]['relation']);
     }
 
+    public function testDateQueryArgLeavesDefaultColumnToWordPress(): void
+    {
+        self::assertSame(
+            [['after' => '2024-01-01', 'inclusive' => false]],
+            DateQueryArg::make()->after('2024-01-01')->toArray()
+        );
+        self::assertSame(
+            [['year' => 2024]],
+            DateQueryArg::make()->year(2024)->toArray()
+        );
+    }
+
     public function testMetaQueryArgSupportsComparisonsAndGroups(): void
     {
         $query = MetaQueryArg::make()
@@ -286,6 +298,12 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame(['value' => 2, 'compare' => '>='], $args['comment_count']);
     }
 
+    public function testPostQueryArgPreservesScalarPostTypeAndSpecialValues(): void
+    {
+        self::assertSame(['post_type' => 'post'], PostQueryArg::make(['post_type' => 'post'])->toArray());
+        self::assertSame(['post_type' => 'any'], PostQueryArg::make()->postType('any')->toArray());
+    }
+
     public function testPostQueryArgAcceptsArrayNestedQueriesAndEmptyDefaults(): void
     {
         $query = PostQueryArg::make()
@@ -337,7 +355,7 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame('threaded', $args['hierarchical']);
         self::assertTrue($args['update_comment_post_cache']);
         self::assertSame([], CommentQueryArg::make()->toArray());
-        self::assertSame(['type' => ['review', 'rating'], 'status' => ['approve', 'hold'], 'hierarchical' => 'threaded'], CommentQueryArg::make([
+        self::assertSame(['type' => ['review', 'rating'], 'status' => ['approve', 'hold'], 'hierarchical' => 'threaded', 'user__in' => [2, 3]], CommentQueryArg::make([
             'type' => ['review', 'rating'],
             'status' => ['approve', 'hold'],
             'hierarchical' => 'threaded',
