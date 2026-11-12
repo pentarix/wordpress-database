@@ -70,7 +70,7 @@ final class Post
      */
     public static function get(
         int|\WP_Post|null $post,
-        string $output = OBJECT,
+        string $output = 'OBJECT',
         string $filter = 'raw'
     ): mixed {
         self::ensureWordPressIsLoaded();
