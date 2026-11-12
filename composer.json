@@ -7,16 +7,16 @@
         "php": ">=8.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.6 || ^10.5"
+        "phpunit/phpunit": "^9.6 || ^10.5 || ^11.5 || ^12.0"
     },
     "autoload": {
         "psr-4": {
-            "Pentarix\\\\WordPressDatabase\\\\": "src/"
+            "Pentarix\\WordPressDatabase\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Pentarix\\\\WordPressDatabase\\\\Tests\\\\": "tests/"
+            "Pentarix\\WordPressDatabase\\Tests\\": "tests/"
         }
     },
     "scripts": {
