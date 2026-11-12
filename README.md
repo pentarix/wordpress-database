@@ -108,6 +108,45 @@ $total = $results->get_total();
 
 `paginate()` sets `number`, `paged`, and `count_total`, and returns the native `WP_User_Query` instance. Both pagination arguments must be positive integers. An existing `offset` is removed because WordPress gives it precedence over the page-based offset calculation; use `execute()` when you need a manually controlled offset.
 
+### Comment queries
+
+Use `CommentQuery` to execute a `WP_Comment_Query` while retaining WordPress's native result contract:
+
+```php
+use Pentarix\WordPressDatabase\WordPress\CommentQuery;
+use Pentarix\WordPressDatabase\WordPress\CommentQueryArg;
+
+$query = CommentQuery::make(
+    CommentQueryArg::make([
+        'post_id' => 42,
+        'status' => 'approve',
+        'orderby' => 'comment_date_gmt',
+        'order' => 'DESC',
+    ])
+);
+
+$wpQuery = $query->execute(); // WP_Comment_Query
+$comments = $query->get();    // Native comment results
+$first = $query->first();     // First result, or null
+$total = $query->count();     // Total matching comments
+```
+
+`get()` preserves the native `fields` and `count` query arguments, so its result is an array or an integer when `count` is enabled. `first()` always requests comment results and respects the configured `fields` argument. `count()` enables found-row calculation and returns the total number of matches, regardless of the configured page size.
+
+For pagination, use the native query object:
+
+```php
+$results = $query->paginate(perPage: 20, page: 2);
+
+$comments = $results->comments;
+$total = $results->found_comments;
+$totalPages = $results->max_num_pages;
+```
+
+`paginate()` sets `number`, `paged`, and `no_found_rows` so WordPress calculates pagination metadata. It removes an existing `offset`, because WordPress gives an explicit offset precedence over page-based pagination. Both pagination arguments must be positive integers.
+
+The execution layer requires WordPress to be loaded. Argument builders remain independently usable without a WordPress runtime.
+
 ## Available builders
 
 - `CommentQueryArg`
