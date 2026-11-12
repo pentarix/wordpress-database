@@ -263,6 +263,56 @@ $totalPages = $results->max_num_pages;
 
 The execution layer requires WordPress to be loaded. Argument builders remain independently usable without a WordPress runtime.
 
+### Options API
+
+Use `Option` for the native WordPress Options API:
+
+```php
+use Pentarix\\WordPressDatabase\\WordPress\\Option;
+
+Option::add('my_plugin_settings', ['enabled' => true], false);
+$settings = Option::get('my_plugin_settings', []);
+Option::update('my_plugin_settings', ['enabled' => false]);
+$exists = Option::exists('my_plugin_settings');
+Option::delete('my_plugin_settings');
+```
+
+The wrapper delegates to `add_option()`, `get_option()`, `update_option()`, and `delete_option()`. The existence check distinguishes a missing option from an option whose stored value is `false`. Autoload behaviour is passed through to WordPress.
+
+### Metadata API
+
+Use `Metadata` to work with metadata for WordPress object types without bypassing the native Metadata API:
+
+```php
+use Pentarix\\WordPressDatabase\\WordPress\\Metadata;
+
+Metadata::add('post', $postId, 'featured', true, true);
+$isFeatured = Metadata::get('post', $postId, 'featured', true);
+Metadata::update('post', $postId, 'featured', false);
+$exists = Metadata::exists('post', $postId, 'featured');
+Metadata::delete('post', $postId, 'featured');
+```
+
+The object type is explicit and is passed to WordPress unchanged. This supports the object types handled by the Core Metadata API, including posts, users, comments, and terms. Use `register()` and `unregister()` to manage registered metadata keys, optionally specifying an object subtype. The wrapper also exposes the native metadata-by-ID operations through `getById()`, `updateById()`, and `deleteById()`; each requires the metadata object type.
+
+### Transients API
+
+Use `Transient` for request/site cache values stored through WordPress's Transients API:
+
+```php
+use Pentarix\\WordPressDatabase\\WordPress\\Transient;
+
+Transient::set('my_plugin_cache', $value, 300);
+$value = Transient::get('my_plugin_cache');
+Transient::delete('my_plugin_cache');
+
+Transient::setSite('my_network_cache', $value, 300);
+$value = Transient::getSite('my_network_cache');
+Transient::deleteSite('my_network_cache');
+```
+
+The expiration is expressed in seconds and follows WordPress semantics. A zero expiration means the transient does not expire. The wrapper does not add an `exists()` method because the native API uses `false` to represent a missing transient, which is indistinguishable from a transient deliberately storing `false`.
+
 ## Available builders
 
 - `CommentQueryArg`
