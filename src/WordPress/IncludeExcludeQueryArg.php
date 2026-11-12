@@ -48,9 +48,7 @@ class IncludeExcludeQueryArg extends IncludeQueryArg
 
     public function include(int|float|string|array $value): static
     {
-        if ($this->isIdentifier && \is_string($value) && str_contains($value, ',')) {
-            $value = array_map('trim', explode(',', $value));
-        }
+        $value = $this->normaliseInput($value);
 
         $values = ArrayUtil::castValues($value, fn($item) => $this->cast($item));
 
@@ -62,9 +60,7 @@ class IncludeExcludeQueryArg extends IncludeQueryArg
 
     public function exclude(int|float|string|array $value): static
     {
-        if ($this->isIdentifier && \is_string($value) && str_contains($value, ',')) {
-            $value = array_map('trim', explode(',', $value));
-        }
+        $value = $this->normaliseInput($value);
 
         $values = ArrayUtil::castValues($value, fn($item) => $this->cast($item));
 
