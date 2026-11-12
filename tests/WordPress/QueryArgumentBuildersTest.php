@@ -314,7 +314,7 @@ final class QueryArgumentBuildersTest extends TestCase
             'comment__not_in' => [3],
             'post__in' => [4],
             'parent__not_in' => [5],
-            'user__in' => [6],
+            'author__in' => [6],
             'post_id' => '7',
             'parent' => 8,
             'user_id' => 9,
@@ -507,6 +507,89 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertFalse($args['has_published_posts']);
         self::assertFalse($args['cache_results']);
         self::assertArrayHasKey('meta_query', $args);
+    }
+
+
+    public function testQueryBuildersPreserveAdditionalWordPressArguments(): void
+    {
+        $post = PostQueryArg::make([
+            'p' => 42,
+            'author' => 7,
+            'search_columns' => ['post_title'],
+            'meta_key' => ['colour', 'size'],
+        ])->set('update_menu_item_cache', false);
+
+        self::assertSame(42, $post->toArray()['p']);
+        self::assertSame(7, $post->toArray()['author']);
+        self::assertSame(['post_title'], $post->toArray()['search_columns']);
+        self::assertSame(['colour', 'size'], $post->toArray()['meta_key']);
+        self::assertFalse($post->toArray()['update_menu_item_cache']);
+
+        $comment = CommentQueryArg::make([
+            'author__in' => [3, 4],
+            'date_query' => [['year' => 2024]],
+            'include_unapproved' => [5],
+            'meta_query' => [['key' => 'visible', 'value' => 1]],
+        ]);
+
+        self::assertSame([3, 4], $comment->toArray()['author__in']);
+        self::assertArrayHasKey('date_query', $comment->toArray());
+        self::assertArrayHasKey('include_unapproved', $comment->toArray());
+        self::assertArrayHasKey('meta_query', $comment->toArray());
+
+        $term = TermQueryArg::make([
+            'object_ids' => [10, 11],
+            'exclude_tree' => [12],
+            'term_taxonomy_id' => [13],
+            'childless' => true,
+        ]);
+
+        self::assertSame([10, 11], $term->toArray()['object_ids']);
+        self::assertSame([12], $term->toArray()['exclude_tree']);
+        self::assertSame([13], $term->toArray()['term_taxonomy_id']);
+        self::assertTrue($term->toArray()['childless']);
+
+        $site = SiteQueryArg::make([
+            'count' => true,
+            'date_query' => [['after' => '2024-01-01']],
+            'domain__in' => ['example.com'],
+            'update_site_meta_cache' => false,
+        ]);
+
+        self::assertTrue($site->toArray()['count']);
+        self::assertSame(['example.com'], $site->toArray()['domain__in']);
+        self::assertFalse($site->toArray()['update_site_meta_cache']);
+
+        $network = NetworkQueryArg::make([
+            'no_found_rows' => true,
+            'domain__not_in' => ['blocked.example'],
+            'path__in' => ['/network/'],
+        ])->setMany(['custom_query_var' => 'value', 'number' => 5]);
+
+        self::assertTrue($network->toArray()['no_found_rows']);
+        self::assertSame(['blocked.example'], $network->toArray()['domain__not_in']);
+        self::assertSame(['/network/'], $network->toArray()['path__in']);
+        self::assertSame('value', $network->toArray()['custom_query_var']);
+        self::assertSame(5, $network->toArray()['number']);
+    }
+
+    public function testDateQueryArgSupportsCompleteDatePartsAndArrayValues(): void
+    {
+        $args = DateQueryArg::make()
+            ->year([2022, 2024])
+            ->month([1, 6])
+            ->dayOfYear([10, 20])
+            ->dayOfWeek(2)
+            ->dayOfWeekIso([1, 5])
+            ->compare('>=')
+            ->toArray();
+
+        self::assertSame([2022, 2024], $args[0]['year']);
+        self::assertSame([1, 6], $args[1]['month']);
+        self::assertSame([10, 20], $args[2]['dayofyear']);
+        self::assertSame(2, $args[3]['dayofweek']);
+        self::assertSame([1, 5], $args[4]['dayofweek_iso']);
+        self::assertSame('>=', $args[5]['compare']);
     }
 
     public function testUserQueryArgSupportsEmptyAndAlternativeSearchMethods(): void
