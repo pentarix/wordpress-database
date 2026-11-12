@@ -300,6 +300,18 @@ final class QueryArgumentBuildersTest extends TestCase
                 ->orWhere('post_tag', 'news', 'slug')
                 ->toArray()
         );
+
+        $fieldOnlyClause = [
+            'field' => 'term_taxonomy_id',
+            'operator' => 'EXISTS',
+        ];
+
+        self::assertSame(
+            [$fieldOnlyClause, $additionalClause],
+            TaxQueryArg::make($fieldOnlyClause)
+                ->where('post_tag', 'news', 'slug')
+                ->toArray()
+        );
     }
 
     public function testPostQueryArgMapsNestedQueriesAndFluentMethods(): void
