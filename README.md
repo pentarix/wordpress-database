@@ -279,6 +279,27 @@ Option::delete('my_plugin_settings');
 
 The wrapper delegates to `add_option()`, `get_option()`, `update_option()`, and `delete_option()`. The existence check distinguishes a missing option from an option whose stored value is `false`. Autoload behaviour is passed through to WordPress.
 
+Multisite installations can use the network-wide Site Options API and the options API for a specific site:
+
+```php
+// Network-wide options (get_site_option(), add_site_option(), etc.).
+Option::addSite('my_network_settings', ['enabled' => true]);
+$networkSettings = Option::getSite('my_network_settings', []);
+Option::updateSite('my_network_settings', ['enabled' => false]);
+$networkOptionExists = Option::existsSite('my_network_settings');
+Option::deleteSite('my_network_settings');
+
+// Options belonging to a specific site in the network.
+$blogId = 2;
+Option::addBlog($blogId, 'my_site_settings', ['enabled' => true]);
+$siteSettings = Option::getBlog($blogId, 'my_site_settings', []);
+Option::updateBlog($blogId, 'my_site_settings', ['enabled' => false]);
+$blogOptionExists = Option::existsBlog($blogId, 'my_site_settings');
+Option::deleteBlog($blogId, 'my_site_settings');
+```
+
+The getSite() and addSite() methods operate on network-wide options. The Blog methods operate on the options table belonging to the specified site. Both groups delegate to WordPress Core and preserve its return values. The existence helpers also recognise stored false values.
+
 ### Metadata API
 
 Use `Metadata` to work with metadata for WordPress object types without bypassing the native Metadata API:

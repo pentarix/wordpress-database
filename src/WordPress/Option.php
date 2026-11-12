@@ -59,6 +59,86 @@ final class Option
         return get_option($name, $default) !== $default;
     }
 
+    public static function getSite(string $name, mixed $default = false): mixed
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_site_option($name, $default);
+    }
+
+    public static function addSite(string $name, mixed $value): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return add_site_option($name, $value);
+    }
+
+    public static function updateSite(string $name, mixed $value): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return update_site_option($name, $value);
+    }
+
+    public static function deleteSite(string $name): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return delete_site_option($name);
+    }
+
+    /**
+     * Check whether a network option exists, including options whose value is false.
+     */
+    public static function existsSite(string $name): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        $default = new \stdClass();
+
+        return get_site_option($name, $default) !== $default;
+    }
+
+    public static function getBlog(int $blogId, string $name, mixed $default = false): mixed
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_blog_option($blogId, $name, $default);
+    }
+
+    public static function addBlog(int $blogId, string $name, mixed $value): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return add_blog_option($blogId, $name, $value);
+    }
+
+    public static function updateBlog(int $blogId, string $name, mixed $value): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return update_blog_option($blogId, $name, $value);
+    }
+
+    public static function deleteBlog(int $blogId, string $name): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return delete_blog_option($blogId, $name);
+    }
+
+    /**
+     * Check whether a blog option exists, including options whose value is false.
+     */
+    public static function existsBlog(int $blogId, string $name): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        $default = new \stdClass();
+
+        return get_blog_option($blogId, $name, $default) !== $default;
+    }
+
     private static function ensureWordPressIsLoaded(): void
     {
         if (!function_exists('get_option')) {
