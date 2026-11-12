@@ -71,7 +71,11 @@ final class TermQuery
 
         $query = new \WP_Term_Query($queryArguments ?: ['number' => 1]);
 
-        return is_array($query->terms) ? (reset($query->terms) ?: null) : null;
+        if (!is_array($query->terms) || [] === $query->terms) {
+            return null;
+        }
+
+        return reset($query->terms);
     }
 
     /**
@@ -109,7 +113,7 @@ final class TermQuery
         $this->ensureWordPressIsLoaded();
 
         $queryArguments = $this->queryArguments;
-        $existingOffset = (int) ($queryArguments['offset'] ?? 0);
+        $existingOffset = abs((int) ($queryArguments['offset'] ?? 0));
         $queryArguments['number'] = $perPage;
         $queryArguments['offset'] = $existingOffset + (($page - 1) * $perPage);
 
