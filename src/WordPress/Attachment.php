@@ -291,8 +291,7 @@ final class Attachment
         array $file,
         int $postId = 0,
         ?string $description = null,
-        array $postData = [],
-        array $overrides = []
+        array $postData = []
     ): int|\WP_Error {
         self::ensureWordPressIsLoaded();
 
