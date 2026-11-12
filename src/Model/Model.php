@@ -170,6 +170,10 @@ abstract class Model
             return $this->metaAttributes[$key];
         }
 
+        if (isset($this->deletedMetaAttributes[$key])) {
+            return $default;
+        }
+
         if (null === $this->postId || !Metadata::exists('post', $this->postId, $key)) {
             return $default;
         }
@@ -196,6 +200,10 @@ abstract class Model
 
         if (array_key_exists($key, $this->metaAttributes)) {
             return true;
+        }
+
+        if (isset($this->deletedMetaAttributes[$key])) {
+            return false;
         }
 
         return null !== $this->postId && Metadata::exists('post', $this->postId, $key);
@@ -243,7 +251,7 @@ abstract class Model
      */
     public function removeAttribute(string $key): static
     {
-        if (in_array($key, self::POST_FIELDS, true) || 'ID' === $key || 'post_type' === $key) {
+        if ('' === $key || in_array($key, self::POST_FIELDS, true) || 'ID' === $key || 'post_type' === $key) {
             throw new InvalidArgumentException('Only metadata attributes can be removed.');
         }
 
