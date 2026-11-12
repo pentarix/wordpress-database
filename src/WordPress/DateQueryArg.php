@@ -57,7 +57,7 @@ class DateQueryArg implements QueryArg
     public function before(
         string|array $date,
         bool $inclusive = false,
-        string $column = 'post_date'
+        ?string $column = null
     ): self {
         $clause = [
             'before' => $date,
@@ -171,7 +171,7 @@ class DateQueryArg implements QueryArg
         return $this->addClause($clause, $boolean);
     }
 
-    private function datePart(string $key, int|array $value, string $column, string $compare): self
+    private function datePart(string $key, int|array $value, ?string $column, string $compare): self
     {
         $clause = [
             $key => $value,
