@@ -60,6 +60,15 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame(['only' => [2, 3, 5], 'except' => [4, 1, 6]], $query->toArray());
         self::assertSame($query, $query->exclude(5));
         self::assertSame(['only' => [2, 3], 'except' => [4, 1, 6, 5]], $query->toArray());
+
+        self::assertSame(
+            ['include' => [1, 2, 3], 'exclude' => [4, 5]],
+            IncludeExcludeQueryArg::make([
+                'include' => '1 2, 3',
+                'exclude' => '4 5',
+            ])->toArray()
+        );
+        self::assertSame([], IncludeQueryArg::make(['include' => ''])->toArray());
     }
 
     public function testIncludeExcludeIsQueryArgSupportsSingleAndMultipleValues(): void
