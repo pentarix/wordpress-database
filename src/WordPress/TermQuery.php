@@ -93,9 +93,9 @@ final class TermQuery
         $queryArguments = $this->queryArguments;
         $queryArguments['fields'] = 'count';
 
-        $query = new \WP_Term_Query($queryArguments ?: ['fields' => 'count']);
+        $query = new \\WP_Term_Query();
 
-        return (int) $query->terms;
+        return (int) $query->query($queryArguments ?: ['fields' => 'count']);
     }
 
     /**
