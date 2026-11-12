@@ -37,6 +37,66 @@ final class DataApiIntegrationTest extends WP_UnitTestCase
         delete_option($name);
     }
 
+    public function testNetworkOptionCrudPreservesNativeWordPressBehaviour(): void
+    {
+        $name = 'pentarix_network_option_' . wp_generate_uuid4();
+
+        self::assertFalse(Option::existsSite($name));
+        self::assertTrue(Option::addSite($name, ['enabled' => true]));
+        self::assertTrue(Option::existsSite($name));
+        self::assertSame(['enabled' => true], Option::getSite($name));
+        self::assertFalse(Option::addSite($name, 'duplicate'));
+
+        self::assertTrue(Option::updateSite($name, 'updated'));
+        self::assertSame('updated', Option::getSite($name));
+        self::assertTrue(Option::deleteSite($name));
+        self::assertFalse(Option::existsSite($name));
+        self::assertSame('fallback', Option::getSite($name, 'fallback'));
+    }
+
+    public function testNetworkOptionExistsHandlesFalseValues(): void
+    {
+        $name = 'pentarix_false_network_option_' . wp_generate_uuid4();
+
+        add_site_option($name, false);
+
+        self::assertTrue(Option::existsSite($name));
+        self::assertFalse(Option::getSite($name));
+
+        delete_site_option($name);
+    }
+
+    public function testBlogOptionCrudPreservesNativeWordPressBehaviour(): void
+    {
+        $blogId = self::factory()->blog->create();
+        $name = 'pentarix_blog_option_' . wp_generate_uuid4();
+
+        self::assertFalse(Option::existsBlog($blogId, $name));
+        self::assertTrue(Option::addBlog($blogId, $name, ['enabled' => true]));
+        self::assertTrue(Option::existsBlog($blogId, $name));
+        self::assertSame(['enabled' => true], Option::getBlog($blogId, $name));
+        self::assertFalse(Option::addBlog($blogId, $name, 'duplicate'));
+
+        self::assertTrue(Option::updateBlog($blogId, $name, 'updated'));
+        self::assertSame('updated', Option::getBlog($blogId, $name));
+        self::assertTrue(Option::deleteBlog($blogId, $name));
+        self::assertFalse(Option::existsBlog($blogId, $name));
+        self::assertSame('fallback', Option::getBlog($blogId, $name, 'fallback'));
+    }
+
+    public function testBlogOptionExistsHandlesFalseValues(): void
+    {
+        $blogId = self::factory()->blog->create();
+        $name = 'pentarix_false_blog_option_' . wp_generate_uuid4();
+
+        add_blog_option($blogId, $name, false);
+
+        self::assertTrue(Option::existsBlog($blogId, $name));
+        self::assertFalse(Option::getBlog($blogId, $name));
+
+        delete_blog_option($blogId, $name);
+    }
+
     public function testMetadataCrudSupportsPostMetadata(): void
     {
         $postId = self::factory()->post->create();
