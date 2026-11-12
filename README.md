@@ -369,6 +369,70 @@ These wrappers intentionally remain separate by WordPress object type. Posts, us
 
 The entity wrappers require WordPress to be loaded. They return native WordPress objects and values rather than package-specific entity instances.
 
+### Fluent models
+
+Extend the abstract `Model` class to represent a registered post type. A model
+uses the native `Post` entity for persistence and `PostQuery` for retrieval;
+it does not introduce a separate storage layer or bypass WordPress hooks.
+
+```php
+use Pentarix\WordPressDatabase\Model\Model;
+
+final class Article extends Model
+{
+    protected static string $postType = 'post';
+}
+
+final class Product extends Model
+{
+    protected static string $postType = 'product';
+}
+
+$article = Article::make([
+    'post_title' => 'A practical introduction',
+    'post_status' => 'publish',
+]);
+
+$article->save();
+$article->set('post_title', 'An updated introduction')->save();
+
+$found = Article::find($article->id());
+
+$authorArticles = Article::query()
+    ->author($userId)
+    ->status('publish')
+    ->orderBy('date')
+    ->order('DESC')
+    ->get();
+
+$page = Article::query()
+    ->status('publish')
+    ->paginate(20, 2);
+```
+
+Models expose a small fluent attribute API (`make`, `fill`, `set`, `get`,
+`has`, and `toArray`) and persistence methods (`save`, `delete`, and
+`refresh`). `save()` returns a boolean or the native `WP_Error`; static
+`create()` returns the model or a native `WP_Error`. Query results are
+hydrated into the model class, while pagination returns a `ModelPaginator`
+with `items`, `total`, `perPage`, `currentPage`, and `lastPage`.
+
+The model's post type is enforced during creation, updates, retrieval, and
+queries. Model queries also reserve the native `post_type` and `fields`
+arguments so a caller cannot accidentally escape the model's type or request
+IDs instead of model-hydratable posts. Other query arguments continue to use
+the existing `PostQueryArg` and `PostQuery` implementation.
+
+The model exposes its author through the existing native `User` entity API,
+and model queries accept either a user ID or a native `WP_User` for author
+filtering. This keeps the post-to-user relationship explicit without making
+one entity responsible for querying another entity's records.
+
+Models are intentionally limited to posts and registered post types. They do
+not add relationships, mass-assignment policies, automatic timestamps, casts,
+or an Active Record event system. Related data remains accessible through the
+existing WordPress entity APIs and query builders.
+
 ### Options API
 
 Use `Option` for the native WordPress Options API:
