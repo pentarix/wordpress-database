@@ -154,6 +154,25 @@ final class Site
         return delete_blog_option($siteId, $option);
     }
 
+
+    /** Retrieve a network's main site. */
+    public static function getMain(?int $networkId = null): ?\WP_Site
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_site(get_main_site_id($networkId));
+    }
+
+    /** Retrieve the network ID to which a site belongs. */
+    public static function getNetworkId(int|\WP_Site $site): int
+    {
+        self::ensureWordPressIsLoaded();
+
+        $site = $site instanceof \WP_Site ? $site : get_site($site);
+
+        return $site ? (int) $site->network_id : 0;
+    }
+
     private static function ensureWordPressIsLoaded(): void
     {
         if (!function_exists('wp_insert_site')) {

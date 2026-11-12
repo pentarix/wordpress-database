@@ -156,7 +156,10 @@ final class Post
     {
         self::ensureWordPressIsLoaded();
 
-        return get_children(array_merge((array) $args, ['post_parent' => (int) (is_object($post) ? $post->ID : $post)]));
+        $args = wp_parse_args($args);
+        $args['post_parent'] = (int) (is_object($post) ? $post->ID : $post);
+
+        return get_children($args);
     }
 
     /** Retrieve a post's featured image attachment ID. */

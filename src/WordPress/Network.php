@@ -81,6 +81,15 @@ final class Network
         return delete_network_option($networkId, $option);
     }
 
+
+    /** Retrieve the main site ID for this or another network. */
+    public static function getMainSiteId(?int $networkId = null): int
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_main_site_id($networkId);
+    }
+
     private static function ensureWordPressIsLoaded(): void
     {
         if (!function_exists('get_network')) {

@@ -134,6 +134,8 @@ final class EntityConvenienceApiIntegrationTest extends WP_UnitTestCase
 
         self::assertSame($siteId, Site::getCurrentId());
         self::assertInstanceOf(WP_Site::class, Site::getCurrent());
+        self::assertInstanceOf(WP_Site::class, Site::getMain());
+        self::assertSame(get_current_network_id(), Site::getNetworkId($siteId));
         self::assertNotEmpty(Site::getHomeUrl($siteId));
         self::assertNotEmpty(Site::getSiteUrl($siteId));
         self::assertNotEmpty(Site::getAdminUrl($siteId));
@@ -156,6 +158,7 @@ final class EntityConvenienceApiIntegrationTest extends WP_UnitTestCase
 
         self::assertSame(get_current_network_id(), Network::getCurrentId());
         self::assertInstanceOf(WP_Network::class, Network::getCurrent());
+        self::assertSame(get_main_site_id(), Network::getMainSiteId());
 
         $option = 'pentarix_entity_test_' . wp_generate_uuid4();
         self::assertTrue(Network::addOption($option, 'value'));

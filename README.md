@@ -551,7 +551,7 @@ $replyId = Comment::reply($commentId, [
 ]);
 ```
 
-`User` also provides role assignment, capability checks, password verification, and Multisite membership helpers. `Site` provides blog-context switching, site URLs, and per-site options. `Network` provides current-network access and network-wide options. `Attachment` provides image metadata, alternative text, responsive image attributes, and image HTML. `Revision` provides latest-revision and autosave retrieval. `Link` includes category relationship helpers for the legacy Bookmarks API.
+`User` also provides role assignment, capability checks, password verification, and Multisite membership helpers. `Site` provides blog-context switching, main-site and network lookup, site URLs, and per-site options. `Network` provides current-network access, main-site lookup, and network-wide options. `Attachment` provides upload and sideload workflows, image metadata, alternative text, responsive image attributes, and image HTML. `Revision` provides latest-revision and autosave retrieval. `Link` includes category relationship helpers for the legacy Bookmarks API.
 
 The wrappers do not add their own validation or permission policy. Callers remain responsible for capability checks and for loading administrative WordPress modules when a native function is not loaded in the current request.
 

@@ -104,12 +104,18 @@ final class Link
         wp_set_link_cats($linkId, $categoryIds);
     }
 
-    /** Retrieve the category name assigned to a link. */
+    /** Retrieve the first category name assigned to a link. */
     public static function getCategoryName(int $linkId): string
     {
-        self::ensureWordPressIsLoaded();
+        $categoryIds = self::getCategoryIds($linkId);
 
-        return get_linkcatname($linkId);
+        if (!$categoryIds) {
+            return '';
+        }
+
+        $category = get_term((int) $categoryIds[0], 'link_category');
+
+        return $category instanceof \WP_Term ? $category->name : '';
     }
 
     private static function ensureAdminApiIsLoaded(): void

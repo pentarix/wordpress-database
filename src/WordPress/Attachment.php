@@ -255,6 +255,56 @@ final class Attachment
         return wp_mime_type_icon($attachment, $mime);
     }
 
+
+    /**
+     * Handle a file uploaded through a WordPress request.
+     *
+     * Requires wp-admin/includes/media.php to be loaded.
+     *
+     * @return int|\WP_Error The attachment ID or a WordPress error.
+     */
+    public static function handleUpload(
+        string $fileId,
+        int $postId = 0,
+        array $postData = [],
+        array $overrides = []
+    ): int|\WP_Error {
+        self::ensureWordPressIsLoaded();
+
+        if (!function_exists('media_handle_upload')) {
+            throw new LogicException(
+                'Attachment uploads require wp-admin/includes/media.php to be loaded.'
+            );
+        }
+
+        return media_handle_upload($fileId, $postId, $postData, $overrides);
+    }
+
+    /**
+     * Sideload a file into the Media Library.
+     *
+     * Requires wp-admin/includes/media.php to be loaded.
+     *
+     * @return int|\WP_Error The attachment ID or a WordPress error.
+     */
+    public static function handleSideload(
+        array $file,
+        int $postId = 0,
+        ?string $description = null,
+        array $postData = [],
+        array $overrides = []
+    ): int|\WP_Error {
+        self::ensureWordPressIsLoaded();
+
+        if (!function_exists('media_handle_sideload')) {
+            throw new LogicException(
+                'Attachment sideloads require wp-admin/includes/media.php to be loaded.'
+            );
+        }
+
+        return media_handle_sideload($file, $postId, $description, $postData, $overrides);
+    }
+
     private static function ensureWordPressIsLoaded(): void
     {
         if (!function_exists('wp_insert_attachment')) {

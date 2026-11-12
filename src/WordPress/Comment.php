@@ -124,7 +124,7 @@ final class Comment
     {
         self::ensureWordPressIsLoaded();
 
-        return get_comments(array_merge(['parent' => $commentId], $args));
+        return get_comments(array_merge($args, ['parent' => $commentId]));
     }
 
     /** Create a reply to an existing comment. */
