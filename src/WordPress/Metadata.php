@@ -80,7 +80,9 @@ final class Metadata
     {
         self::ensureWordPressIsLoaded();
 
-        return register_meta($metaType, $metaKey, $args, $objectSubtype);
+        $args['object_subtype'] = $objectSubtype;
+
+        return register_meta($metaType, $metaKey, $args);
     }
 
     public static function unregister(string $metaType, string $metaKey, string $objectSubtype = ''): bool
@@ -97,7 +99,7 @@ final class Metadata
         return get_metadata_by_mid($metaType, $metaId) ?: null;
     }
 
-    public static function updateById(string $metaType, int $metaId, mixed $metaValue, ?string $metaKey = null): bool
+    public static function updateById(string $metaType, int $metaId, mixed $metaValue, string|false $metaKey = false): bool
     {
         self::ensureWordPressIsLoaded();
 
