@@ -28,7 +28,7 @@ final class Attachment
      */
     public static function create(
         array $attachmentData,
-        string|array|false $file = false,
+        string|false $file = false,
         int $parentPostId = 0,
         bool $wpError = false
     ): int|\WP_Error {

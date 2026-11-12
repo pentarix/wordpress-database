@@ -19,9 +19,7 @@ final class ExtendedEntityCrudIntegrationTest extends WP_UnitTestCase
         self::assertSame($attachmentId, Attachment::get($attachmentId)->ID);
         self::assertIsString(Attachment::getUrl($attachmentId));
         self::assertIsString(Attachment::getFile($attachmentId));
-
-        $metadata = Attachment::getMetadata($attachmentId);
-        self::assertIsArray($metadata);
+        self::assertIsArray(Attachment::getMetadata($attachmentId));
 
         self::assertInstanceOf(WP_Post::class, Attachment::delete($attachmentId, true));
         self::assertNull(Attachment::get($attachmentId));
@@ -73,24 +71,12 @@ final class ExtendedEntityCrudIntegrationTest extends WP_UnitTestCase
         self::assertNull(Site::get($siteId));
     }
 
-    public function testNetworkCrudUsesNativeMultisiteFunctions(): void
+    public function testNetworkApiRetrievesCurrentNetwork(): void
     {
         if (!is_multisite()) {
-            self::markTestSkipped('Network CRUD requires WordPress Multisite.');
+            self::markTestSkipped('Network retrieval requires WordPress Multisite.');
         }
 
-        $networkId = Network::create([
-            'domain' => 'pentarix-' . strtolower(wp_generate_password(8, false)) . '.example.test',
-            'path' => '/',
-        ]);
-
-        self::assertIsInt($networkId);
-        self::assertInstanceOf(WP_Network::class, Network::get($networkId));
-
-        self::assertSame($networkId, Network::update($networkId, ['domain' => 'updated-' . $networkId . '.example.test']));
-        self::assertSame('updated-' . $networkId . '.example.test', Network::get($networkId)->domain);
-
-        self::assertTrue(Network::delete($networkId));
-        self::assertNull(Network::get($networkId));
+        self::assertInstanceOf(WP_Network::class, Network::get(get_current_network_id()));
     }
 }

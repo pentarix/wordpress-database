@@ -40,6 +40,46 @@ final class EntityApiTest extends TestCase
         Term::create('Example', 'category');
     }
 
+    public function testAttachmentRequiresWordPressToBeLoaded(): void
+    {
+        if (function_exists('wp_insert_attachment')) {
+            self::markTestSkipped('WordPress is already loaded.');
+        }
+
+        $this->expectException(LogicException::class);
+        Attachment::get(1);
+    }
+
+    public function testRevisionRequiresWordPressToBeLoaded(): void
+    {
+        if (function_exists('wp_get_post_revisions')) {
+            self::markTestSkipped('WordPress is already loaded.');
+        }
+
+        $this->expectException(LogicException::class);
+        Revision::all(1);
+    }
+
+    public function testSiteRequiresWordPressMultisiteToBeLoaded(): void
+    {
+        if (function_exists('wp_insert_site')) {
+            self::markTestSkipped('WordPress is already loaded.');
+        }
+
+        $this->expectException(LogicException::class);
+        Site::get(1);
+    }
+
+    public function testNetworkRequiresWordPressMultisiteToBeLoaded(): void
+    {
+        if (function_exists('get_network')) {
+            self::markTestSkipped('WordPress is already loaded.');
+        }
+
+        $this->expectException(LogicException::class);
+        Network::get(1);
+    }
+
     public function testCommentRequiresWordPressToBeLoaded(): void
     {
         if (function_exists('wp_insert_comment')) {

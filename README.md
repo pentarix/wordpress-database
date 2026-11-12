@@ -529,3 +529,72 @@ GitHub Actions runs the unit suite on PHP 8.0–8.5 and the integration suite ag
 ## Licence
 
 MIT. See [LICENSE](LICENSE).
+
+
+### Additional core entities
+
+The entity layer also provides focused wrappers for WordPress attachments, post revisions, and Multisite sites.
+
+#### Attachments
+
+Attachments are stored as posts with the `attachment` post type. Use `Post` for general post fields and `Attachment` for media-specific operations:
+
+```php
+use Pentarix\\WordPressDatabase\\WordPress\\Attachment;
+
+$attachmentId = Attachment::create([
+    'post_title' => 'Product image',
+    'post_mime_type' => 'image/jpeg',
+    'post_status' => 'inherit',
+], '/absolute/path/to/image.jpg', parentPostId: $postId);
+
+$attachment = Attachment::get($attachmentId);
+$url = Attachment::getUrl($attachmentId);
+$file = Attachment::getFile($attachmentId);
+$metadata = Attachment::getMetadata($attachmentId);
+
+Attachment::updateMetadata($attachmentId, $metadata);
+Attachment::updateFile($attachmentId, '/new/path/image.jpg');
+Attachment::delete($attachmentId, forceDelete: true);
+```
+
+`create()` delegates to `wp_insert_attachment()`; the file argument is a file path or `false`. Media upload handling from browser requests remains the responsibility of WordPress upload APIs such as `media_handle_upload()`.
+
+#### Revisions
+
+Revisions are also stored as posts, using the `revision` post type. Use `Revision` for revision-specific operations:
+
+```php
+use Pentarix\\WordPressDatabase\\WordPress\\Revision;
+
+$revisionId = Revision::save($postId);
+$revision = Revision::get($revisionId);
+$revisions = Revision::all($postId);
+Revision::restore($revisionId);
+Revision::delete($revisionId);
+```
+
+Revision creation follows the post type's revision support and WordPress revision settings. WordPress may return `false` or `WP_Error` where applicable; native return values are preserved.
+
+#### Multisite sites and networks
+
+Use `Site` for site creation, retrieval, updates, and deletion:
+
+```php
+use Pentarix\\WordPressDatabase\\WordPress\\Site;
+
+$siteId = Site::create([
+    'domain' => 'store.example.test',
+    'path' => '/',
+    'network_id' => get_current_network_id(),
+    'title' => 'Store',
+]);
+
+$site = Site::get($siteId);
+Site::update($siteId, ['public' => 0]);
+Site::delete($siteId);
+```
+
+Use `Network::get()` to retrieve a network. WordPress Core currently provides network retrieval and querying, but does not expose native network insert, update, or delete CRUD functions. This package deliberately does not emulate those missing operations with direct SQL.
+
+All these wrappers delegate to WordPress Core. They do not create package-specific entity instances or bypass native lifecycle behaviour.
