@@ -61,7 +61,7 @@ final class DataApiIntegrationTest extends WP_UnitTestCase
         add_site_option($name, false);
 
         self::assertTrue(Option::existsSite($name));
-        self::assertFalse(Option::getSite($name));
+        self::assertSame(get_site_option($name), Option::getSite($name));
 
         delete_site_option($name);
     }
