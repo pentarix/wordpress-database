@@ -298,8 +298,7 @@ $blogOptionExists = Option::existsBlog($blogId, 'my_site_settings');
 Option::deleteBlog($blogId, 'my_site_settings');
 ```
 
-The getSite()/addSite() methods operate on network-wide options. The *Blog() methods operate on the options table belonging to the specified site. Both groups delegate to WordPress Core and preserve its return values. The existence helpers also recognise stored false values.
-
+The getSite() and addSite() methods operate on network-wide options. The Blog methods operate on the options table belonging to the specified site. Both groups delegate to WordPress Core and preserve its return values. The existence helpers also recognise stored false values.
 
 ### Metadata API
 
