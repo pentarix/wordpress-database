@@ -372,8 +372,9 @@ The entity wrappers require WordPress to be loaded. They return native WordPress
 ### Fluent models
 
 Extend the abstract `Model` class to represent a registered post type. A model
-uses the native `Post` entity for persistence and `PostQuery` for retrieval;
-it does not introduce a separate storage layer or bypass WordPress hooks.
+uses the native `Post` entity for post-table fields and the native `Metadata`
+API for post metadata. Both storage types are exposed through one attribute
+interface.
 
 ```php
 use Pentarix\WordPressDatabase\Model\Model;
@@ -383,22 +384,59 @@ final class Article extends Model
     protected static string $postType = 'post';
 }
 
-final class Product extends Model
-{
-    protected static string $postType = 'product';
-}
-
 $article = Article::make([
     'post_title' => 'A practical introduction',
     'post_status' => 'publish',
+    'subtitle' => 'A metadata value',
+    'featured' => true,
 ]);
 
 $article->save();
-$article->set('post_title', 'An updated introduction')->save();
+
+// Both values use the same API, despite being stored differently.
+$article->set('post_title', 'An updated introduction');
+$article->set('subtitle', 'An updated subtitle')->save();
+
+$title = $article->get('post_title'); // wp_posts.post_title
+$subtitle = $article->get('subtitle'); // wp_postmeta
+$featured = $article->featured; // Magic attribute access
+
+$article->featured = false;
+$article->save();
 
 $found = Article::find($article->id());
+$found->removeAttribute('subtitle')->save();
+```
 
-$authorArticles = Article::query()
+The model automatically routes the standard post fields (such as
+`post_title`, `post_content`, `post_status`, and `post_author`) to the
+native post API. Any other attribute key is treated as post metadata and is
+read or written through the native Metadata API. Callers do not need to know
+which storage mechanism is used.
+
+The attribute API includes `make`, `fill`, `set`, `get`, `has`,
+`removeAttribute`, magic property access, and `toArray`. Metadata is loaded
+lazily on first access and cached on the model instance. `toArray()` includes
+core fields and metadata values already loaded or assigned; it does not query
+all metadata keys. `ID` and `post_type` are readable but managed by the model.
+
+Persistence methods (`save`, `delete`, and `refresh`) delegate to the
+existing WordPress APIs. Saving writes post-table fields first, then applies
+pending metadata changes. Removing a metadata attribute schedules its deletion
+for the next save. `refresh()` discards unsaved changes to both kinds of
+attributes. Query results are hydrated into the model class, while
+`paginate()` returns a `ModelPaginator` with `items`, `total`,
+`perPage`, `currentPage`, and `lastPage`.
+
+Model queries use the existing `PostQueryArg` and `PostQuery`
+implementations. The model's post type is enforced, and query arguments
+cannot override the managed `post_type` or `fields` values.
+
+A model query returns instances of the selected model class and continues
+to use the existing native query implementation:
+
+```php
+$articles = Article::query()
     ->author($userId)
     ->status('publish')
     ->orderBy('date')
@@ -410,28 +448,19 @@ $page = Article::query()
     ->paginate(20, 2);
 ```
 
-Models expose a small fluent attribute API (`make`, `fill`, `set`, `get`,
-`has`, and `toArray`) and persistence methods (`save`, `delete`, and
-`refresh`). `save()` returns a boolean or the native `WP_Error`; static
-`create()` returns the model or a native `WP_Error`. Query results are
-hydrated into the model class, while pagination returns a `ModelPaginator`
-with `items`, `total`, `perPage`, `currentPage`, and `lastPage`.
+A different registered post type uses the same base model:
 
-The model's post type is enforced during creation, updates, retrieval, and
-queries. Model queries also reserve the native `post_type` and `fields`
-arguments so a caller cannot accidentally escape the model's type or request
-IDs instead of model-hydratable posts. Other query arguments continue to use
-the existing `PostQueryArg` and `PostQuery` implementation.
+```php
+final class Product extends Model
+{
+    protected static string $postType = 'product';
+}
+```
 
-The model exposes its author through the existing native `User` entity API,
-and model queries accept either a user ID or a native `WP_User` for author
-filtering. This keeps the post-to-user relationship explicit without making
-one entity responsible for querying another entity's records.
-
-Models are intentionally limited to posts and registered post types. They do
-not add relationships, mass-assignment policies, automatic timestamps, casts,
-or an Active Record event system. Related data remains accessible through the
-existing WordPress entity APIs and query builders.
+The model exposes its author through the existing native `User` entity API.
+It remains a lightweight post model rather than a general ORM: it does not
+provide automatic casts, mass-assignment policies, an event system, or
+relationships beyond the explicitly implemented helpers.
 
 ### Options API
 

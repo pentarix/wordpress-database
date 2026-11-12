@@ -104,6 +104,63 @@ final class ModelIntegrationTest extends WP_UnitTestCase
         self::assertInstanceOf(ArticleModel::class, $result->items[0]);
     }
 
+    public function testModelAttributesRoutePostFieldsAndMetadataTransparently(): void
+    {
+        $model = ArticleModel::make([
+            'post_title' => 'Attribute example',
+            'post_status' => 'publish',
+            'subtitle' => 'A metadata value',
+            'featured' => false,
+            'settings' => ['layout' => 'wide'],
+        ]);
+
+        self::assertTrue($model->save());
+
+        $postId = $model->id();
+
+        self::assertSame('Attribute example', get_post_field('post_title', $postId));
+        self::assertSame('A metadata value', get_post_meta($postId, 'subtitle', true));
+        self::assertSame('', get_post_meta($postId, 'featured', true));
+        self::assertSame(['layout' => 'wide'], get_post_meta($postId, 'settings', true));
+
+        $found = ArticleModel::find($postId);
+
+        self::assertSame('Attribute example', $found->get('post_title'));
+        self::assertSame('A metadata value', $found->get('subtitle'));
+        self::assertSame('', $found->get('featured', true));
+        self::assertSame(['layout' => 'wide'], $found->settings);
+        self::assertTrue($found->has('featured'));
+        self::assertSame($postId, $found->get('ID'));
+        self::assertSame('post', $found->get('post_type'));
+
+        $found->subtitle = 'Updated metadata';
+        $found->set('post_title', 'Updated core field');
+        self::assertTrue($found->save());
+
+        self::assertSame('Updated core field', get_post_field('post_title', $postId));
+        self::assertSame('Updated metadata', get_post_meta($postId, 'subtitle', true));
+
+        $found->removeAttribute('subtitle');
+        self::assertFalse($found->has('subtitle'));
+        self::assertNull($found->get('subtitle'));
+        self::assertTrue($found->save());
+        self::assertFalse(metadata_exists('post', $postId, 'subtitle'));
+    }
+
+    public function testModelRefreshDiscardsUnsavedMetadataChanges(): void
+    {
+        $model = ArticleModel::make([
+            'post_title' => 'Refresh metadata',
+            'subtitle' => 'Persisted value',
+        ]);
+
+        self::assertTrue($model->save());
+        $model->set('subtitle', 'Unsaved value');
+
+        self::assertTrue($model->refresh());
+        self::assertSame('Persisted value', $model->get('subtitle'));
+    }
+
     public function testModelDeleteDelegatesToPostEntity(): void
     {
         $model = ArticleModel::make([
