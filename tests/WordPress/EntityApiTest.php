@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Pentarix\WordPressDatabase\WordPress\Comment;
+use Pentarix\WordPressDatabase\WordPress\Link;
 use Pentarix\WordPressDatabase\WordPress\Post;
 use Pentarix\WordPressDatabase\WordPress\Term;
 use Pentarix\WordPressDatabase\WordPress\User;
@@ -82,6 +83,16 @@ final class EntityApiTest extends TestCase
 
         $this->expectException(LogicException::class);
         Network::get(1);
+    }
+
+    public function testLinkRequiresWordPressToBeLoaded(): void
+    {
+        if (function_exists('get_bookmark')) {
+            self::markTestSkipped('WordPress is already loaded.');
+        }
+
+        $this->expectException(LogicException::class);
+        Link::get(1);
     }
 
     public function testCommentRequiresWordPressToBeLoaded(): void

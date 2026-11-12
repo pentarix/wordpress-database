@@ -616,3 +616,30 @@ Site::delete($siteId);
 Use `Network::get()` to retrieve a network. WordPress Core currently provides network retrieval and querying, but does not expose native network insert, update, or delete CRUD functions. This package deliberately does not emulate those missing operations with direct SQL.
 
 All these wrappers delegate to WordPress Core. They do not create package-specific entity instances or bypass native lifecycle behaviour.
+
+
+#### Legacy links (bookmarks)
+
+WordPress still exposes a separate Links (Bookmarks) API. The package wraps it for compatibility with existing installations, but it is a legacy feature and should not be selected for new content models:
+
+\`\`\`php
+use Pentarix\WordPressDatabase\WordPress\Link;
+
+$linkId = Link::create([
+    'link_name' => 'WordPress',
+    'link_url' => 'https://wordpress.org',
+]);
+
+$link = Link::get($linkId);
+$links = Link::query(['include' => [$linkId]]);
+
+Link::update([
+    'link_id' => $linkId,
+    'link_name' => 'WordPress.org',
+    'link_url' => 'https://wordpress.org',
+]);
+
+Link::delete($linkId);
+\`\`\`
+
+The retrieval methods use the front-end bookmark API. Creation, updates, and deletion require the caller to load \`wp-admin/includes/bookmark.php\`, because WordPress defines those functions in its administrative bookmark module.
