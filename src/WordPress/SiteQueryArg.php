@@ -28,11 +28,11 @@ class SiteQueryArg implements QueryArg
     private string|array|null $orderby = null;
     private ?string $order = null;
     private ?string $fields = null;
-    private ?bool $public = null;
-    private ?bool $archived = null;
-    private ?bool $mature = null;
-    private ?bool $spam = null;
-    private ?bool $deleted = null;
+    private ?int $public = null;
+    private ?int $archived = null;
+    private ?int $mature = null;
+    private ?int $spam = null;
+    private ?int $deleted = null;
     private ?int $langId = null;
     private ?bool $updateSiteCache = null;
 
@@ -72,19 +72,19 @@ class SiteQueryArg implements QueryArg
             $this->fields = (string) $queryArray['fields'];
         }
         if (array_key_exists('public', $queryArray)) {
-            $this->public = (bool) $queryArray['public'];
+            $this->public = null === $queryArray['public'] ? null : (int) $queryArray['public'];
         }
         if (array_key_exists('archived', $queryArray)) {
-            $this->archived = (bool) $queryArray['archived'];
+            $this->archived = null === $queryArray['archived'] ? null : (int) $queryArray['archived'];
         }
         if (array_key_exists('mature', $queryArray)) {
-            $this->mature = (bool) $queryArray['mature'];
+            $this->mature = null === $queryArray['mature'] ? null : (int) $queryArray['mature'];
         }
         if (array_key_exists('spam', $queryArray)) {
-            $this->spam = (bool) $queryArray['spam'];
+            $this->spam = null === $queryArray['spam'] ? null : (int) $queryArray['spam'];
         }
         if (array_key_exists('deleted', $queryArray)) {
-            $this->deleted = (bool) $queryArray['deleted'];
+            $this->deleted = null === $queryArray['deleted'] ? null : (int) $queryArray['deleted'];
         }
         if (array_key_exists('lang_id', $queryArray)) {
             $this->langId = (int) $queryArray['lang_id'];
