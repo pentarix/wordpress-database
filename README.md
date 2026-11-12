@@ -15,15 +15,15 @@ The package provides WordPress query argument builders and a small execution lay
 composer require pentarix/wordpress-database
 ```
 
-Composer maps the `Pentarix\\WordPressDatabase\\` namespace to `src/` using PSR-4.
+Composer maps the `Pentarix\WordPressDatabase\` namespace to `src/` using PSR-4.
 
 ## Usage
 
 Build arguments independently from WordPress, then pass them to the native query API:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\MetaQueryArg;
-use Pentarix\\WordPressDatabase\\WordPress\\PostQueryArg;
+use Pentarix\WordPressDatabase\WordPress\MetaQueryArg;
+use Pentarix\WordPressDatabase\WordPress\PostQueryArg;
 
 $args = PostQueryArg::make()
     ->postType('product')
@@ -32,14 +32,14 @@ $args = PostQueryArg::make()
     ->metaQuery(MetaQueryArg::make()->where('featured', true))
     ->toArray();
 
-$query = new \\WP_Query($args);
+$query = new \WP_Query($args);
 ```
 
 For a convenient execution API, use `PostQuery`:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\PostQuery;
-use Pentarix\\WordPressDatabase\\WordPress\\PostQueryArg;
+use Pentarix\WordPressDatabase\WordPress\PostQuery;
+use Pentarix\WordPressDatabase\WordPress\PostQueryArg;
 
 $query = PostQuery::make(
     PostQueryArg::make()
@@ -79,8 +79,8 @@ The execution layer requires WordPress to be loaded. Argument builders remain in
 Use `UserQuery` to execute a `WP_User_Query` while retaining WordPress's native result contract:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\UserQuery;
-use Pentarix\\WordPressDatabase\\WordPress\\UserQueryArg;
+use Pentarix\WordPressDatabase\WordPress\UserQuery;
+use Pentarix\WordPressDatabase\WordPress\UserQueryArg;
 
 $query = UserQuery::make(
     UserQueryArg::make()
@@ -120,7 +120,7 @@ $total = $results->get_total();
 - `TermQueryArg`
 - `UserQueryArg`
 
-Supporting builders (`IncludeQueryArg`, `IncludeExcludeQueryArg`, `IncludeExcludeIsQueryArg`, and `SearchQueryArg`) are also available under `Pentarix\\WordPressDatabase\\WordPress`.
+Supporting builders (`IncludeQueryArg`, `IncludeExcludeQueryArg`, `IncludeExcludeIsQueryArg`, and `SearchQueryArg`) are also available under `Pentarix\WordPressDatabase\WordPress`.
 
 ## Argument coverage
 
@@ -148,9 +148,9 @@ Values are passed to WordPress as supplied. WordPress remains responsible for va
 For example:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\MetaQueryArg;
-use Pentarix\\WordPressDatabase\\WordPress\\PostQueryArg;
-use Pentarix\\WordPressDatabase\\WordPress\\TaxQueryArg;
+use Pentarix\WordPressDatabase\WordPress\MetaQueryArg;
+use Pentarix\WordPressDatabase\WordPress\PostQueryArg;
+use Pentarix\WordPressDatabase\WordPress\TaxQueryArg;
 
 $args = PostQueryArg::make()
     ->metaQuery(
@@ -165,7 +165,7 @@ $args = PostQueryArg::make()
     )
     ->toArray();
 
-$query = new \\WP_Query($args);
+$query = new \WP_Query($args);
 ```
 
 ## Scope
