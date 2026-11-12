@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Pentarix\\WordPressDatabase\\WordPress;
+namespace Pentarix\WordPressDatabase\WordPress;
 
 use InvalidArgumentException;
 use LogicException;
@@ -34,14 +34,14 @@ final class CommentQuery
     /**
      * Execute the query and return the native WordPress query object.
      */
-    public function execute(): \\WP_Comment_Query
+    public function execute(): \WP_Comment_Query
     {
         $this->ensureWordPressIsLoaded();
 
         // WP_Comment_Query skips execution when its constructor receives an empty array.
         $queryArguments = $this->queryArguments ?: ['number' => 0];
 
-        return new \\WP_Comment_Query($queryArguments);
+        return new \WP_Comment_Query($queryArguments);
     }
 
     /**
@@ -56,7 +56,7 @@ final class CommentQuery
         $this->ensureWordPressIsLoaded();
 
         $queryArguments = $this->queryArguments ?: ['number' => 0];
-        $query = new \\WP_Comment_Query();
+        $query = new \WP_Comment_Query();
 
         $comments = $query->query($queryArguments);
 
@@ -77,7 +77,7 @@ final class CommentQuery
         $queryArguments['paged'] = 1;
         $queryArguments['count'] = false;
 
-        $query = new \\WP_Comment_Query($queryArguments ?: ['number' => 1]);
+        $query = new \WP_Comment_Query($queryArguments ?: ['number' => 1]);
 
         return $query->comments[0] ?? null;
     }
@@ -96,7 +96,7 @@ final class CommentQuery
         $queryArguments['count'] = false;
         $queryArguments['no_found_rows'] = false;
 
-        $query = new \\WP_Comment_Query($queryArguments);
+        $query = new \WP_Comment_Query($queryArguments);
 
         return (int) $query->found_comments;
     }
@@ -108,7 +108,7 @@ final class CommentQuery
      * max_num_pages. An explicit offset is removed so the requested page
      * determines the result offset.
      */
-    public function paginate(int $perPage, int $page = 1): \\WP_Comment_Query
+    public function paginate(int $perPage, int $page = 1): \WP_Comment_Query
     {
         if ($perPage < 1) {
             throw new InvalidArgumentException('The per-page value must be greater than zero.');
@@ -128,12 +128,12 @@ final class CommentQuery
 
         unset($queryArguments['offset']);
 
-        return new \\WP_Comment_Query($queryArguments);
+        return new \WP_Comment_Query($queryArguments);
     }
 
     private function ensureWordPressIsLoaded(): void
     {
-        if (!class_exists(\\WP_Comment_Query::class)) {
+        if (!class_exists(\WP_Comment_Query::class)) {
             throw new LogicException('CommentQuery requires WordPress to be loaded.');
         }
     }
