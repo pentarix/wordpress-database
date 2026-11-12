@@ -14,6 +14,8 @@ namespace Pentarix\WordPressDatabase\WordPress;
 
 class CommentQueryArg implements QueryArg
 {
+    use SupportsQueryArguments;
+
     private IncludeExcludeQueryArg $commentIds;
     private IncludeExcludeQueryArg $postIds;
     private IncludeExcludeQueryArg $parentIds;
@@ -40,10 +42,12 @@ class CommentQueryArg implements QueryArg
 
     public function __construct(array $queryArray = [])
     {
+        unset($queryArray['user__in'], $queryArray['user__not_in']);
+        $this->initialiseQueryArguments($queryArray);
         $this->commentIds = IncludeExcludeQueryArg::make(['comment__in' => $queryArray['comment__in'] ?? [], 'comment__not_in' => $queryArray['comment__not_in'] ?? []], ['includeKey' => 'comment__in', 'excludeKey' => 'comment__not_in']);
         $this->postIds = IncludeExcludeQueryArg::make(['post__in' => $queryArray['post__in'] ?? [], 'post__not_in' => $queryArray['post__not_in'] ?? []], ['includeKey' => 'post__in', 'excludeKey' => 'post__not_in']);
         $this->parentIds = IncludeExcludeQueryArg::make(['parent__in' => $queryArray['parent__in'] ?? [], 'parent__not_in' => $queryArray['parent__not_in'] ?? []], ['includeKey' => 'parent__in', 'excludeKey' => 'parent__not_in']);
-        $this->userIds = IncludeExcludeQueryArg::make(['user__in' => $queryArray['user__in'] ?? [], 'user__not_in' => $queryArray['user__not_in'] ?? []], ['includeKey' => 'user__in', 'excludeKey' => 'user__not_in']);
+        $this->userIds = IncludeExcludeQueryArg::make(['author__in' => $queryArray['author__in'] ?? [], 'author__not_in' => $queryArray['author__not_in'] ?? []], ['includeKey' => 'author__in', 'excludeKey' => 'author__not_in']);
         if (array_key_exists('post_id', $queryArray)) {
             $this->postId = (int) $queryArray['post_id'];
         }
@@ -170,6 +174,6 @@ class CommentQueryArg implements QueryArg
             }
         }
 
-        return $args;
+        return $this->mergeQueryArguments($args);
     }
 }
