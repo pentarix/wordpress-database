@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Pentarix\\WordPressDatabase\\WordPress\\SiteQuery;
-use Pentarix\\WordPressDatabase\\WordPress\\SiteQueryArg;
+use Pentarix\WordPressDatabase\WordPress\SiteQuery;
+use Pentarix\WordPressDatabase\WordPress\SiteQueryArg;
 
 final class SiteQueryIntegrationTest extends WP_UnitTestCase
 {
