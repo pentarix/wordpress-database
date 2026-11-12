@@ -53,7 +53,12 @@ final class CommentQuery
      */
     public function get(): array|int
     {
-        $comments = $this->execute()->comments;
+        $this->ensureWordPressIsLoaded();
+
+        $queryArguments = $this->queryArguments ?: ['number' => 0];
+        $query = new \\WP_Comment_Query();
+
+        $comments = $query->query($queryArguments);
 
         return is_array($comments) || is_int($comments) ? $comments : [];
     }
