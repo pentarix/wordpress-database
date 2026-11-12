@@ -14,6 +14,8 @@ namespace Pentarix\WordPressDatabase\WordPress;
 
 class SiteQueryArg implements QueryArg
 {
+    use SupportsQueryArguments;
+
     private IncludeExcludeQueryArg $siteIds;
     private IncludeExcludeQueryArg $networkIds;
     private ?int $siteId = null;
@@ -36,6 +38,7 @@ class SiteQueryArg implements QueryArg
 
     public function __construct(array $queryArray = [])
     {
+        $this->initialiseQueryArguments($queryArray);
         $this->siteIds = IncludeExcludeQueryArg::make(['site__in' => $queryArray['site__in'] ?? [], 'site__not_in' => $queryArray['site__not_in'] ?? []], ['includeKey' => 'site__in', 'excludeKey' => 'site__not_in']);
         $this->networkIds = IncludeExcludeQueryArg::make(['network__in' => $queryArray['network__in'] ?? [], 'network__not_in' => $queryArray['network__not_in'] ?? []], ['includeKey' => 'network__in', 'excludeKey' => 'network__not_in']);
         if (array_key_exists('ID', $queryArray)) {
@@ -154,6 +157,6 @@ class SiteQueryArg implements QueryArg
             }
         }
 
-        return $args;
+        return $this->mergeQueryArguments($args);
     }
 }
