@@ -14,6 +14,8 @@ namespace Pentarix\WordPressDatabase\WordPress;
 
 class PostQueryArg implements QueryArg
 {
+    use SupportsQueryArguments;
+
     private IncludeExcludeQueryArg $postIdQuery;
     private IncludeExcludeQueryArg $authorQuery;
     private IncludeExcludeQueryArg $parentQuery;
@@ -49,6 +51,7 @@ class PostQueryArg implements QueryArg
 
     public function __construct(array $queryArray = [])
     {
+        $this->initialiseQueryArguments($queryArray);
         $this->postIdQuery = IncludeExcludeQueryArg::make([
             'post__in' => $queryArray['post__in'] ?? [],
             'post__not_in' => $queryArray['post__not_in'] ?? [],
@@ -269,6 +272,6 @@ class PostQueryArg implements QueryArg
         if ([] !== $this->postNameIn) {
             $args['post_name__in'] = $this->postNameIn;
         }
-        return $args;
+        return $this->mergeQueryArguments($args);
     }
 }
