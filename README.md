@@ -15,15 +15,15 @@ The package provides WordPress query argument builders and a small execution lay
 composer require pentarix/wordpress-database
 ```
 
-Composer maps the `Pentarix\WordPressDatabase\` namespace to `src/` using PSR-4.
+Composer maps the `Pentarix\\WordPressDatabase\\` namespace to `src/` using PSR-4.
 
 ## Usage
 
 Build arguments independently from WordPress, then pass them to the native query API:
 
 ```php
-use Pentarix\WordPressDatabase\WordPress\MetaQueryArg;
-use Pentarix\WordPressDatabase\WordPress\PostQueryArg;
+use Pentarix\\WordPressDatabase\\WordPress\\MetaQueryArg;
+use Pentarix\\WordPressDatabase\\WordPress\\PostQueryArg;
 
 $args = PostQueryArg::make()
     ->postType('product')
@@ -32,14 +32,14 @@ $args = PostQueryArg::make()
     ->metaQuery(MetaQueryArg::make()->where('featured', true))
     ->toArray();
 
-$query = new \WP_Query($args);
+$query = new \\WP_Query($args);
 ```
 
 For a convenient execution API, use `PostQuery`:
 
 ```php
-use Pentarix\WordPressDatabase\WordPress\PostQuery;
-use Pentarix\WordPressDatabase\WordPress\PostQueryArg;
+use Pentarix\\WordPressDatabase\\WordPress\\PostQuery;
+use Pentarix\\WordPressDatabase\\WordPress\\PostQueryArg;
 
 $query = PostQuery::make(
     PostQueryArg::make()
@@ -50,11 +50,27 @@ $query = PostQuery::make(
 
 $wpQuery = $query->execute(); // WP_Query
 $posts = $query->get();       // Current page of posts
-$first = $query->first();     // First matching post, or null
+$first = $query->first();     // First result of the configured query, or null
 $total = $query->count();     // Total matches, independent of page size
 ```
 
 `execute()` returns the native `WP_Query` instance. The result helpers run their own query and return WordPress results; they do not introduce custom post models or collections. `count()` enables found-row calculation even when the original arguments set `no_found_rows` to `true`. The `first()` result follows the configured `fields` argument.
+
+### Pagination
+
+Use `paginate()` when both the current page and total-page metadata are required:
+
+```php
+$results = $query->paginate(perPage: 12, page: 2);
+
+$posts = $results->posts;
+$total = $results->found_posts;
+$totalPages = $results->max_num_pages;
+```
+
+The method returns the native `WP_Query` object. It sets `no_found_rows` to `false` so WordPress calculates `found_posts` and `max_num_pages`, and it overrides any existing `posts_per_page` and `paged` values. Both arguments must be positive integers.
+
+WordPress does not reliably combine an explicit `offset` with `paged` pagination. Therefore, `paginate()` removes an existing `offset` argument. Use ordinary `execute()` when you need a manually controlled offset instead of page-based pagination.
 
 The execution layer requires WordPress to be loaded. Argument builders remain independently usable without a WordPress runtime.
 
@@ -70,7 +86,7 @@ The execution layer requires WordPress to be loaded. Argument builders remain in
 - `TermQueryArg`
 - `UserQueryArg`
 
-Supporting builders (`IncludeQueryArg`, `IncludeExcludeQueryArg`, `IncludeExcludeIsQueryArg`, and `SearchQueryArg`) are also available under `Pentarix\WordPressDatabase\WordPress`.
+Supporting builders (`IncludeQueryArg`, `IncludeExcludeQueryArg`, `IncludeExcludeIsQueryArg`, and `SearchQueryArg`) are also available under `Pentarix\\WordPressDatabase\\WordPress`.
 
 ## Argument coverage
 
@@ -98,9 +114,9 @@ Values are passed to WordPress as supplied. WordPress remains responsible for va
 For example:
 
 ```php
-use Pentarix\WordPressDatabase\WordPress\MetaQueryArg;
-use Pentarix\WordPressDatabase\WordPress\PostQueryArg;
-use Pentarix\WordPressDatabase\WordPress\TaxQueryArg;
+use Pentarix\\WordPressDatabase\\WordPress\\MetaQueryArg;
+use Pentarix\\WordPressDatabase\\WordPress\\PostQueryArg;
+use Pentarix\\WordPressDatabase\\WordPress\\TaxQueryArg;
 
 $args = PostQueryArg::make()
     ->metaQuery(
@@ -115,7 +131,7 @@ $args = PostQueryArg::make()
     )
     ->toArray();
 
-$query = new \WP_Query($args);
+$query = new \\WP_Query($args);
 ```
 
 ## Scope
