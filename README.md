@@ -152,8 +152,8 @@ The execution layer requires WordPress to be loaded. Argument builders remain in
 Use `TermQuery` to execute a native `WP_Term_Query` while retaining its result contract:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\TermQuery;
-use Pentarix\\WordPressDatabase\\WordPress\\TermQueryArg;
+use Pentarix\WordPressDatabase\WordPress\TermQuery;
+use Pentarix\WordPressDatabase\WordPress\TermQueryArg;
 
 $query = TermQuery::make(
     TermQueryArg::make([
