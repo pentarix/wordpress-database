@@ -263,6 +263,102 @@ $totalPages = $results->max_num_pages;
 
 The execution layer requires WordPress to be loaded. Argument builders remain independently usable without a WordPress runtime.
 
+### Core entity APIs
+
+Use the entity wrappers to create, retrieve, update, and delete WordPress records through the native Core APIs. They preserve WordPress return values and lifecycle hooks; they do not introduce an ORM, custom models, or direct SQL access.
+
+#### Posts and custom post types
+
+The `Post` API works with every registered post type, including posts, pages, attachments, and custom post types:
+
+```php
+use Pentarix\\WordPressDatabase\\WordPress\\Post;
+
+$postId = Post::create([
+    'post_type' => 'product',
+    'post_status' => 'publish',
+    'post_title' => 'Example product',
+], wpError: true);
+
+$post = Post::get($postId); // WP_Post|null
+
+Post::update([
+    'ID' => $postId,
+    'post_title' => 'Updated product',
+], wpError: true);
+
+Post::delete($postId); // Trash when supported by WordPress
+Post::delete($postId, forceDelete: true); // Permanently delete
+```
+
+The post type is supplied through the native `post_type` field. There is no separate CRUD implementation for each custom post type. The `wpError` argument opts into WordPress error objects instead of its default failure value.
+
+#### Users
+
+```php
+use Pentarix\\WordPressDatabase\\WordPress\\User;
+
+$userId = User::create([
+    'user_login' => 'example-user',
+    'user_pass' => 'strong-password',
+    'user_email' => 'user@example.test',
+]);
+
+$user = User::get($userId); // WP_User|false
+$user = User::findBy('email', 'user@example.test');
+
+User::update([
+    'ID' => $userId,
+    'display_name' => 'Example User',
+]);
+
+User::delete($userId, reassign: 1);
+```
+
+User creation and updates return the native user ID or `WP_Error`. User deletion delegates to the administrative `wp_delete_user()` function. On non-administrative requests, WordPress may require the caller to load `wp-admin/includes/user.php` before calling `User::delete()`. On Multisite, deleting a user removes their membership from the current site rather than deleting the network-wide user record.
+
+#### Terms
+
+```php
+use Pentarix\\WordPressDatabase\\WordPress\\Term;
+
+$created = Term::create('Accessories', 'category', [
+    'slug' => 'accessories',
+]);
+$termId = (int) $created['term_id'];
+
+$term = Term::get($termId, 'category'); // WP_Term|...
+Term::findBy('slug', 'accessories', 'category');
+
+Term::update($termId, 'category', ['name' => 'Product accessories']);
+Term::delete($termId, 'category');
+```
+
+The taxonomy must already be registered. Term methods preserve the native arrays, booleans, integers, and `WP_Error` values returned by WordPress.
+
+#### Comments
+
+```php
+use Pentarix\\WordPressDatabase\\WordPress\\Comment;
+
+$commentId = Comment::create([
+    'comment_post_ID' => $postId,
+    'comment_content' => 'A product comment',
+    'comment_approved' => 1,
+]);
+
+$comment = Comment::get($commentId); // WP_Comment|...
+Comment::update([
+    'comment_ID' => $commentId,
+    'comment_content' => 'An updated comment',
+]);
+Comment::delete($commentId, forceDelete: true);
+```
+
+These wrappers intentionally remain separate by WordPress object type. Posts, users, terms, and comments have different native APIs and lifecycle semantics, so they are not forced into a shared Active Record abstraction. A custom post type is still handled by `Post`; it does not require a separate CRUD class.
+
+The entity wrappers require WordPress to be loaded. They return native WordPress objects and values rather than package-specific entity instances.
+
 ### Options API
 
 Use `Option` for the native WordPress Options API:
