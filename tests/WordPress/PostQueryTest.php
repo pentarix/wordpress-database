@@ -17,4 +17,20 @@ final class PostQueryTest extends PHPUnit\Framework\TestCase
 
         PostQuery::make()->execute();
     }
+
+    public function testPaginationRejectsNonPositivePageSize(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The per-page value must be greater than zero.');
+
+        PostQuery::make()->paginate(0);
+    }
+
+    public function testPaginationRejectsNonPositivePageNumber(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The page number must be greater than zero.');
+
+        PostQuery::make()->paginate(10, 0);
+    }
 }
