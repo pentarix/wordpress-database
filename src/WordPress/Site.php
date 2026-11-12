@@ -46,9 +46,9 @@ final class Site
     /**
      * Delete a site and its site-specific data.
      *
-     * @return \WP_Site|\WP_Error|false The deleted site or the native failure value.
+     * @return \WP_Site|\WP_Error The deleted site or a WordPress error.
      */
-    public static function delete(int $siteId): \WP_Site|\WP_Error|false
+    public static function delete(int $siteId): \WP_Site|\WP_Error
     {
         self::ensureWordPressIsLoaded();
 
@@ -58,7 +58,7 @@ final class Site
     /**
      * Retrieve a site by ID or return the supplied site object.
      */
-    public static function get(int|\WP_Site|null $site): ?\WP_Site
+    public static function get(int|\WP_Site|null $site = null): ?\WP_Site
     {
         self::ensureWordPressIsLoaded();
 
