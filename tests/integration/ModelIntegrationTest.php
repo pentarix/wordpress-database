@@ -189,11 +189,10 @@ final class ModelIntegrationTest extends WP_UnitTestCase
             'post_title' => 'Article with thumbnail',
             'post_status' => 'publish',
         ]);
-        $attachmentId = wp_insert_attachment([
-            'post_title' => 'Featured image',
-            'post_status' => 'inherit',
-            'post_mime_type' => 'image/jpeg',
-        ], false, $model->id(), true);
+        $attachmentId = self::factory()->attachment->create_upload_object(
+            DIR_TESTDATA . '/images/canola.jpg',
+            $model->id()
+        );
 
         self::assertIsInt($attachmentId);
         self::assertNotFalse(set_post_thumbnail($model->id(), $attachmentId));
