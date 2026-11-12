@@ -22,7 +22,7 @@ final class Attachment
     /**
      * Insert an attachment using the native WordPress API.
      *
-     * The file may be a path or an array accepted by wp_insert_attachment().
+     * The file argument is a path accepted by wp_insert_attachment().
      *
      * @return int|\WP_Error The attachment ID or a WordPress error.
      */
@@ -35,6 +35,21 @@ final class Attachment
         self::ensureWordPressIsLoaded();
 
         return wp_insert_attachment($attachmentData, $file, $parentPostId, $wpError);
+    }
+
+    /**
+     * Update the attachment's post fields.
+     *
+     * @return int|\\WP_Error The attachment ID or a WordPress error.
+     */
+    public static function update(
+        array|object $attachmentData,
+        bool $wpError = false,
+        bool $fireAfterHooks = true
+    ): int|\\WP_Error {
+        self::ensureWordPressIsLoaded();
+
+        return wp_update_post($attachmentData, $wpError, $fireAfterHooks);
     }
 
     /**
