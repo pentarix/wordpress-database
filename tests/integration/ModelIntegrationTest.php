@@ -140,7 +140,10 @@ final class ModelIntegrationTest extends WP_UnitTestCase
         self::assertSame('Updated core field', get_post_field('post_title', $postId));
         self::assertSame('Updated metadata', get_post_meta($postId, 'subtitle', true));
 
-        $found->removeAttribute('subtitle')->save();
+        $found->removeAttribute('subtitle');
+        self::assertFalse($found->has('subtitle'));
+        self::assertNull($found->get('subtitle'));
+        self::assertTrue($found->save());
         self::assertFalse(metadata_exists('post', $postId, 'subtitle'));
     }
 
