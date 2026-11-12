@@ -58,6 +58,10 @@ class IncludeExcludeQueryArg extends IncludeQueryArg
 
     public function exclude(int|float|string|array $value): static
     {
+        if ($this->isIdentifier && \is_string($value) && str_contains($value, ',')) {
+            $value = array_map('trim', explode(',', $value));
+        }
+
         $values = ArrayUtil::castValues($value, fn($item) => $this->cast($item));
 
         $this->excluded = ArrayUtil::mergeUnique($this->excluded, $values);
