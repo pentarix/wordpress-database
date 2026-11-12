@@ -42,7 +42,7 @@ final class QueryArgumentBuildersIntegrationTest extends WP_UnitTestCase
 
         $query = new WP_Query($args);
 
-        self::assertSame([$matchingPostId], array_map('intval', wp_list_pluck($query->posts, 'ID')));
+        self::assertSame([$matchingPostId], array_map('intval', array_map('intval', wp_list_pluck($query->posts, 'ID'))));
     }
 
     public function testPostQueryExecutesAnOrTaxonomyClauseFromAnInitialClause(): void
@@ -79,9 +79,9 @@ final class QueryArgumentBuildersIntegrationTest extends WP_UnitTestCase
 
         self::assertSame(
             [$categoryPostId, $tagPostId],
-            wp_list_pluck($query->posts, 'ID')
+            array_map('intval', wp_list_pluck($query->posts, 'ID'))
         );
-        self::assertNotContains($unmatchedPostId, wp_list_pluck($query->posts, 'ID'));
+        self::assertNotContains($unmatchedPostId, array_map('intval', wp_list_pluck($query->posts, 'ID')));
     }
 
     public function testPostQueryExecutesAnOrMetaClauseFromAnInitialClause(): void
@@ -111,9 +111,9 @@ final class QueryArgumentBuildersIntegrationTest extends WP_UnitTestCase
 
         self::assertEqualsCanonicalizing(
             [$visibilityPostId, $featuredPostId],
-            wp_list_pluck($query->posts, 'ID')
+            array_map('intval', wp_list_pluck($query->posts, 'ID'))
         );
-        self::assertNotContains($unmatchedPostId, wp_list_pluck($query->posts, 'ID'));
+        self::assertNotContains($unmatchedPostId, array_map('intval', wp_list_pluck($query->posts, 'ID')));
     }
 
     public function testUserQueryExecutesRoleAndMetaArguments(): void
