@@ -106,7 +106,7 @@ final class EntityCrudIntegrationTest extends WP_UnitTestCase
             'comment_content' => 'Updated comment',
         ], true);
 
-        self::assertNotWPError($updated);
+        self::assertNotInstanceOf(WP_Error::class, $updated);
         self::assertSame('Updated comment', Comment::get($commentId)->comment_content);
         self::assertTrue(Comment::delete($commentId, true));
         self::assertNull(Comment::get($commentId));
