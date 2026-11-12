@@ -519,7 +519,7 @@ final class QueryArgumentBuildersTest extends TestCase
 
     public function testTermQueryArgRequiresAStringOrderByValue(): void
     {
-        self::expectException(\\InvalidArgumentException::class);
+        self::expectException(\InvalidArgumentException::class);
 
         TermQueryArg::make(['orderby' => ['name' => 'ASC']]);
     }
@@ -683,7 +683,7 @@ final class QueryArgumentBuildersTest extends TestCase
         );
 
         self::assertSame(
-            ['relation' => 'OR', ['year' => 2020], ['month' => 6]],
+            ['relation' => 'OR', [['year' => 2020]], ['month' => 6]],
             DateQueryArg::make(['year' => 2020])->orWhere(['month' => 6])->toArray()
         );
     }
