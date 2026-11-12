@@ -272,7 +272,7 @@ Use the entity wrappers to create, retrieve, update, and delete WordPress record
 The `Post` API works with every registered post type, including posts, pages, attachments, and custom post types:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\Post;
+use Pentarix\WordPressDatabase\WordPress\Post;
 
 $postId = Post::create([
     'post_type' => 'product',
@@ -296,7 +296,7 @@ The post type is supplied through the native `post_type` field. There is no sepa
 #### Users
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\User;
+use Pentarix\WordPressDatabase\WordPress\User;
 
 $userId = User::create([
     'user_login' => 'example-user',
@@ -320,7 +320,7 @@ User creation and updates return the native user ID or `WP_Error`. User deletion
 #### Terms
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\Term;
+use Pentarix\WordPressDatabase\WordPress\Term;
 
 $created = Term::create('Accessories', 'category', [
     'slug' => 'accessories',
@@ -339,7 +339,7 @@ The taxonomy must already be registered. Term methods preserve the native arrays
 #### Comments
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\Comment;
+use Pentarix\WordPressDatabase\WordPress\Comment;
 
 $commentId = Comment::create([
     'comment_post_ID' => $postId,
@@ -364,7 +364,7 @@ The entity wrappers require WordPress to be loaded. They return native WordPress
 Use `Option` for the native WordPress Options API:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\Option;
+use Pentarix\WordPressDatabase\WordPress\Option;
 
 Option::add('my_plugin_settings', ['enabled' => true], false);
 $settings = Option::get('my_plugin_settings', []);
@@ -401,7 +401,7 @@ The getSite() and addSite() methods operate on network-wide options. The Blog me
 Use `Metadata` to work with metadata for WordPress object types without bypassing the native Metadata API:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\Metadata;
+use Pentarix\WordPressDatabase\WordPress\Metadata;
 
 Metadata::add('post', $postId, 'featured', true, true);
 $isFeatured = Metadata::get('post', $postId, 'featured', true);
@@ -417,7 +417,7 @@ The object type is explicit and is passed to WordPress unchanged. This supports 
 Use `Transient` for request/site cache values stored through WordPress's Transients API:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\Transient;
+use Pentarix\WordPressDatabase\WordPress\Transient;
 
 Transient::set('my_plugin_cache', $value, 300);
 $value = Transient::get('my_plugin_cache');
@@ -540,7 +540,7 @@ The entity layer also provides focused wrappers for WordPress attachments, post 
 Attachments are stored as posts with the `attachment` post type. Use `Post` for general post fields and `Attachment` for media-specific operations:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\Attachment;
+use Pentarix\WordPressDatabase\WordPress\Attachment;
 
 $attachmentId = Attachment::create([
     'post_title' => 'Product image',
@@ -565,7 +565,7 @@ Attachment::delete($attachmentId, forceDelete: true);
 Revisions are also stored as posts, using the `revision` post type. Use `Revision` for revision-specific operations:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\Revision;
+use Pentarix\WordPressDatabase\WordPress\Revision;
 
 $revisionId = Revision::save($postId);
 $revision = Revision::get($revisionId);
@@ -581,7 +581,7 @@ Revision creation follows the post type's revision support and WordPress revisio
 Use `Site` for site creation, retrieval, updates, and deletion:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\Site;
+use Pentarix\WordPressDatabase\WordPress\Site;
 
 $siteId = Site::create([
     'domain' => 'store.example.test',

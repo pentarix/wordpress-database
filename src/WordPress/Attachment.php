@@ -40,13 +40,13 @@ final class Attachment
     /**
      * Update the attachment's post fields.
      *
-     * @return int|\\WP_Error The attachment ID or a WordPress error.
+     * @return int|\WP_Error The attachment ID or a WordPress error.
      */
     public static function update(
         array|object $attachmentData,
         bool $wpError = false,
         bool $fireAfterHooks = true
-    ): int|\\WP_Error {
+    ): int|\WP_Error {
         self::ensureWordPressIsLoaded();
 
         return wp_update_post($attachmentData, $wpError, $fireAfterHooks);

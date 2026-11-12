@@ -22,7 +22,7 @@ final class Revision
     /**
      * Save a revision for a post when revisions are supported and enabled.
      */
-    public static function save(int $postId): int|\WP_Post|false
+    public static function save(int $postId): int|\WP_Error|false
     {
         self::ensureWordPressIsLoaded();
 
