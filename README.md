@@ -113,8 +113,8 @@ $total = $results->get_total();
 Use `CommentQuery` to execute a `WP_Comment_Query` while retaining WordPress's native result contract:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\CommentQuery;
-use Pentarix\\WordPressDatabase\\WordPress\\CommentQueryArg;
+use Pentarix\WordPressDatabase\WordPress\CommentQuery;
+use Pentarix\WordPressDatabase\WordPress\CommentQueryArg;
 
 $query = CommentQuery::make(
     CommentQueryArg::make([
