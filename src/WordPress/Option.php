@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Pentarix\\WordPressDatabase\\WordPress;
+namespace Pentarix\WordPressDatabase\WordPress;
 
 use LogicException;
 
@@ -54,7 +54,7 @@ final class Option
     {
         self::ensureWordPressIsLoaded();
 
-        $default = new \\stdClass();
+        $default = new \stdClass();
 
         return get_option($name, $default) !== $default;
     }
