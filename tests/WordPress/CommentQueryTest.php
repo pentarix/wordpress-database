@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Pentarix\\WordPressDatabase\\WordPress\\CommentQuery;
+use Pentarix\WordPressDatabase\WordPress\CommentQuery;
 
-final class CommentQueryTest extends PHPUnit\\Framework\\TestCase
+final class CommentQueryTest extends PHPUnit\Framework\TestCase
 {
     public function testExecutionRequiresWordPressToBeLoaded(): void
     {
