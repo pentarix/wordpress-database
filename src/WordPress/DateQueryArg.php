@@ -42,13 +42,16 @@ class DateQueryArg implements QueryArg
         bool $inclusive = false,
         ?string $column = null
     ): self {
-        return $this->where(
-            [
-                'after'     => $date,
-                'inclusive' => $inclusive,
-                'column'    => $column,
-            ]
-        );
+        $clause = [
+            'after' => $date,
+            'inclusive' => $inclusive,
+        ];
+
+        if (null !== $column) {
+            $clause['column'] = $column;
+        }
+
+        return $this->where($clause);
     }
 
     public function before(
@@ -56,13 +59,16 @@ class DateQueryArg implements QueryArg
         bool $inclusive = false,
         string $column = 'post_date'
     ): self {
-        return $this->where(
-            [
-                'before'    => $date,
-                'inclusive' => $inclusive,
-                'column'    => $column,
-            ]
-        );
+        $clause = [
+            'before' => $date,
+            'inclusive' => $inclusive,
+        ];
+
+        if (null !== $column) {
+            $clause['column'] = $column;
+        }
+
+        return $this->where($clause);
     }
 
     public function between(
@@ -71,14 +77,17 @@ class DateQueryArg implements QueryArg
         bool $inclusive = true,
         string $column = 'post_date'
     ): self {
-        return $this->where(
-            [
-                'after'     => $after,
-                'before'    => $before,
-                'inclusive' => $inclusive,
-                'column'    => $column,
-            ]
-        );
+        $clause = [
+            'after' => $after,
+            'before' => $before,
+            'inclusive' => $inclusive,
+        ];
+
+        if (null !== $column) {
+            $clause['column'] = $column;
+        }
+
+        return $this->where($clause);
     }
 
     public function year(int|array $year, string $column = 'post_date', string $compare = '='): self
