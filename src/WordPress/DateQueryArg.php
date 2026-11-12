@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Pentarix\\WordPressDatabase\\WordPress;
+namespace Pentarix\WordPressDatabase\WordPress;
 
 class DateQueryArg implements QueryArg
 {
