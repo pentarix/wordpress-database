@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Pentarix\\WordPressDatabase\\WordPress;
+namespace Pentarix\WordPressDatabase\WordPress;
 
 use InvalidArgumentException;
 use LogicException;
@@ -34,14 +34,14 @@ final class SiteQuery
     /**
      * Execute the query and return the native WordPress query object.
      */
-    public function execute(): \\WP_Site_Query
+    public function execute(): \WP_Site_Query
     {
         $this->ensureWordPressIsLoaded();
 
         // WP_Site_Query skips execution when its constructor receives an empty array.
         $queryArguments = $this->queryArguments ?: ['number' => 100];
 
-        return new \\WP_Site_Query($queryArguments);
+        return new \WP_Site_Query($queryArguments);
     }
 
     /**
@@ -56,7 +56,7 @@ final class SiteQuery
         $this->ensureWordPressIsLoaded();
 
         $queryArguments = $this->queryArguments ?: ['number' => 100];
-        $query = new \\WP_Site_Query();
+        $query = new \WP_Site_Query();
 
         $sites = $query->query($queryArguments);
 
@@ -76,7 +76,7 @@ final class SiteQuery
         $queryArguments['number'] = 1;
         $queryArguments['count'] = false;
 
-        $query = new \\WP_Site_Query($queryArguments ?: ['number' => 1]);
+        $query = new \WP_Site_Query($queryArguments ?: ['number' => 1]);
 
         $sites = $query->sites;
 
@@ -95,7 +95,7 @@ final class SiteQuery
         $queryArguments['number'] = 0;
         $queryArguments['offset'] = 0;
 
-        $query = new \\WP_Site_Query();
+        $query = new \WP_Site_Query();
 
         return (int) $query->query($queryArguments ?: ['count' => true, 'number' => 0]);
     }
@@ -106,7 +106,7 @@ final class SiteQuery
      * The returned WP_Site_Query exposes found_sites and max_num_pages.
      * An existing offset is retained as the starting offset before the page offset is added.
      */
-    public function paginate(int $perPage, int $page = 1): \\WP_Site_Query
+    public function paginate(int $perPage, int $page = 1): \WP_Site_Query
     {
         if ($perPage < 1) {
             throw new InvalidArgumentException('The per-page value must be greater than zero.');
@@ -125,12 +125,12 @@ final class SiteQuery
         $queryArguments['no_found_rows'] = false;
         $queryArguments['count'] = false;
 
-        return new \\WP_Site_Query($queryArguments);
+        return new \WP_Site_Query($queryArguments);
     }
 
     private function ensureWordPressIsLoaded(): void
     {
-        if (!class_exists(\\WP_Site_Query::class)) {
+        if (!class_exists(\WP_Site_Query::class)) {
             throw new LogicException('SiteQuery requires WordPress to be loaded.');
         }
     }
