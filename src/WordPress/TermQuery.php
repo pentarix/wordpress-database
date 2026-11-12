@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Pentarix\\WordPressDatabase\\WordPress;
+namespace Pentarix\WordPressDatabase\WordPress;
 
 use LogicException;
 
@@ -33,14 +33,14 @@ final class TermQuery
     /**
      * Execute the query and return the native WordPress query object.
      */
-    public function execute(): \\WP_Term_Query
+    public function execute(): \WP_Term_Query
     {
         $this->ensureWordPressIsLoaded();
 
         // WP_Term_Query skips execution when its constructor receives an empty array.
         $queryArguments = $this->queryArguments ?: ['fields' => 'all'];
 
-        return new \\WP_Term_Query($queryArguments);
+        return new \WP_Term_Query($queryArguments);
     }
 
     /**
@@ -69,7 +69,7 @@ final class TermQuery
         $queryArguments = $this->queryArguments;
         $queryArguments['number'] = 1;
 
-        $query = new \\WP_Term_Query($queryArguments ?: ['number' => 1]);
+        $query = new \WP_Term_Query($queryArguments ?: ['number' => 1]);
 
         return is_array($query->terms) ? (reset($query->terms) ?: null) : null;
     }
@@ -84,7 +84,7 @@ final class TermQuery
         $queryArguments = $this->queryArguments;
         $queryArguments['fields'] = 'count';
 
-        $query = new \\WP_Term_Query($queryArguments ?: ['fields' => 'count']);
+        $query = new \WP_Term_Query($queryArguments ?: ['fields' => 'count']);
 
         return (int) $query->terms;
     }
@@ -96,14 +96,14 @@ final class TermQuery
      * omit SQL limits for hierarchical term queries, so callers must not assume
      * that every taxonomy honours the requested page size.
      */
-    public function paginate(int $perPage, int $page = 1): \\WP_Term_Query
+    public function paginate(int $perPage, int $page = 1): \WP_Term_Query
     {
         if ($perPage < 1) {
-            throw new \\InvalidArgumentException('The per-page value must be greater than zero.');
+            throw new \InvalidArgumentException('The per-page value must be greater than zero.');
         }
 
         if ($page < 1) {
-            throw new \\InvalidArgumentException('The page number must be greater than zero.');
+            throw new \InvalidArgumentException('The page number must be greater than zero.');
         }
 
         $this->ensureWordPressIsLoaded();
@@ -113,12 +113,12 @@ final class TermQuery
         $queryArguments['number'] = $perPage;
         $queryArguments['offset'] = $existingOffset + (($page - 1) * $perPage);
 
-        return new \\WP_Term_Query($queryArguments);
+        return new \WP_Term_Query($queryArguments);
     }
 
     private function ensureWordPressIsLoaded(): void
     {
-        if (!class_exists(\\WP_Term_Query::class)) {
+        if (!class_exists(\WP_Term_Query::class)) {
             throw new LogicException('TermQuery requires WordPress to be loaded.');
         }
     }
