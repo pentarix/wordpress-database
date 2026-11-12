@@ -553,8 +553,13 @@ $url = Attachment::getUrl($attachmentId);
 $file = Attachment::getFile($attachmentId);
 $metadata = Attachment::getMetadata($attachmentId);
 
+$metadata = Attachment::generateMetadata($attachmentId);
 Attachment::updateMetadata($attachmentId, $metadata);
 Attachment::updateFile($attachmentId, '/new/path/image.jpg');
+Attachment::update([
+    'ID' => $attachmentId,
+    'post_title' => 'Updated image title',
+]);
 Attachment::delete($attachmentId, forceDelete: true);
 ```
 
@@ -572,9 +577,12 @@ $revision = Revision::get($revisionId);
 $revisions = Revision::all($postId);
 Revision::restore($revisionId);
 Revision::delete($revisionId);
+$url = Revision::getUrl($postId);
+$isRevision = Revision::isRevision($revisionId);
+$isAutosave = Revision::isAutosave($revisionId);
 ```
 
-Revision creation follows the post type's revision support and WordPress revision settings. WordPress may return `false` or `WP_Error` where applicable; native return values are preserved.
+Revision creation follows the post type's revision support and WordPress revision settings. The native API may return a revision ID, `WP_Error`, or `null`; restore and delete operations also preserve their native return values.
 
 #### Multisite sites and networks
 

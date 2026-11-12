@@ -40,13 +40,15 @@ final class ExtendedEntityCrudIntegrationTest extends WP_UnitTestCase
             'post_content' => 'Original content',
         ]);
 
+        Revision::save($postId);
+
         wp_update_post([
             'ID' => $postId,
             'post_title' => 'Revision changed',
             'post_content' => 'Changed content',
         ]);
 
-        $revisions = Revision::all($postId);
+        $revisions = Revision::all($postId, ['order' => 'ASC']);
 
         self::assertNotEmpty($revisions);
 

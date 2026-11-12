@@ -116,6 +116,32 @@ final class Attachment
     }
 
     /**
+     * Generate image and media metadata for an attachment.
+     *
+     * WordPress loads this function from wp-admin/includes/image.php.
+     *
+     * @return array|false Generated metadata, or false when the attachment has no file.
+     */
+    public static function generateMetadata(int $attachmentId): array|false
+    {
+        self::ensureWordPressIsLoaded();
+
+        if (!function_exists('wp_generate_attachment_metadata')) {
+            throw new LogicException(
+                'Attachment metadata generation requires wp-admin/includes/image.php to be loaded.'
+            );
+        }
+
+        $file = self::getFile($attachmentId);
+
+        if (!$file) {
+            return false;
+        }
+
+        return wp_generate_attachment_metadata($attachmentId, $file);
+    }
+
+    /**
      * Retrieve the attachment URL.
      */
     public static function getUrl(int $attachmentId): string|false
