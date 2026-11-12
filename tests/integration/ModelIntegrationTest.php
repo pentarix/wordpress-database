@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use LogicException;
 use Pentarix\WordPressDatabase\Model\Model;
 use Pentarix\WordPressDatabase\Model\ModelPaginator;
 
@@ -229,6 +230,53 @@ final class ModelIntegrationTest extends WP_UnitTestCase
         self::assertInstanceOf(WP_Term::class, $terms[0]);
         self::assertCount(1, $comments);
         self::assertInstanceOf(WP_Comment::class, $comments[0]);
+    }
+
+    public function testModelCanSetAddAndRemoveTaxonomyTerms(): void
+    {
+        register_taxonomy('article_topic', 'post');
+
+        $model = ArticleModel::create([
+            'post_title' => 'Article taxonomy operations',
+            'post_status' => 'publish',
+        ]);
+        $firstTerm = wp_insert_term('Engineering', 'article_topic');
+        $secondTerm = wp_insert_term('Design', 'article_topic');
+
+        self::assertIsArray($firstTerm);
+        self::assertIsArray($secondTerm);
+
+        self::assertIsArray($model->setTerms(
+            [(int) $firstTerm['term_id'], (int) $secondTerm['term_id']],
+            'article_topic'
+        ));
+        self::assertIsArray($model->setTerms([(int) $firstTerm['term_id']], 'article_topic'));
+        self::assertSame([(int) $firstTerm['term_id']], array_map(
+            static fn (WP_Term $term): int => (int) $term->term_id,
+            $model->terms('article_topic')
+        ));
+
+        self::assertIsArray($model->addTerms([(int) $secondTerm['term_id']], 'article_topic'));
+        self::assertSame(
+            [(int) $firstTerm['term_id'], (int) $secondTerm['term_id']],
+            array_map(
+                static fn (WP_Term $term): int => (int) $term->term_id,
+                $model->terms('article_topic')
+            )
+        );
+
+        self::assertTrue($model->removeTerms([(int) $firstTerm['term_id']], 'article_topic'));
+        self::assertSame([(int) $secondTerm['term_id']], array_map(
+            static fn (WP_Term $term): int => (int) $term->term_id,
+            $model->terms('article_topic')
+        ));
+    }
+
+    public function testModelCannotChangeTermsBeforeItIsPersisted(): void
+    {
+        $this->expectException(LogicException::class);
+
+        ArticleModel::make()->setTerms([1], 'category');
     }
 
     public function testModelDeleteDelegatesToPostEntity(): void
