@@ -57,7 +57,7 @@ class UserQueryArg implements QueryArg
 
     private ?int $blogId = null;
 
-    private ?string $metaKey = null;
+    private string|array|null $metaKey = null;
 
     private mixed $metaValue = null;
 
@@ -204,7 +204,7 @@ class UserQueryArg implements QueryArg
         }
 
         if (isset($queryArray['meta_key'])) {
-            $this->metaKey = (string) $queryArray['meta_key'];
+            $this->metaKey = $queryArray['meta_key'];
         }
 
         if (\array_key_exists('meta_value', $queryArray)) {
@@ -318,7 +318,7 @@ class UserQueryArg implements QueryArg
         return $this;
     }
 
-    public function metaKey(string $key): self
+    public function metaKey(string|array $key): self
     {
         $this->metaKey = $key;
 
