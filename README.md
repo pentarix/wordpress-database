@@ -515,6 +515,47 @@ The execution helpers currently cover `WP_Query`, `WP_User_Query`, `WP_Comment_Q
 
 The package does not replace WordPress query classes or bypass the WordPress query lifecycle. Direct SQL, custom-table CRUD, repositories, models, and migrations are outside the current scope.
 
+### Entity convenience APIs
+
+The entity wrappers also expose commonly used WordPress operations without introducing package-specific models. These methods delegate to WordPress Core and preserve its native return values.
+
+```php
+use Pentarix\WordPressDatabase\WordPress\Comment;
+use Pentarix\WordPressDatabase\WordPress\Post;
+use Pentarix\WordPressDatabase\WordPress\Term;
+use Pentarix\WordPressDatabase\WordPress\User;
+
+// Post data and relationships.
+$title = Post::getTitle($postId);
+$url = Post::getPermalink($postId);
+$parentId = Post::getParentId($postId);
+$children = Post::getChildren($postId);
+Post::setThumbnail($postId, $attachmentId);
+
+// User roles, capabilities, and passwords.
+User::setRole($userId, 'editor');
+User::addRole($userId, 'author');
+$canEdit = User::can($userId, 'edit_posts');
+User::setPassword($password, $userId);
+
+// Term hierarchy and object relationships.
+$ancestors = Term::getAncestors($termId, 'category');
+$children = Term::getChildren($termId, 'category');
+$objects = Term::getObjectIds($termId, 'category');
+
+// Comment moderation and replies.
+Comment::approve($commentId);
+$replyId = Comment::reply($commentId, [
+    'comment_author' => 'Example',
+    'comment_content' => 'A reply',
+]);
+```
+
+`User` also provides role assignment, capability checks, password verification, and Multisite membership helpers. `Site` provides blog-context switching, site URLs, and per-site options. `Network` provides current-network access and network-wide options. `Attachment` provides image metadata, alternative text, responsive image attributes, and image HTML. `Revision` provides latest-revision and autosave retrieval. `Link` includes category relationship helpers for the legacy Bookmarks API.
+
+The wrappers do not add their own validation or permission policy. Callers remain responsible for capability checks and for loading administrative WordPress modules when a native function is not loaded in the current request.
+
+
 ## Development
 
 Install dependencies and run the standalone unit tests:

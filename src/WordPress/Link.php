@@ -87,6 +87,31 @@ final class Link
         }
     }
 
+
+    /** Retrieve the category IDs assigned to a link. */
+    public static function getCategoryIds(int $linkId): array
+    {
+        self::ensureAdminApiIsLoaded();
+
+        return wp_get_link_cats($linkId);
+    }
+
+    /** Assign categories to a link. */
+    public static function setCategories(int $linkId, array $categoryIds): void
+    {
+        self::ensureAdminApiIsLoaded();
+
+        wp_set_link_cats($linkId, $categoryIds);
+    }
+
+    /** Retrieve the category name assigned to a link. */
+    public static function getCategoryName(int $linkId): string
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_linkcatname($linkId);
+    }
+
     private static function ensureAdminApiIsLoaded(): void
     {
         self::ensureWordPressIsLoaded();

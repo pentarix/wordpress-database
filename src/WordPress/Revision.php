@@ -104,6 +104,25 @@ final class Revision
         return wp_is_post_autosave($post);
     }
 
+
+    /** Retrieve the most recent revision for a post. */
+    public static function getLatest(int|\WP_Post $post): \WP_Post|false
+    {
+        self::ensureWordPressIsLoaded();
+
+        $revisions = wp_get_post_revisions($post, ['posts_per_page' => 1, 'order' => 'DESC']);
+
+        return $revisions ? reset($revisions) : false;
+    }
+
+    /** Retrieve a post's autosave revision for a specific user. */
+    public static function getAutosave(int|\WP_Post $post, int $userId = 0): \WP_Post|false
+    {
+        self::ensureWordPressIsLoaded();
+
+        return wp_get_post_autosave($post, $userId);
+    }
+
     private static function ensureWordPressIsLoaded(): void
     {
         if (!function_exists('wp_get_post_revisions')) {

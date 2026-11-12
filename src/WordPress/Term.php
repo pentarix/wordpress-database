@@ -150,6 +150,63 @@ final class Term
         return wp_remove_object_terms($objectId, $terms, $taxonomy);
     }
 
+
+    /** Retrieve a term's permalink. */
+    public static function getLink(int|\WP_Term $term, string $taxonomy = ''): string|\WP_Error
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_term_link($term, $taxonomy);
+    }
+
+    /** Retrieve a term's child term IDs. */
+    public static function getChildren(int $termId, string $taxonomy): array|\WP_Error
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_term_children($termId, $taxonomy);
+    }
+
+    /** Retrieve a term's ancestor IDs. */
+    public static function getAncestors(int $termId, string $taxonomy): array
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_ancestors($termId, $taxonomy, 'taxonomy');
+    }
+
+    /** Retrieve object IDs associated with a term. */
+    public static function getObjectIds(int $termId, string $taxonomy, array $args = []): array|\WP_Error
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_objects_in_term($termId, $taxonomy, $args);
+    }
+
+    /** Retrieve the registered taxonomy object. */
+    public static function getTaxonomy(string $taxonomy): \WP_Taxonomy|false
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_taxonomy($taxonomy);
+    }
+
+    /** Retrieve the number of terms in a taxonomy. */
+    public static function count(string $taxonomy, array $args = []): int|string|\WP_Error
+    {
+        self::ensureWordPressIsLoaded();
+
+        return wp_count_terms($taxonomy, $args);
+    }
+
+    /** Retrieve terms associated with an object, preserving native arguments. */
+    public static function getForObject(int $objectId, string $taxonomy, array $args = []): array|\WP_Error
+    {
+        self::ensureWordPressIsLoaded();
+
+        return wp_get_object_terms($objectId, $taxonomy, $args);
+    }
+
     private static function ensureWordPressIsLoaded(): void
     {
         if (!function_exists('wp_insert_term')) {

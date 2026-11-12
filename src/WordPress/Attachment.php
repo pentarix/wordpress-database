@@ -166,6 +166,95 @@ final class Attachment
         return wp_get_attachment_image_src($attachmentId, $size, $icon);
     }
 
+
+    /** Retrieve an attachment's MIME type. */
+    public static function getMimeType(int $attachmentId): string|false
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_post_mime_type($attachmentId);
+    }
+
+    /** Determine whether an attachment is an image. */
+    public static function isImage(int $attachmentId): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return wp_attachment_is_image($attachmentId);
+    }
+
+    /** Retrieve the attachment's parent post ID. */
+    public static function getParentId(int $attachmentId): int|false
+    {
+        self::ensureWordPressIsLoaded();
+
+        return wp_get_post_parent_id($attachmentId);
+    }
+
+    /** Retrieve the attachment's image alternative text. */
+    public static function getAlt(int $attachmentId): string
+    {
+        self::ensureWordPressIsLoaded();
+
+        return (string) get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
+    }
+
+    /** Update the attachment's image alternative text. */
+    public static function updateAlt(int $attachmentId, string $alt): bool|int
+    {
+        self::ensureWordPressIsLoaded();
+
+        return update_post_meta($attachmentId, '_wp_attachment_image_alt', $alt);
+    }
+
+    /** Retrieve the attachment caption. */
+    public static function getCaption(int $attachmentId): string
+    {
+        self::ensureWordPressIsLoaded();
+
+        return (string) get_post_field('post_excerpt', $attachmentId);
+    }
+
+    /** Retrieve the attachment description. */
+    public static function getDescription(int $attachmentId): string
+    {
+        self::ensureWordPressIsLoaded();
+
+        return (string) get_post_field('post_content', $attachmentId);
+    }
+
+    /** Retrieve the HTML image element for an image attachment. */
+    public static function getImage(int $attachmentId, string|array $size = 'thumbnail', array $args = []): string
+    {
+        self::ensureWordPressIsLoaded();
+
+        return wp_get_attachment_image($attachmentId, $size, false, $args);
+    }
+
+    /** Retrieve an image attachment's responsive srcset attribute value. */
+    public static function getImageSrcset(int $attachmentId, string|array $size = 'medium'): string|false
+    {
+        self::ensureWordPressIsLoaded();
+
+        return wp_get_attachment_image_srcset($attachmentId, $size);
+    }
+
+    /** Retrieve an image attachment's responsive sizes attribute value. */
+    public static function getImageSizes(int $attachmentId, string|array $size = 'medium'): string|false
+    {
+        self::ensureWordPressIsLoaded();
+
+        return wp_get_attachment_image_sizes($attachmentId, $size);
+    }
+
+    /** Retrieve a MIME type icon URL for an attachment. */
+    public static function getIcon(int|\WP_Post $attachment, array|string|null $mime = null): string
+    {
+        self::ensureWordPressIsLoaded();
+
+        return wp_mime_type_icon($attachment, $mime);
+    }
+
     private static function ensureWordPressIsLoaded(): void
     {
         if (!function_exists('wp_insert_attachment')) {

@@ -32,6 +32,55 @@ final class Network
         return get_network($network);
     }
 
+
+    /** Retrieve the current network. */
+    public static function getCurrent(): ?\WP_Network
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_network();
+    }
+
+    /** Retrieve the current network ID. */
+    public static function getCurrentId(): int
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_current_network_id();
+    }
+
+    /** Retrieve a network-wide option. */
+    public static function getOption(string $option, mixed $default = false, ?int $networkId = null): mixed
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_network_option($networkId, $option, $default);
+    }
+
+    /** Add a network-wide option. */
+    public static function addOption(string $option, mixed $value, ?int $networkId = null): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return add_network_option($networkId, $option, $value);
+    }
+
+    /** Update a network-wide option. */
+    public static function updateOption(string $option, mixed $value, ?int $networkId = null): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return update_network_option($networkId, $option, $value);
+    }
+
+    /** Delete a network-wide option. */
+    public static function deleteOption(string $option, ?int $networkId = null): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return delete_network_option($networkId, $option);
+    }
+
     private static function ensureWordPressIsLoaded(): void
     {
         if (!function_exists('get_network')) {
