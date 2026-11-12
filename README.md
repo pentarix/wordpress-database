@@ -47,6 +47,30 @@ $query = new \\WP_Query($args);
 
 Supporting builders (`IncludeQueryArg`, `IncludeExcludeQueryArg`, `IncludeExcludeIsQueryArg`, and `SearchQueryArg`) are also available under `Pentarix\WordPressDatabase\WordPress`.
 
+## Argument coverage
+
+The main query builders retain the arguments supplied to their constructors and expose
+`set()` and `setMany()` for WordPress query variables that do not have a dedicated
+convenience method yet. These methods preserve the supplied key and value without
+rewriting WordPress's query contract:
+
+```php
+$args = PostQueryArg::make()
+    ->set('author', 12)
+    ->set('post_mime_type', ['image/jpeg', 'image/png'])
+    ->setMany([
+        'search_columns' => ['post_title', 'post_excerpt'],
+        'update_menu_item_cache' => false,
+    ])
+    ->toArray();
+```
+
+The builder-specific fluent methods remain the preferred interface for commonly used
+arguments and nested query clauses. The generic setters provide pass-through coverage
+for additional core arguments and custom query variables supported by WordPress hooks.
+Values are passed to WordPress as supplied; WordPress remains responsible for query
+interpretation and execution.
+
 ## Scope
 
 The builders return arrays compatible with WordPress query APIs, including `WP_Query`, `WP_User_Query`, `WP_Comment_Query`, `WP_Term_Query`, and multisite query APIs.
