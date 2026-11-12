@@ -1,0 +1,137 @@
+<?php
+
+/**
+ * @author    Sina Kuhestani <sinakuhestani@gmail.com>
+ * @copyright 2026 Sina Kuhestani (EphpicMan)
+ * @link      https://github.com/ephpicman GitHub
+ * @link      https://www.linkedin.com/in/ephpicman LinkedIn
+ * @license   See the LICENSE file in the project root.
+ */
+
+declare(strict_types=1);
+
+namespace Pentarix\\WordPressDatabase\\WordPress;
+
+use InvalidArgumentException;
+use LogicException;
+
+final class SiteQuery
+{
+    private array $queryArguments;
+
+    public function __construct(SiteQueryArg|array $queryArguments = [])
+    {
+        $this->queryArguments = $queryArguments instanceof SiteQueryArg
+            ? $queryArguments->toArray()
+            : $queryArguments;
+    }
+
+    public static function make(SiteQueryArg|array $queryArguments = []): self
+    {
+        return new self($queryArguments);
+    }
+
+    /**
+     * Execute the query and return the native WordPress query object.
+     */
+    public function execute(): \\WP_Site_Query
+    {
+        $this->ensureWordPressIsLoaded();
+
+        // WP_Site_Query skips execution when its constructor receives an empty array.
+        $queryArguments = $this->queryArguments ?: ['number' => 100];
+
+        return new \\WP_Site_Query($queryArguments);
+    }
+
+    /**
+     * Retrieve the sites matching the configured query.
+     *
+     * The return value follows the native count and fields query arguments.
+     *
+     * @return array<int, mixed>|int
+     */
+    public function get(): array|int
+    {
+        $this->ensureWordPressIsLoaded();
+
+        $queryArguments = $this->queryArguments ?: ['number' => 100];
+        $query = new \\WP_Site_Query();
+
+        $sites = $query->query($queryArguments);
+
+        return is_array($sites) || is_int($sites) ? $sites : [];
+    }
+
+    /**
+     * Retrieve the first result matching the configured query, or null.
+     *
+     * The return value follows the configured fields query argument.
+     */
+    public function first(): mixed
+    {
+        $this->ensureWordPressIsLoaded();
+
+        $queryArguments = $this->queryArguments;
+        $queryArguments['number'] = 1;
+        $queryArguments['count'] = false;
+
+        $query = new \\WP_Site_Query($queryArguments ?: ['number' => 1]);
+
+        $sites = $query->sites;
+
+        return is_array($sites) ? ($sites[0] ?? null) : null;
+    }
+
+    /**
+     * Retrieve the total number of sites matching the configured query.
+     */
+    public function count(): int
+    {
+        $this->ensureWordPressIsLoaded();
+
+        $queryArguments = $this->queryArguments;
+        $queryArguments['count'] = true;
+        $queryArguments['number'] = 0;
+        $queryArguments['offset'] = 0;
+
+        $query = new \\WP_Site_Query();
+
+        return (int) $query->query($queryArguments ?: ['count' => true, 'number' => 0]);
+    }
+
+    /**
+     * Execute a paginated query and return WordPress pagination metadata.
+     *
+     * The returned WP_Site_Query exposes found_sites and max_num_pages.
+     * An existing offset is retained as the starting offset before the page offset is added.
+     */
+    public function paginate(int $perPage, int $page = 1): \\WP_Site_Query
+    {
+        if ($perPage < 1) {
+            throw new InvalidArgumentException('The per-page value must be greater than zero.');
+        }
+
+        if ($page < 1) {
+            throw new InvalidArgumentException('The page number must be greater than zero.');
+        }
+
+        $this->ensureWordPressIsLoaded();
+
+        $queryArguments = $this->queryArguments;
+        $existingOffset = abs((int) ($queryArguments['offset'] ?? 0));
+        $queryArguments['number'] = $perPage;
+        $queryArguments['offset'] = $existingOffset + (($page - 1) * $perPage);
+        $queryArguments['no_found_rows'] = false;
+        $queryArguments['count'] = false;
+
+        return new \\WP_Site_Query($queryArguments);
+    }
+
+    private function ensureWordPressIsLoaded(): void
+    {
+        if (!class_exists(\\WP_Site_Query::class)) {
+            throw new LogicException('SiteQuery requires WordPress to be loaded.');
+        }
+    }
+}
