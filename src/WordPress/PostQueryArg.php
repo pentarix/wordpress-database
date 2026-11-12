@@ -44,7 +44,7 @@ class PostQueryArg implements QueryArg
     private ?bool $updatePostTermCache = null;
     private ?bool $lazyLoadTermMeta = null;
     private ?string $perm = null;
-    private ?int $commentCount = null;
+    private int|array|null $commentCount = null;
     private ?bool $exact = null;
     private ?bool $sentence = null;
     private ?string $fields = null;
@@ -134,7 +134,7 @@ class PostQueryArg implements QueryArg
             $this->perm = (string) $queryArray['perm'];
         }
         if (isset($queryArray['comment_count'])) {
-            $this->commentCount = (int) $queryArray['comment_count'];
+            $this->commentCount = $queryArray['comment_count'];
         }
         if (isset($queryArray['exact'])) {
             $this->exact = (bool) $queryArray['exact'];
@@ -158,7 +158,7 @@ class PostQueryArg implements QueryArg
     public function excludeIds(int|float|string|array $ids): self { $this->postIdQuery->exclude($ids);
 
         return $this; }
-    public function postType(string|array $types): self { $this->postTypeQuery->is((array) $types);
+    public function postType(string|array $types): self { $this->postTypeQuery->is($types);
 
         return $this; }
     public function postTypesIn(string|array $types): self { $this->postTypeQuery->include($types);
