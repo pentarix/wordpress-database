@@ -92,8 +92,5 @@ jobs:
           WP_INSTALL_TESTS_SKIP_UPDATE_CHECK: "true"
         run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 ${{ matrix.wordpress }} true
 
-      - name: Enable multisite test mode
-        run: sed -i "s#// define( 'WP_TESTS_MULTISITE', true );#define( 'WP_TESTS_MULTISITE', true );#" /tmp/wordpress-tests-lib/wp-tests-config.php
-
       - name: Run WordPress Core integration tests
         run: composer test:integration
