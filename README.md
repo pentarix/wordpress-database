@@ -74,6 +74,40 @@ WordPress does not reliably combine an explicit `offset` with `paged` pagination
 
 The execution layer requires WordPress to be loaded. Argument builders remain independently usable without a WordPress runtime.
 
+### User queries
+
+Use `UserQuery` to execute a `WP_User_Query` while retaining WordPress's native result contract:
+
+```php
+use Pentarix\\WordPressDatabase\\WordPress\\UserQuery;
+use Pentarix\\WordPressDatabase\\WordPress\\UserQueryArg;
+
+$query = UserQuery::make(
+    UserQueryArg::make()
+        ->role('editor')
+        ->orderBy('ID', 'ASC')
+        ->limit(20)
+);
+
+$wpQuery = $query->execute(); // WP_User_Query
+$users = $query->get();       // Results for the configured query
+$first = $query->first();     // First result, or null
+$total = $query->count();     // Total matching users
+```
+
+`get()` returns the native results from `WP_User_Query::get_results()`; the result shape follows the configured `fields` argument. `first()` also respects `fields`, while `count()` enables `count_total` and returns `get_total()`, regardless of the configured page size.
+
+For pagination, use the native query object and its result/count methods:
+
+```php
+$results = $query->paginate(perPage: 20, page: 2);
+
+$users = $results->get_results();
+$total = $results->get_total();
+```
+
+`paginate()` sets `number`, `paged`, and `count_total`, and returns the native `WP_User_Query` instance. Both pagination arguments must be positive integers. An existing `offset` is removed because WordPress gives it precedence over the page-based offset calculation; use `execute()` when you need a manually controlled offset.
+
 ## Available builders
 
 - `CommentQueryArg`
@@ -145,7 +179,7 @@ The argument builders produce arrays for WordPress query APIs, including:
 - `WP_Site_Query`
 - `WP_Network_Query`
 
-The execution helper currently covers `WP_Query` only. Other query APIs retain their native WordPress execution paths until their distinct result contracts are designed.
+The execution helpers currently cover `WP_Query` and `WP_User_Query`. Other query APIs retain their native WordPress execution paths until their distinct result contracts are designed.
 
 The package does not replace WordPress query classes or bypass the WordPress query lifecycle. Direct SQL, custom-table CRUD, repositories, models, and migrations are outside the current scope.
 
