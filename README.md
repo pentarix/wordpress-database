@@ -1,13 +1,13 @@
 # Pentarix WordPress Database
 
-Composer-installable WordPress query argument builders with a fluent API.
+Composer-installable WordPress query argument builders and native query execution helpers with a fluent API.
 
-This package provides the WordPress query argument-building capabilities extracted from Vertex Framework. It builds argument arrays for WordPress APIs; it does not execute queries or provide an ORM.
+The package provides WordPress query argument builders and a small execution layer that delegates to WordPress Core query classes. It does not provide an ORM or replace the WordPress query lifecycle.
 
 ## Requirements
 
 - PHP 8.0 or later
-- WordPress 6.3 or later when passing generated arguments to WordPress APIs
+- WordPress 6.3 or later when executing queries or passing generated arguments to WordPress APIs
 
 ## Installation
 
@@ -15,13 +15,15 @@ This package provides the WordPress query argument-building capabilities extract
 composer require pentarix/wordpress-database
 ```
 
-Composer maps the `Pentarix\WordPressDatabase\` namespace to `src/` using PSR-4.
+Composer maps the `Pentarix\\WordPressDatabase\\` namespace to `src/` using PSR-4.
 
 ## Usage
 
+Build arguments independently from WordPress, then pass them to the native query API:
+
 ```php
-use Pentarix\WordPressDatabase\WordPress\MetaQueryArg;
-use Pentarix\WordPressDatabase\WordPress\PostQueryArg;
+use Pentarix\\WordPressDatabase\\WordPress\\MetaQueryArg;
+use Pentarix\\WordPressDatabase\\WordPress\\PostQueryArg;
 
 $args = PostQueryArg::make()
     ->postType('product')
@@ -30,8 +32,31 @@ $args = PostQueryArg::make()
     ->metaQuery(MetaQueryArg::make()->where('featured', true))
     ->toArray();
 
-$query = new \WP_Query($args);
+$query = new \\WP_Query($args);
 ```
+
+For a convenient execution API, use `PostQuery`:
+
+```php
+use Pentarix\\WordPressDatabase\\WordPress\\PostQuery;
+use Pentarix\\WordPressDatabase\\WordPress\\PostQueryArg;
+
+$query = PostQuery::make(
+    PostQueryArg::make()
+        ->postType('product')
+        ->postStatus('publish')
+        ->postsPerPage(12)
+);
+
+$wpQuery = $query->execute(); // WP_Query
+$posts = $query->get();       // Current page of posts
+$first = $query->first();     // First matching post, or null
+$total = $query->count();     // Total matches, independent of page size
+```
+
+`execute()` returns the native `WP_Query` instance. The result helpers run their own query and return WordPress results; they do not introduce custom post models or collections. `count()` enables found-row calculation even when the original arguments set `no_found_rows` to `true`. The `first()` result follows the configured `fields` argument.
+
+The execution layer requires WordPress to be loaded. Argument builders remain independently usable without a WordPress runtime.
 
 ## Available builders
 
@@ -45,7 +70,7 @@ $query = new \WP_Query($args);
 - `TermQueryArg`
 - `UserQueryArg`
 
-Supporting builders (`IncludeQueryArg`, `IncludeExcludeQueryArg`, `IncludeExcludeIsQueryArg`, and `SearchQueryArg`) are also available under `Pentarix\WordPressDatabase\WordPress`.
+Supporting builders (`IncludeQueryArg`, `IncludeExcludeQueryArg`, `IncludeExcludeIsQueryArg`, and `SearchQueryArg`) are also available under `Pentarix\\WordPressDatabase\\WordPress`.
 
 ## Argument coverage
 
@@ -73,9 +98,9 @@ Values are passed to WordPress as supplied. WordPress remains responsible for va
 For example:
 
 ```php
-use Pentarix\WordPressDatabase\WordPress\MetaQueryArg;
-use Pentarix\WordPressDatabase\WordPress\PostQueryArg;
-use Pentarix\WordPressDatabase\WordPress\TaxQueryArg;
+use Pentarix\\WordPressDatabase\\WordPress\\MetaQueryArg;
+use Pentarix\\WordPressDatabase\\WordPress\\PostQueryArg;
+use Pentarix\\WordPressDatabase\\WordPress\\TaxQueryArg;
 
 $args = PostQueryArg::make()
     ->metaQuery(
@@ -90,12 +115,12 @@ $args = PostQueryArg::make()
     )
     ->toArray();
 
-$query = new \WP_Query($args);
+$query = new \\WP_Query($args);
 ```
 
 ## Scope
 
-The builders produce argument arrays for WordPress query APIs, including:
+The argument builders produce arrays for WordPress query APIs, including:
 
 - `WP_Query`
 - `WP_User_Query`
@@ -104,7 +129,9 @@ The builders produce argument arrays for WordPress query APIs, including:
 - `WP_Site_Query`
 - `WP_Network_Query`
 
-They do not execute database queries, replace WordPress query classes, or bypass the WordPress query lifecycle. Direct SQL, custom-table CRUD, repositories, models, and migrations are outside the current scope.
+The execution helper currently covers `WP_Query` only. Other query APIs retain their native WordPress execution paths until their distinct result contracts are designed.
+
+The package does not replace WordPress query classes or bypass the WordPress query lifecycle. Direct SQL, custom-table CRUD, repositories, models, and migrations are outside the current scope.
 
 ## Development
 
