@@ -432,6 +432,31 @@ Model queries use the existing `PostQueryArg` and `PostQuery`
 implementations. The model's post type is enforced, and query arguments
 cannot override the managed `post_type` or `fields` values.
 
+A model query returns instances of the selected model class and continues
+to use the existing native query implementation:
+
+```php
+$articles = Article::query()
+    ->author($userId)
+    ->status('publish')
+    ->orderBy('date')
+    ->order('DESC')
+    ->get();
+
+$page = Article::query()
+    ->status('publish')
+    ->paginate(20, 2);
+```
+
+A different registered post type uses the same base model:
+
+```php
+final class Product extends Model
+{
+    protected static string $postType = 'product';
+}
+```
+
 The model exposes its author through the existing native `User` entity API.
 It remains a lightweight post model rather than a general ORM: it does not
 provide automatic casts, mass-assignment policies, an event system, or
