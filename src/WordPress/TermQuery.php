@@ -52,7 +52,12 @@ final class TermQuery
      */
     public function get(): array|int|string
     {
-        $terms = $this->execute()->terms;
+        $this->ensureWordPressIsLoaded();
+
+        $queryArguments = $this->queryArguments ?: ['fields' => 'all'];
+        $query = new \\WP_Term_Query();
+
+        $terms = $query->query($queryArguments);
 
         return is_array($terms) || is_int($terms) || is_string($terms) ? $terms : [];
     }
