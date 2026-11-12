@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Pentarix\WordPressDatabase\WordPress;
 
+use InvalidArgumentException;
+
 class TermQueryArg implements QueryArg
 {
     use SupportsQueryArguments;
@@ -26,7 +28,7 @@ class TermQueryArg implements QueryArg
     private ?string $descriptionLike = null;
     private ?int $number = null;
     private ?int $offset = null;
-    private string|array|null $orderby = null;
+    private ?string $orderby = null;
     private ?string $order = null;
     private ?string $fields = null;
     private ?bool $hideEmpty = null;
@@ -68,6 +70,10 @@ class TermQueryArg implements QueryArg
             $this->offset = (int) $queryArray['offset'];
         }
         if (array_key_exists('orderby', $queryArray)) {
+            if (null !== $queryArray['orderby'] && !is_string($queryArray['orderby'])) {
+                throw new InvalidArgumentException('The term query orderby argument must be a string.');
+            }
+
             $this->orderby = $queryArray['orderby'];
         }
         if (array_key_exists('order', $queryArray)) {
@@ -118,6 +124,13 @@ class TermQueryArg implements QueryArg
     public function taxonomy(string|array $taxonomy): self
     {
         $this->taxonomy = $taxonomy;
+
+        return $this;
+    }
+
+    public function orderBy(string $orderby): self
+    {
+        $this->orderby = $orderby;
 
         return $this;
     }
