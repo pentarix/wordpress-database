@@ -423,6 +423,11 @@ arguments so a caller cannot accidentally escape the model's type or request
 IDs instead of model-hydratable posts. Other query arguments continue to use
 the existing `PostQueryArg` and `PostQuery` implementation.
 
+The model exposes its author through the existing native `User` entity API,
+and model queries accept either a user ID or a native `WP_User` for author
+filtering. This keeps the post-to-user relationship explicit without making
+one entity responsible for querying another entity's records.
+
 Models are intentionally limited to posts and registered post types. They do
 not add relationships, mass-assignment policies, automatic timestamps, casts,
 or an Active Record event system. Related data remains accessible through the

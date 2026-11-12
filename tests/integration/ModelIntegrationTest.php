@@ -21,6 +21,7 @@ final class ModelIntegrationTest extends WP_UnitTestCase
     {
         $model = ArticleModel::make([
             'post_title' => 'Initial title',
+            'post_author' => self::factory()->user->create(),
             'post_content' => 'Initial content',
             'post_status' => 'publish',
         ]);
@@ -29,6 +30,7 @@ final class ModelIntegrationTest extends WP_UnitTestCase
         self::assertTrue($model->save());
         self::assertGreaterThan(0, $model->id());
         self::assertSame('Initial title', $model->get('post_title'));
+        self::assertInstanceOf(WP_User::class, $model->author());
 
         $model->set('post_title', 'Updated title');
         self::assertTrue($model->save());

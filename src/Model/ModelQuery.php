@@ -60,8 +60,9 @@ final class ModelQuery
         return $this;
     }
 
-    public function author(int $userId): self
+    public function author(int|\WP_User $author): self
     {
+        $userId = $author instanceof \WP_User ? (int) $author->ID : $author;
         $this->arguments->authorsIn($userId);
 
         return $this;

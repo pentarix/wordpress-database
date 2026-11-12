@@ -15,6 +15,7 @@ namespace Pentarix\WordPressDatabase\Model;
 use LogicException;
 use Pentarix\WordPressDatabase\WordPress\Post;
 use Pentarix\WordPressDatabase\WordPress\PostQueryArg;
+use Pentarix\WordPressDatabase\WordPress\User;
 
 /**
  * Fluent, stateful representation of a registered WordPress post.
@@ -81,6 +82,14 @@ abstract class Model
         }
 
         return $model;
+    }
+
+    /** Retrieve the post author through the native User entity API. */
+    public function author(): \WP_User|false
+    {
+        $authorId = (int) ($this->attributes['post_author'] ?? 0);
+
+        return 0 < $authorId ? User::get($authorId) : false;
     }
 
     public function id(): ?int
