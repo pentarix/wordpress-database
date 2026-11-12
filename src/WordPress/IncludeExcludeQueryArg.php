@@ -10,9 +10,9 @@
 
 declare(strict_types=1);
 
-namespace Pentarix\\WordPressDatabase\\WordPress;
+namespace Pentarix\WordPressDatabase\WordPress;
 
-use Pentarix\\WordPressDatabase\\Utils\\ArrayUtil;
+use Pentarix\WordPressDatabase\Utils\ArrayUtil;
 
 class IncludeExcludeQueryArg extends IncludeQueryArg
 {
@@ -48,7 +48,7 @@ class IncludeExcludeQueryArg extends IncludeQueryArg
 
     public function include(int|float|string|array $value): static
     {
-        if ($this->isIdentifier && \\is_string($value) && str_contains($value, ',')) {
+        if ($this->isIdentifier && \is_string($value) && str_contains($value, ',')) {
             $value = array_map('trim', explode(',', $value));
         }
 
@@ -62,7 +62,7 @@ class IncludeExcludeQueryArg extends IncludeQueryArg
 
     public function exclude(int|float|string|array $value): static
     {
-        if ($this->isIdentifier && \\is_string($value) && str_contains($value, ',')) {
+        if ($this->isIdentifier && \is_string($value) && str_contains($value, ',')) {
             $value = array_map('trim', explode(',', $value));
         }
 
