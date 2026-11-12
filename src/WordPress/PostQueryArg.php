@@ -68,7 +68,7 @@ class PostQueryArg implements QueryArg
             'is' => $queryArray['post_type'] ?? null,
         ], ['isIdentifier' => false, 'multiValue' => true, 'includeKey' => 'post_type__in', 'isKey' => 'post_type']);
         $this->postStatusQuery = IncludeExcludeIsQueryArg::make([
-            'is' => isset($queryArray['post_status']) ? (array) $queryArray['post_status'] : null,
+            'is' => $queryArray['post_status'] ?? null,
         ], ['isIdentifier' => false, 'multiValue' => true, 'isKey' => 'post_status']);
         $this->searchQuery = SearchQueryArg::make([
             'search' => $queryArray['s'] ?? '',
@@ -164,7 +164,7 @@ class PostQueryArg implements QueryArg
     public function postTypesIn(string|array $types): self { $this->postTypeQuery->include($types);
 
         return $this; }
-    public function postStatus(string|array $statuses): self { $this->postStatusQuery->is((array) $statuses);
+    public function postStatus(string|array $statuses): self { $this->postStatusQuery->is($statuses);
 
         return $this; }
     public function postStatusesIn(string|array $statuses): self { $this->postStatusQuery->include($statuses);
