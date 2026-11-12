@@ -14,9 +14,13 @@ namespace Pentarix\WordPressDatabase\Model;
 
 use InvalidArgumentException;
 use LogicException;
+use Pentarix\WordPressDatabase\WordPress\CommentQuery;
+use Pentarix\WordPressDatabase\WordPress\CommentQueryArg;
 use Pentarix\WordPressDatabase\WordPress\Metadata;
 use Pentarix\WordPressDatabase\WordPress\Post;
+use Pentarix\WordPressDatabase\WordPress\PostQuery;
 use Pentarix\WordPressDatabase\WordPress\PostQueryArg;
+use Pentarix\WordPressDatabase\WordPress\Term;
 use Pentarix\WordPressDatabase\WordPress\User;
 
 /**
@@ -133,6 +137,113 @@ abstract class Model
         $authorId = (int) $this->get('post_author', 0);
 
         return 0 < $authorId ? User::get($authorId) : false;
+    }
+
+    /**
+     * Retrieve the parent as the same model type.
+     *
+     * A parent with a different post type is not represented by this model.
+     */
+    public function parent(): ?static
+    {
+        $parentId = (int) $this->get('post_parent', 0);
+
+        if ($parentId < 1) {
+            return null;
+        }
+
+        $parent = Post::get($parentId);
+
+        return $parent instanceof \WP_Post && static::$postType === $parent->post_type
+            ? new static($parent)
+            : null;
+    }
+
+    /**
+     * Retrieve child posts as instances of this model.
+     *
+     * The model's post type and parent ID override corresponding query arguments.
+     *
+     * @return array<int, static>
+     */
+    public function children(PostQueryArg|array $arguments = []): array
+    {
+        if (null === $this->postId) {
+            return [];
+        }
+
+        $queryArguments = $arguments instanceof PostQueryArg
+            ? $arguments
+            : PostQueryArg::make($arguments);
+
+        $queryArguments->set('post_type', static::$postType);
+        $queryArguments->set('post_parent', $this->postId);
+        $queryArguments->set('fields', 'all');
+
+        $posts = PostQuery::make($queryArguments)->get();
+        $models = [];
+
+        foreach ($posts as $post) {
+            $models[] = new static($post);
+        }
+
+        return $models;
+    }
+
+    /** Retrieve the featured image as a native attachment post. */
+    public function thumbnail(): ?\WP_Post
+    {
+        if (null === $this->postId) {
+            return null;
+        }
+
+        $attachmentId = Post::getThumbnailId($this->postId);
+
+        if (!$attachmentId) {
+            return null;
+        }
+
+        $attachment = Post::get($attachmentId);
+
+        return $attachment instanceof \WP_Post && 'attachment' === $attachment->post_type
+            ? $attachment
+            : null;
+    }
+
+    /**
+     * Retrieve terms assigned to this post through the native Term API.
+     *
+     * @return array<int, \WP_Term>|\WP_Error
+     */
+    public function terms(string $taxonomy, array $arguments = []): array|\WP_Error
+    {
+        if (null === $this->postId) {
+            return [];
+        }
+
+        return Term::getForObject($this->postId, $taxonomy, $arguments);
+    }
+
+    /**
+     * Retrieve comments through the native CommentQuery implementation.
+     *
+     * Native query options such as fields and count are preserved.
+     *
+     * @return array<int, mixed>|int
+     */
+    public function comments(CommentQueryArg|array $arguments = []): array|int
+    {
+        if (null === $this->postId) {
+            return [];
+        }
+
+        $queryArguments = $arguments instanceof CommentQueryArg
+            ? $arguments->toArray()
+            : $arguments;
+
+        $queryArguments['post_id'] = $this->postId;
+
+        return CommentQuery::make($queryArguments)->get();
     }
 
     public function id(): ?int

@@ -161,6 +161,76 @@ final class ModelIntegrationTest extends WP_UnitTestCase
         self::assertSame('Persisted value', $model->get('subtitle'));
     }
 
+    public function testModelParentAndChildrenRelationshipsReturnModelInstances(): void
+    {
+        $parent = ArticleModel::create([
+            'post_title' => 'Parent article',
+            'post_status' => 'publish',
+        ]);
+        $child = ArticleModel::create([
+            'post_title' => 'Child article',
+            'post_status' => 'publish',
+            'post_parent' => $parent->id(),
+        ]);
+
+        self::assertInstanceOf(ArticleModel::class, $child->parent());
+        self::assertSame($parent->id(), $child->parent()->id());
+
+        $children = $parent->children();
+
+        self::assertCount(1, $children);
+        self::assertInstanceOf(ArticleModel::class, $children[0]);
+        self::assertSame($child->id(), $children[0]->id());
+    }
+
+    public function testModelThumbnailRelationshipReturnsNativeAttachmentPost(): void
+    {
+        $model = ArticleModel::create([
+            'post_title' => 'Article with thumbnail',
+            'post_status' => 'publish',
+        ]);
+        $attachmentId = self::factory()->attachment->create_upload_object(
+            DIR_TESTDATA . '/images/canola.jpg',
+            $model->id()
+        );
+
+        self::assertIsInt($attachmentId);
+        self::assertNotFalse(set_post_thumbnail($model->id(), $attachmentId));
+
+        $thumbnail = $model->thumbnail();
+
+        self::assertInstanceOf(WP_Post::class, $thumbnail);
+        self::assertSame($attachmentId, (int) $thumbnail->ID);
+        self::assertSame('attachment', $thumbnail->post_type);
+    }
+
+    public function testModelTermsAndCommentsRelationshipsUseNativeApis(): void
+    {
+        register_taxonomy('article_topic', 'post');
+
+        $model = ArticleModel::create([
+            'post_title' => 'Article with related data',
+            'post_status' => 'publish',
+        ]);
+        $term = wp_insert_term('Engineering', 'article_topic');
+
+        self::assertIsArray($term);
+        wp_set_object_terms($model->id(), [(int) $term['term_id']], 'article_topic');
+
+        self::factory()->comment->create([
+            'comment_post_ID' => $model->id(),
+            'comment_content' => 'A related comment',
+        ]);
+
+        $terms = $model->terms('article_topic');
+        $comments = $model->comments();
+
+        self::assertCount(1, $terms);
+        self::assertInstanceOf(WP_Term::class, $terms[0]);
+        self::assertCount(1, $comments);
+        self::assertInstanceOf(WP_Comment::class, $comments[0]);
+    }
+
     public function testModelDeleteDelegatesToPostEntity(): void
     {
         $model = ArticleModel::make([
