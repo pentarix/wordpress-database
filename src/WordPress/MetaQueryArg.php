@@ -174,13 +174,21 @@ class MetaQueryArg implements QueryArg
 			return $this;
 		}
 
-		if ($this->isFirstOrderClause($this->query)) {
+		$isFirstOrderClause = $this->isFirstOrderClause($this->query);
+
+		if ($isFirstOrderClause) {
 			$this->query = [$this->query];
 		}
 
 		if ('OR' === $boolean) {
 			if (isset($this->query['relation']) && 'OR' === $this->query['relation']) {
 				$this->query[] = $clause;
+			} elseif ($isFirstOrderClause) {
+				$this->query = array_merge(
+					['relation' => 'OR'],
+					$this->query,
+					[$clause]
+				);
 			} else {
 				$this->query = [
 					'relation' => 'OR',
