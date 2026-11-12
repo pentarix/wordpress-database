@@ -32,7 +32,7 @@ class IncludeExcludeQueryArg extends IncludeQueryArg
         $this->excludeKey = $excludeKey;
 
         if (isset($queryArray[$this->excludeKey])) {
-            $this->exclude((array) $queryArray[$this->excludeKey]);
+            $this->exclude($queryArray[$this->excludeKey]);
         }
     }
 
