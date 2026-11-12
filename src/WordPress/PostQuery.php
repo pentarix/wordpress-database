@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Pentarix\WordPressDatabase\WordPress;
 
+use InvalidArgumentException;
 use LogicException;
 
 final class PostQuery
@@ -51,7 +52,7 @@ final class PostQuery
     }
 
     /**
-     * Retrieve the first matching post, or null when no post is found.
+     * Retrieve the first result from the configured query, or null when empty.
      *
      * The return value follows the configured "fields" query argument.
      */
@@ -79,6 +80,35 @@ final class PostQuery
         $queryArguments['no_found_rows'] = false;
 
         return (int) (new \WP_Query($queryArguments))->found_posts;
+    }
+
+    /**
+     * Execute a paginated query and return WordPress pagination metadata.
+     *
+     * The returned WP_Query exposes found_posts and max_num_pages.
+     * An explicit offset is ignored because WP_Query does not combine offset
+     * and paged pagination reliably.
+     */
+    public function paginate(int $perPage, int $page = 1): \WP_Query
+    {
+        if ($perPage < 1) {
+            throw new InvalidArgumentException('The per-page value must be greater than zero.');
+        }
+
+        if ($page < 1) {
+            throw new InvalidArgumentException('The page number must be greater than zero.');
+        }
+
+        $this->ensureWordPressIsLoaded();
+
+        $queryArguments = $this->queryArguments;
+        $queryArguments['posts_per_page'] = $perPage;
+        $queryArguments['paged'] = $page;
+        $queryArguments['no_found_rows'] = false;
+
+        unset($queryArguments['offset']);
+
+        return new \WP_Query($queryArguments);
     }
 
     private function ensureWordPressIsLoaded(): void
