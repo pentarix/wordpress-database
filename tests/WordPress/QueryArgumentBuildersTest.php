@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Pentarix\\WordPressDatabase\\Tests\\WordPress;
+namespace Pentarix\WordPressDatabase\Tests\WordPress;
 
-use PHPUnit\\Framework\\TestCase;
-use Pentarix\\WordPressDatabase\\WordPress\\DateQueryArg;
-use Pentarix\\WordPressDatabase\\WordPress\\MetaQueryArg;
-use Pentarix\\WordPressDatabase\\WordPress\\PostQueryArg;
-use Pentarix\\WordPressDatabase\\WordPress\\TaxQueryArg;
-use Pentarix\\WordPressDatabase\\WordPress\\UserQueryArg;
+use PHPUnit\Framework\TestCase;
+use Pentarix\WordPressDatabase\WordPress\DateQueryArg;
+use Pentarix\WordPressDatabase\WordPress\MetaQueryArg;
+use Pentarix\WordPressDatabase\WordPress\PostQueryArg;
+use Pentarix\WordPressDatabase\WordPress\TaxQueryArg;
+use Pentarix\WordPressDatabase\WordPress\UserQueryArg;
 
 final class QueryArgumentBuildersTest extends TestCase
 {
@@ -29,7 +29,7 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame(['publish'], $args['post_status']);
         self::assertSame(10, $args['posts_per_page']);
         self::assertSame(2, $args['paged']);
-        self::assertSame([['key'=>'featured','value'=>true,'compare'=>'=','type'=>'CHAR']], $args['meta_query']);
+        self::assertSame([['key' => 'featured', 'value' => true, 'compare' => '=', 'type' => 'CHAR']], $args['meta_query']);
         self::assertSame('product_cat', $args['tax_query'][0]['taxonomy']);
         self::assertSame(2025, $args['date_query'][0]['year']);
     }
