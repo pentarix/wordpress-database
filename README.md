@@ -225,6 +225,44 @@ $totalPages = $results->max_num_pages;
 
 The execution layer requires WordPress to be loaded. Argument builders remain independently usable without a WordPress runtime.
 
+### Network queries
+
+Use `NetworkQuery` to execute a native `WP_Network_Query` while retaining its result contract:
+
+```php
+use Pentarix\WordPressDatabase\WordPress\NetworkQuery;
+use Pentarix\WordPressDatabase\WordPress\NetworkQueryArg;
+
+$query = NetworkQuery::make(
+    NetworkQueryArg::make([
+        'network__in' => [1, 2],
+        'orderby' => 'id',
+        'order' => 'ASC',
+    ])
+);
+
+$wpQuery = $query->execute(); // WP_Network_Query
+$networks = $query->get();    // Native network results
+$first = $query->first();    // First result, or null
+$total = $query->count();    // Total matching networks
+```
+
+`get()` preserves the native `count` and `fields` query arguments, returning an integer for `count => true`, network IDs for `fields => 'ids'`, or `WP_Network` objects otherwise. `first()` disables count mode, limits the query to one result, and respects the configured `fields` argument. `count()` runs a separate count query without a result limit or offset.
+
+For pagination, use the native query object:
+
+```php
+$results = $query->paginate(perPage: 20, page: 2);
+
+$networks = $results->networks;
+$total = $results->found_networks;
+$totalPages = $results->max_num_pages;
+```
+
+`paginate()` sets `number`, `offset`, and `no_found_rows` so WordPress calculates pagination metadata. An existing offset is retained as the starting offset before the page offset is added. Both pagination arguments must be positive integers.
+
+The execution layer requires WordPress to be loaded. Argument builders remain independently usable without a WordPress runtime.
+
 ## Available builders
 
 - `CommentQueryArg`
@@ -296,7 +334,7 @@ The argument builders produce arrays for WordPress query APIs, including:
 - `WP_Site_Query`
 - `WP_Network_Query`
 
-The execution helpers currently cover `WP_Query`, `WP_User_Query`, `WP_Comment_Query`, and `WP_Term_Query`. Other query APIs retain their native WordPress execution paths until their distinct result contracts are designed.
+The execution helpers currently cover `WP_Query`, `WP_User_Query`, `WP_Comment_Query`, `WP_Term_Query`, `WP_Site_Query`, and `WP_Network_Query`.
 
 The package does not replace WordPress query classes or bypass the WordPress query lifecycle. Direct SQL, custom-table CRUD, repositories, models, and migrations are outside the current scope.
 
