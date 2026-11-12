@@ -55,7 +55,7 @@ final class Comment
     /**
      * Retrieve a comment using the native WordPress output format.
      */
-    public static function get(int|object|null $comment, string $output = OBJECT): mixed
+    public static function get(int|object|null $comment, string $output = 'OBJECT'): mixed
     {
         self::ensureWordPressIsLoaded();
 
