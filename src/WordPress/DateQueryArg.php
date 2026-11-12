@@ -1,0 +1,241 @@
+<?php
+
+/**
+ * @author    Sina Kuhestani <sinakuhestani@gmail.com>
+ * @copyright 2026 Sina Kuhestani (EphpicMan)
+ * @link      https://github.com/ephpicman GitHub
+ * @link      https://www.linkedin.com/in/ephpicman LinkedIn
+ * @license   See the LICENSE file in the project root.
+ */
+
+declare(strict_types=1);
+
+namespace Pentarix\WordPressDatabase\WordPress;
+
+class DateQueryArg implements QueryArg
+{
+
+    private array $query = [];
+
+    public function __construct(array $queryArray = [])
+    {
+        $this->query = $queryArray;
+    }
+
+    public static function make(array $queryArray = [], array $args = []): static
+    {
+        return new static($queryArray);
+    }
+
+    public function where(array $clause): self
+    {
+        return $this->addClause($clause, 'AND');
+    }
+
+    public function orWhere(array $clause): self
+    {
+        return $this->addClause($clause, 'OR');
+    }
+
+    public function after(
+        string|array $date,
+        bool $inclusive = false,
+        string $column = 'post_date'
+    ): self {
+        return $this->where(
+            [
+                'after'     => $date,
+                'inclusive' => $inclusive,
+                'column'    => $column,
+            ]
+        );
+    }
+
+    public function before(
+        string|array $date,
+        bool $inclusive = false,
+        string $column = 'post_date'
+    ): self {
+        return $this->where(
+            [
+                'before'    => $date,
+                'inclusive' => $inclusive,
+                'column'    => $column,
+            ]
+        );
+    }
+
+    public function between(
+        string|array $after,
+        string|array $before,
+        bool $inclusive = true,
+        string $column = 'post_date'
+    ): self {
+        return $this->where(
+            [
+                'after'     => $after,
+                'before'    => $before,
+                'inclusive' => $inclusive,
+                'column'    => $column,
+            ]
+        );
+    }
+
+    public function year(int $year, string $column = 'post_date'): self
+    {
+        return $this->where([
+            'year'   => $year,
+            'column' => $column,
+        ]);
+    }
+
+    public function month(int $month, string $column = 'post_date'): self
+    {
+        return $this->where([
+            'month'  => $month,
+            'column' => $column,
+        ]);
+    }
+
+    public function week(int $week, string $column = 'post_date'): self
+    {
+        return $this->where([
+            'week'   => $week,
+            'column' => $column,
+        ]);
+    }
+
+    public function day(int $day, string $column = 'post_date'): self
+    {
+        return $this->where([
+            'day'    => $day,
+            'column' => $column,
+        ]);
+    }
+
+    public function hour(int $hour, string $column = 'post_date'): self
+    {
+        return $this->where([
+            'hour'   => $hour,
+            'column' => $column,
+        ]);
+    }
+
+    public function minute(int $minute, string $column = 'post_date'): self
+    {
+        return $this->where([
+            'minute' => $minute,
+            'column' => $column,
+        ]);
+    }
+
+    public function second(int $second, string $column = 'post_date'): self
+    {
+        return $this->where([
+            'second' => $second,
+            'column' => $column,
+        ]);
+    }
+
+    public function whereGroup(
+        callable $callback,
+        string $relation = 'AND'
+    ): self {
+        return $this->addGroup($callback, $relation, 'AND');
+    }
+
+    public function orWhereGroup(
+        callable $callback,
+        string $relation = 'AND'
+    ): self {
+        return $this->addGroup($callback, $relation, 'OR');
+    }
+
+    public function whereAny(callable $callback): self
+    {
+        return $this->whereGroup($callback, 'OR');
+    }
+
+    public function whereAll(callable $callback): self
+    {
+        return $this->whereGroup($callback, 'AND');
+    }
+
+    public function whereClause(
+        array $clause,
+        string $boolean = 'AND'
+    ): self {
+        return $this->addClause($clause, $boolean);
+    }
+
+    private function addClause(array $clause, string $boolean): self
+    {
+        $boolean = 'OR' === strtoupper($boolean) ? 'OR' : 'AND';
+
+        if ([] === $this->query) {
+            $this->query = [$clause];
+
+            return $this;
+        }
+
+        if ('OR' === $boolean) {
+            if (isset($this->query['relation']) && 'OR' === $this->query['relation']) {
+                $this->query[] = $clause;
+            } else {
+                $this->query = [
+                    'relation' => 'OR',
+                    $this->query,
+                    $clause,
+                ];
+            }
+
+            return $this;
+        }
+
+        if (!isset($this->query['relation']) || 'AND' === $this->query['relation']) {
+            $this->query[] = $clause;
+        } else {
+            $this->query = [
+                'relation' => 'AND',
+                $this->query,
+                $clause,
+            ];
+        }
+
+        return $this;
+    }
+
+    private function addGroup(
+        callable $callback,
+        string $relation,
+        string $boolean
+    ): self {
+        $group = new static();
+
+        $callback($group);
+
+        $query = $group->toArray();
+
+        if ([] === $query) {
+            return $this;
+        }
+
+        $relation = 'OR' === strtoupper($relation) ? 'OR' : 'AND';
+
+        if (isset($query['relation'])) {
+            $query['relation'] = $relation;
+        } else {
+            $query = [
+                'relation' => $relation,
+                $query,
+            ];
+        }
+
+        return $this->addClause($query, $boolean);
+    }
+
+    public function toArray(): array
+    {
+        return $this->query;
+    }
+}
