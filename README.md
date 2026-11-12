@@ -272,7 +272,7 @@ Use the entity wrappers to create, retrieve, update, and delete WordPress record
 The `Post` API works with every registered post type, including posts, pages, attachments, and custom post types:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\Post;
+use Pentarix\WordPressDatabase\WordPress\Post;
 
 $postId = Post::create([
     'post_type' => 'product',
@@ -296,7 +296,7 @@ The post type is supplied through the native `post_type` field. There is no sepa
 #### Users
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\User;
+use Pentarix\WordPressDatabase\WordPress\User;
 
 $userId = User::create([
     'user_login' => 'example-user',
@@ -320,7 +320,7 @@ User creation and updates return the native user ID or `WP_Error`. User deletion
 #### Terms
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\Term;
+use Pentarix\WordPressDatabase\WordPress\Term;
 
 $created = Term::create('Accessories', 'category', [
     'slug' => 'accessories',
@@ -336,10 +336,20 @@ Term::delete($termId, 'category');
 
 The taxonomy must already be registered. Term methods preserve the native arrays, booleans, integers, and `WP_Error` values returned by WordPress.
 
+Term relationships are handled through the same native taxonomy APIs:
+
+```php
+Term::assignToObject($postId, [$termId], 'category');
+$assignedTerms = Term::getForObject($postId, 'category');
+Term::removeFromObject($postId, [$termId], 'category');
+$exists = Term::exists($termId, 'category');
+```
+
+
 #### Comments
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\Comment;
+use Pentarix\WordPressDatabase\WordPress\Comment;
 
 $commentId = Comment::create([
     'comment_post_ID' => $postId,
@@ -364,7 +374,7 @@ The entity wrappers require WordPress to be loaded. They return native WordPress
 Use `Option` for the native WordPress Options API:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\Option;
+use Pentarix\WordPressDatabase\WordPress\Option;
 
 Option::add('my_plugin_settings', ['enabled' => true], false);
 $settings = Option::get('my_plugin_settings', []);
@@ -401,7 +411,7 @@ The getSite() and addSite() methods operate on network-wide options. The Blog me
 Use `Metadata` to work with metadata for WordPress object types without bypassing the native Metadata API:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\Metadata;
+use Pentarix\WordPressDatabase\WordPress\Metadata;
 
 Metadata::add('post', $postId, 'featured', true, true);
 $isFeatured = Metadata::get('post', $postId, 'featured', true);
@@ -417,7 +427,7 @@ The object type is explicit and is passed to WordPress unchanged. This supports 
 Use `Transient` for request/site cache values stored through WordPress's Transients API:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\Transient;
+use Pentarix\WordPressDatabase\WordPress\Transient;
 
 Transient::set('my_plugin_cache', $value, 300);
 $value = Transient::get('my_plugin_cache');
@@ -529,3 +539,107 @@ GitHub Actions runs the unit suite on PHP 8.0–8.5 and the integration suite ag
 ## Licence
 
 MIT. See [LICENSE](LICENSE).
+
+
+### Additional core entities
+
+The entity layer also provides focused wrappers for WordPress attachments, post revisions, and Multisite sites.
+
+#### Attachments
+
+Attachments are stored as posts with the `attachment` post type. Use `Post` for general post fields and `Attachment` for media-specific operations:
+
+```php
+use Pentarix\WordPressDatabase\WordPress\Attachment;
+
+$attachmentId = Attachment::create([
+    'post_title' => 'Product image',
+    'post_mime_type' => 'image/jpeg',
+    'post_status' => 'inherit',
+], '/absolute/path/to/image.jpg', parentPostId: $postId);
+
+$attachment = Attachment::get($attachmentId);
+$url = Attachment::getUrl($attachmentId);
+$file = Attachment::getFile($attachmentId);
+$metadata = Attachment::getMetadata($attachmentId);
+
+$metadata = Attachment::generateMetadata($attachmentId);
+Attachment::updateMetadata($attachmentId, $metadata);
+Attachment::updateFile($attachmentId, '/new/path/image.jpg');
+Attachment::update([
+    'ID' => $attachmentId,
+    'post_title' => 'Updated image title',
+]);
+Attachment::delete($attachmentId, forceDelete: true);
+```
+
+`create()` delegates to `wp_insert_attachment()`; the file argument is a file path or `false`. Media upload handling from browser requests remains the responsibility of WordPress upload APIs such as `media_handle_upload()`.
+
+#### Revisions
+
+Revisions are also stored as posts, using the `revision` post type. Use `Revision` for revision-specific operations:
+
+```php
+use Pentarix\WordPressDatabase\WordPress\Revision;
+
+$revisionId = Revision::save($postId);
+$revision = Revision::get($revisionId);
+$revisions = Revision::all($postId);
+Revision::restore($revisionId);
+Revision::delete($revisionId);
+$url = Revision::getUrl($postId);
+$isRevision = Revision::isRevision($revisionId);
+$isAutosave = Revision::isAutosave($revisionId);
+```
+
+Revision creation follows the post type's revision support and WordPress revision settings. The native API may return a revision ID, `WP_Error`, or `null`; restore and delete operations also preserve their native return values.
+
+#### Multisite sites and networks
+
+Use `Site` for site creation, retrieval, updates, and deletion:
+
+```php
+use Pentarix\WordPressDatabase\WordPress\Site;
+
+$siteId = Site::create([
+    'domain' => 'store.example.test',
+    'path' => '/',
+    'network_id' => get_current_network_id(),
+    'title' => 'Store',
+]);
+
+$site = Site::get($siteId);
+Site::update($siteId, ['public' => 0]);
+Site::delete($siteId);
+```
+
+Use `Network::get()` to retrieve a network. WordPress Core currently provides network retrieval and querying, but does not expose native network insert, update, or delete CRUD functions. This package deliberately does not emulate those missing operations with direct SQL.
+
+All these wrappers delegate to WordPress Core. They do not create package-specific entity instances or bypass native lifecycle behaviour.
+
+
+#### Legacy links (bookmarks)
+
+WordPress still exposes a separate Links (Bookmarks) API. The package wraps it for compatibility with existing installations, but it is a legacy feature and should not be selected for new content models:
+
+\`\`\`php
+use Pentarix\WordPressDatabase\WordPress\Link;
+
+$linkId = Link::create([
+    'link_name' => 'WordPress',
+    'link_url' => 'https://wordpress.org',
+]);
+
+$link = Link::get($linkId);
+$links = Link::query(['include' => [$linkId]]);
+
+Link::update([
+    'link_id' => $linkId,
+    'link_name' => 'WordPress.org',
+    'link_url' => 'https://wordpress.org',
+]);
+
+Link::delete($linkId);
+\`\`\`
+
+The retrieval methods use the front-end bookmark API. Creation, updates, and deletion require the caller to load \`wp-admin/includes/bookmark.php\`, because WordPress defines those functions in its administrative bookmark module.

@@ -91,6 +91,65 @@ final class Term
         return get_term_by($field, $value, $taxonomy);
     }
 
+    /**
+     * Check whether a term exists in a taxonomy.
+     *
+     * @return array|int|\WP_Error|null Native term existence result.
+     */
+    public static function exists(
+        string|int $term,
+        string $taxonomy = '',
+        ?int $parent = null
+    ): array|int|\WP_Error|null {
+        self::ensureWordPressIsLoaded();
+
+        return term_exists($term, $taxonomy, $parent);
+    }
+
+    /**
+     * Assign terms to an object.
+     *
+     * @return array|\WP_Error Term taxonomy IDs or a WordPress error.
+     */
+    public static function assignToObject(
+        int $objectId,
+        array|string|int $terms,
+        string $taxonomy,
+        bool $append = false
+    ): array|\WP_Error {
+        self::ensureWordPressIsLoaded();
+
+        return wp_set_object_terms($objectId, $terms, $taxonomy, $append);
+    }
+
+    /**
+     * Retrieve terms assigned to an object.
+     *
+     * @return array|\WP_Error Native term results or a WordPress error.
+     */
+    public static function getForObject(
+        int $objectId,
+        string $taxonomy,
+        array $args = []
+    ): array|\WP_Error {
+        self::ensureWordPressIsLoaded();
+
+        return wp_get_object_terms($objectId, $taxonomy, $args);
+    }
+
+    /**
+     * Remove terms from an object.
+     */
+    public static function removeFromObject(
+        int $objectId,
+        array|string|int $terms,
+        string $taxonomy
+    ): bool|\WP_Error {
+        self::ensureWordPressIsLoaded();
+
+        return wp_remove_object_terms($objectId, $terms, $taxonomy);
+    }
+
     private static function ensureWordPressIsLoaded(): void
     {
         if (!function_exists('wp_insert_term')) {
