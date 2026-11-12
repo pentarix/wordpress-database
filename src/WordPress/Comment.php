@@ -140,6 +140,13 @@ final class Comment
                 : false;
         }
 
+        $commentData = wp_parse_args($commentData, [
+            'comment_author' => '',
+            'comment_author_email' => '',
+            'comment_author_url' => '',
+            'comment_content' => '',
+            'user_id' => get_current_user_id(),
+        ]);
         $commentData['comment_post_ID'] = (int) $parent->comment_post_ID;
         $commentData['comment_parent'] = $commentId;
 
