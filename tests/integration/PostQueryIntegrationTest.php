@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Pentarix\\WordPressDatabase\\WordPress\\PostQuery;
-use Pentarix\\WordPressDatabase\\WordPress\\PostQueryArg;
+use Pentarix\WordPressDatabase\WordPress\PostQuery;
+use Pentarix\WordPressDatabase\WordPress\PostQueryArg;
 
 final class PostQueryIntegrationTest extends WP_UnitTestCase
 {
