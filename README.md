@@ -147,6 +147,44 @@ $totalPages = $results->max_num_pages;
 
 The execution layer requires WordPress to be loaded. Argument builders remain independently usable without a WordPress runtime.
 
+### Term queries
+
+Use `TermQuery` to execute a native `WP_Term_Query` while retaining its result contract:
+
+```php
+use Pentarix\\WordPressDatabase\\WordPress\\TermQuery;
+use Pentarix\\WordPressDatabase\\WordPress\\TermQueryArg;
+
+$query = TermQuery::make(
+    TermQueryArg::make([
+        'taxonomy' => 'product_cat',
+        'hide_empty' => false,
+        'orderby' => 'name',
+        'order' => 'ASC',
+    ])
+);
+
+$wpQuery = $query->execute(); // WP_Term_Query
+$terms = $query->get();       // Native result for the configured fields argument
+$first = $query->first();     // First result, or null
+$total = $query->count();     // Total matching terms
+```
+
+`get()` preserves the native `fields` result shape, including the scalar result returned by `fields => 'count'`. `first()` returns the first value in the native result array and returns `null` when the query has no array results. `count()` runs a separate query with `fields => 'count'` and returns the total as an integer.
+
+Term queries use `number` and `offset`, not page-based pagination. The `paginate()` helper translates a positive page and page size into those native arguments and returns the native `WP_Term_Query` object:
+
+```php
+$results = $query->paginate(perPage: 20, page: 2);
+
+$terms = $results->terms;
+$total = $query->count();
+```
+
+An existing offset is retained as the starting offset before the page offset is added. WordPress may intentionally omit SQL limits for hierarchical term queries, so `number` and `offset` do not guarantee a page-sized result for every taxonomy or query shape. The helper does not invent pagination metadata; call `count()` separately when the total is required.
+
+The execution layer requires WordPress to be loaded. Argument builders remain independently usable without a WordPress runtime.
+
 ## Available builders
 
 - `CommentQueryArg`
@@ -218,7 +256,7 @@ The argument builders produce arrays for WordPress query APIs, including:
 - `WP_Site_Query`
 - `WP_Network_Query`
 
-The execution helpers currently cover `WP_Query` and `WP_User_Query`. Other query APIs retain their native WordPress execution paths until their distinct result contracts are designed.
+The execution helpers currently cover `WP_Query`, `WP_User_Query`, `WP_Comment_Query`, and `WP_Term_Query`. Other query APIs retain their native WordPress execution paths until their distinct result contracts are designed.
 
 The package does not replace WordPress query classes or bypass the WordPress query lifecycle. Direct SQL, custom-table CRUD, repositories, models, and migrations are outside the current scope.
 
