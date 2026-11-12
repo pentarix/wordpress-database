@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Pentarix\\WordPressDatabase\\Model;
+namespace Pentarix\WordPressDatabase\Model;
 
 /**
  * Immutable-by-convention pagination result for model queries.

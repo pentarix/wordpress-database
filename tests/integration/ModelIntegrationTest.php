@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Pentarix\\WordPressDatabase\\Model\\Model;
-use Pentarix\\WordPressDatabase\\Model\\ModelPaginator;
+use Pentarix\WordPressDatabase\Model\Model;
+use Pentarix\WordPressDatabase\Model\ModelPaginator;
 
 final class ArticleModel extends Model
 {

@@ -10,11 +10,11 @@
 
 declare(strict_types=1);
 
-namespace Pentarix\\WordPressDatabase\\Model;
+namespace Pentarix\WordPressDatabase\Model;
 
 use LogicException;
-use Pentarix\\WordPressDatabase\\WordPress\\Post;
-use Pentarix\\WordPressDatabase\\WordPress\\PostQueryArg;
+use Pentarix\WordPressDatabase\WordPress\Post;
+use Pentarix\WordPressDatabase\WordPress\PostQueryArg;
 
 /**
  * Fluent, stateful representation of a registered WordPress post.
@@ -31,7 +31,7 @@ abstract class Model
 
     protected ?int $postId = null;
 
-    public function __construct(int|\\WP_Post|null $post = null)
+    public function __construct(int|\WP_Post|null $post = null)
     {
         if (null !== $post) {
             $this->load($post);
@@ -55,7 +55,7 @@ abstract class Model
     {
         $post = Post::get($id);
 
-        if (!$post instanceof \\WP_Post || static::$postType !== $post->post_type) {
+        if (!$post instanceof \WP_Post || static::$postType !== $post->post_type) {
             return null;
         }
 
@@ -67,12 +67,12 @@ abstract class Model
         return new ModelQuery(static::class, $arguments);
     }
 
-    public static function create(array $attributes): static|\\WP_Error
+    public static function create(array $attributes): static|\WP_Error
     {
         $model = static::make($attributes);
         $result = $model->save();
 
-        if ($result instanceof \\WP_Error) {
+        if ($result instanceof \WP_Error) {
             return $result;
         }
 
@@ -106,7 +106,7 @@ abstract class Model
     public function set(string $key, mixed $value): static
     {
         if ('' === $key || 'ID' === $key || 'post_type' === $key) {
-            throw new \\InvalidArgumentException('The model key is empty or managed by the model.');
+            throw new \InvalidArgumentException('The model key is empty or managed by the model.');
         }
 
         $this->attributes[$key] = $value;
@@ -118,7 +118,7 @@ abstract class Model
     {
         foreach ($attributes as $key => $value) {
             if (!is_string($key)) {
-                throw new \\InvalidArgumentException('Model attribute keys must be strings.');
+                throw new \InvalidArgumentException('Model attribute keys must be strings.');
             }
 
             $this->set($key, $value);
@@ -136,9 +136,9 @@ abstract class Model
     /**
      * Persist the model through wp_insert_post() or wp_update_post().
      *
-     * @return bool|\\WP_Error
+     * @return bool|\WP_Error
      */
-    public function save(): bool|\\WP_Error
+    public function save(): bool|\WP_Error
     {
         $data = $this->attributes;
         $data['post_type'] = static::$postType;
@@ -150,7 +150,7 @@ abstract class Model
             $result = Post::update($data, true);
         }
 
-        if ($result instanceof \\WP_Error) {
+        if ($result instanceof \WP_Error) {
             return $result;
         }
 
@@ -164,7 +164,7 @@ abstract class Model
     }
 
     /** Delete the underlying post using WordPress's native deletion behaviour. */
-    public function delete(bool $forceDelete = false): \\WP_Post|false|null
+    public function delete(bool $forceDelete = false): \WP_Post|false|null
     {
         if (null === $this->postId) {
             return false;
@@ -182,7 +182,7 @@ abstract class Model
 
         $post = Post::get($this->postId);
 
-        if (!$post instanceof \\WP_Post || static::$postType !== $post->post_type) {
+        if (!$post instanceof \WP_Post || static::$postType !== $post->post_type) {
             return false;
         }
 
@@ -191,16 +191,16 @@ abstract class Model
         return true;
     }
 
-    protected function load(int|\\WP_Post $post): void
+    protected function load(int|\WP_Post $post): void
     {
         $record = Post::get($post);
 
-        if (!$record instanceof \\WP_Post) {
+        if (!$record instanceof \WP_Post) {
             throw new LogicException('The supplied post could not be retrieved.');
         }
 
         if (static::$postType !== $record->post_type) {
-            throw new \\InvalidArgumentException('The post type does not match this model.');
+            throw new \InvalidArgumentException('The post type does not match this model.');
         }
 
         $this->postId = (int) $record->ID;

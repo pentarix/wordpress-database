@@ -376,7 +376,7 @@ uses the native `Post` entity for persistence and `PostQuery` for retrieval;
 it does not introduce a separate storage layer or bypass WordPress hooks.
 
 ```php
-use Pentarix\\WordPressDatabase\\Model\\Model;
+use Pentarix\WordPressDatabase\Model\Model;
 
 final class Article extends Model
 {

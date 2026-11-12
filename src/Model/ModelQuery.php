@@ -10,11 +10,11 @@
 
 declare(strict_types=1);
 
-namespace Pentarix\\WordPressDatabase\\Model;
+namespace Pentarix\WordPressDatabase\Model;
 
 use InvalidArgumentException;
-use Pentarix\\WordPressDatabase\\WordPress\\PostQuery;
-use Pentarix\\WordPressDatabase\\WordPress\\PostQueryArg;
+use Pentarix\WordPressDatabase\WordPress\PostQuery;
+use Pentarix\WordPressDatabase\WordPress\PostQueryArg;
 
 /**
  * Model-aware fluent query adapter over the native PostQuery implementation.
@@ -98,14 +98,14 @@ final class ModelQuery
     {
         $posts = PostQuery::make($this->arguments)->get();
 
-        return array_map(fn (\\WP_Post $post): Model => new $this->modelClass($post), $posts);
+        return array_map(fn (\WP_Post $post): Model => new $this->modelClass($post), $posts);
     }
 
     public function first(): ?Model
     {
         $post = PostQuery::make($this->arguments)->first();
 
-        return $post instanceof \\WP_Post ? new $this->modelClass($post) : null;
+        return $post instanceof \WP_Post ? new $this->modelClass($post) : null;
     }
 
     public function count(): int
@@ -117,7 +117,7 @@ final class ModelQuery
     {
         $query = PostQuery::make($this->arguments)->paginate($perPage, $page);
         $models = array_map(
-            fn (\\WP_Post $post): Model => new $this->modelClass($post),
+            fn (\WP_Post $post): Model => new $this->modelClass($post),
             $query->posts
         );
 
