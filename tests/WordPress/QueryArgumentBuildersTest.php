@@ -338,6 +338,7 @@ final class QueryArgumentBuildersTest extends TestCase
         $args = $query->toArray();
         self::assertSame([2, 3, 4], $args['comment__in']);
         self::assertSame([1], $args['comment__not_in']);
+        self::assertSame([6], $args['author__in']);
         self::assertSame(10, $args['post_id']);
         self::assertSame('term', $args['search']);
         self::assertFalse($args['hierarchical']);
