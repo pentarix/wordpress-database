@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Pentarix\\WordPressDatabase\\WordPress;
+namespace Pentarix\WordPressDatabase\WordPress;
 
 use LogicException;
 
@@ -33,11 +33,11 @@ final class PostQuery
     /**
      * Execute the query and return the native WordPress query object.
      */
-    public function execute(): \\WP_Query
+    public function execute(): \WP_Query
     {
         $this->ensureWordPressIsLoaded();
 
-        return new \\WP_Query($this->queryArguments);
+        return new \WP_Query($this->queryArguments);
     }
 
     /**
@@ -62,7 +62,7 @@ final class PostQuery
         $queryArguments = $this->queryArguments;
         $queryArguments['posts_per_page'] = 1;
 
-        $query = new \\WP_Query($queryArguments);
+        $query = new \WP_Query($queryArguments);
 
         return $query->posts[0] ?? null;
     }
@@ -78,12 +78,12 @@ final class PostQuery
         $queryArguments['posts_per_page'] = 1;
         $queryArguments['no_found_rows'] = false;
 
-        return (int) (new \\WP_Query($queryArguments))->found_posts;
+        return (int) (new \WP_Query($queryArguments))->found_posts;
     }
 
     private function ensureWordPressIsLoaded(): void
     {
-        if (!class_exists(\\WP_Query::class)) {
+        if (!class_exists(\WP_Query::class)) {
             throw new LogicException('PostQuery requires WordPress to be loaded.');
         }
     }
