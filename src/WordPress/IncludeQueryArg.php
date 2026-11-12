@@ -51,11 +51,28 @@ class IncludeQueryArg implements QueryArg
         return true === $this->isIdentifier ? NumberUtil::absint($value) : (string) $value;
     }
 
+    protected function normaliseInput(int|float|string|array $value): int|float|string|array
+    {
+        if (!$this->isIdentifier || !\is_string($value)) {
+            return $value;
+        }
+
+        $value = \trim($value);
+
+        if ('' === $value) {
+            return [];
+        }
+
+        if (\preg_match('/[,\\s]/', $value)) {
+            return \preg_split('/[,\\s]+/', $value, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        }
+
+        return $value;
+    }
+
     public function include(int|float|string|array $value): static
     {
-        if ($this->isIdentifier && \is_string($value) && str_contains($value, ',')) {
-            $value = array_map('trim', explode(',', $value));
-        }
+        $value = $this->normaliseInput($value);
 
         $this->mergeIncluded(
             ArrayUtil::castValues($value, fn($item) => $this->cast($item))
