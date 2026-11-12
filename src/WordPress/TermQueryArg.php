@@ -17,12 +17,11 @@ class TermQueryArg implements QueryArg
     use SupportsQueryArguments;
 
     private IncludeExcludeQueryArg $termIds;
-    private IncludeExcludeQueryArg $parentIds;
     private ?int $termId = null;
     private ?int $parent = null;
     private string|array|null $taxonomy = null;
-    private ?string $name = null;
-    private ?string $slug = null;
+    private string|array|null $name = null;
+    private string|array|null $slug = null;
     private ?string $search = null;
     private ?string $nameLike = null;
     private ?string $descriptionLike = null;
@@ -34,7 +33,7 @@ class TermQueryArg implements QueryArg
     private ?bool $hideEmpty = null;
     private ?bool $hierarchical = null;
     private ?bool $padCounts = null;
-    private ?bool $get = null;
+    private ?string $get = null;
     private ?bool $updateTermMetaCache = null;
     private ?string $cacheDomain = null;
 
@@ -42,7 +41,6 @@ class TermQueryArg implements QueryArg
     {
         $this->initialiseQueryArguments($queryArray);
         $this->termIds = IncludeExcludeQueryArg::make(['include' => $queryArray['include'] ?? [], 'exclude' => $queryArray['exclude'] ?? []], ['includeKey' => 'include', 'excludeKey' => 'exclude']);
-        $this->parentIds = IncludeExcludeQueryArg::make(['parent__in' => $queryArray['parent__in'] ?? [], 'parent__not_in' => $queryArray['parent__not_in'] ?? []], ['includeKey' => 'parent__in', 'excludeKey' => 'parent__not_in']);
         if (array_key_exists('term_id', $queryArray)) {
             $this->termId = (int) $queryArray['term_id'];
         }
@@ -53,10 +51,10 @@ class TermQueryArg implements QueryArg
             $this->taxonomy = is_array($queryArray['taxonomy']) ? array_values(array_map('strval', $queryArray['taxonomy'])) : (string) $queryArray['taxonomy'];
         }
         if (array_key_exists('name', $queryArray)) {
-            $this->name = (string) $queryArray['name'];
+            $this->name = is_array($queryArray['name']) ? array_values(array_map('strval', $queryArray['name'])) : (string) $queryArray['name'];
         }
         if (array_key_exists('slug', $queryArray)) {
-            $this->slug = (string) $queryArray['slug'];
+            $this->slug = is_array($queryArray['slug']) ? array_values(array_map('strval', $queryArray['slug'])) : (string) $queryArray['slug'];
         }
         if (array_key_exists('search', $queryArray)) {
             $this->search = (string) $queryArray['search'];
@@ -92,7 +90,7 @@ class TermQueryArg implements QueryArg
             $this->padCounts = (bool) $queryArray['pad_counts'];
         }
         if (array_key_exists('get', $queryArray)) {
-            $this->get = (bool) $queryArray['get'];
+            $this->get = (string) $queryArray['get'];
         }
         if (array_key_exists('update_term_meta_cache', $queryArray)) {
             $this->updateTermMetaCache = (bool) $queryArray['update_term_meta_cache'];
@@ -139,7 +137,6 @@ class TermQueryArg implements QueryArg
     {
         $args = [];
         $args += $this->termIds->toArray();
-        $args += $this->parentIds->toArray();
         $values = [
             'term_id' => $this->termId,
             'parent' => $this->parent,
