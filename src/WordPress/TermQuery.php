@@ -55,7 +55,7 @@ final class TermQuery
         $this->ensureWordPressIsLoaded();
 
         $queryArguments = $this->queryArguments ?: ['fields' => 'all'];
-        $query = new \\WP_Term_Query();
+        $query = new \WP_Term_Query();
 
         $terms = $query->query($queryArguments);
 
@@ -93,7 +93,7 @@ final class TermQuery
         $queryArguments = $this->queryArguments;
         $queryArguments['fields'] = 'count';
 
-        $query = new \\WP_Term_Query();
+        $query = new \WP_Term_Query();
 
         return (int) $query->query($queryArguments ?: ['fields' => 'count']);
     }
