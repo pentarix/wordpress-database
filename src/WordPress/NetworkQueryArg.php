@@ -14,6 +14,8 @@ namespace Pentarix\WordPressDatabase\WordPress;
 
 class NetworkQueryArg implements QueryArg
 {
+    use SupportsQueryArguments;
+
     private IncludeExcludeQueryArg $networkIds;
     private ?int $networkId = null;
     private ?string $domain = null;
@@ -28,6 +30,7 @@ class NetworkQueryArg implements QueryArg
 
     public function __construct(array $queryArray = [])
     {
+        $this->initialiseQueryArguments($queryArray);
         $this->networkIds = IncludeExcludeQueryArg::make(['network__in' => $queryArray['network__in'] ?? [], 'network__not_in' => $queryArray['network__not_in'] ?? []], ['includeKey' => 'network__in', 'excludeKey' => 'network__not_in']);
         if (array_key_exists('network_id', $queryArray)) {
             $this->networkId = (int) $queryArray['network_id'];
@@ -109,6 +112,6 @@ class NetworkQueryArg implements QueryArg
             }
         }
 
-        return $args;
+        return $this->mergeQueryArguments($args);
     }
 }
