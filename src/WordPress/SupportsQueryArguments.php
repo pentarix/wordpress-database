@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Pentarix\\WordPressDatabase\\WordPress;
+namespace Pentarix\WordPressDatabase\WordPress;
 
 trait SupportsQueryArguments
 {
@@ -29,7 +29,7 @@ trait SupportsQueryArguments
     public function set(string $key, mixed $value): static
     {
         if ('' === $key) {
-            throw new \\InvalidArgumentException('Query argument keys cannot be empty.');
+            throw new \InvalidArgumentException('Query argument keys cannot be empty.');
         }
 
         $this->additionalQueryArgs[$key] = $value;
@@ -43,8 +43,8 @@ trait SupportsQueryArguments
     public function setMany(array $arguments): static
     {
         foreach ($arguments as $key => $value) {
-            if (!\\is_string($key) || '' === $key) {
-                throw new \\InvalidArgumentException('Query argument keys must be non-empty strings.');
+            if (!\is_string($key) || '' === $key) {
+                throw new \InvalidArgumentException('Query argument keys must be non-empty strings.');
             }
 
             $this->additionalQueryArgs[$key] = $value;
@@ -55,7 +55,7 @@ trait SupportsQueryArguments
 
     protected function mergeQueryArguments(array $arguments): array
     {
-        return \\array_replace(
+        return \array_replace(
             $this->originalQueryArgs,
             $arguments,
             $this->additionalQueryArgs
