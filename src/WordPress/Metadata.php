@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Pentarix\\WordPressDatabase\\WordPress;
+namespace Pentarix\WordPressDatabase\WordPress;
 
 use LogicException;
 
@@ -71,25 +71,25 @@ final class Metadata
         return metadata_exists($metaType, $objectId, $metaKey);
     }
 
-    public static function getById(int $metaId): ?object
+    public static function getById(string $metaType, int $metaId): ?object
     {
         self::ensureWordPressIsLoaded();
 
-        return get_metadata_by_mid('post', $metaId) ?: null;
+        return get_metadata_by_mid($metaType, $metaId) ?: null;
     }
 
-    public static function updateById(int $metaId, mixed $metaValue, ?string $metaKey = null): bool
+    public static function updateById(string $metaType, int $metaId, mixed $metaValue, ?string $metaKey = null): bool
     {
         self::ensureWordPressIsLoaded();
 
-        return update_metadata_by_mid($metaId, $metaValue, $metaKey);
+        return update_metadata_by_mid($metaType, $metaId, $metaValue, $metaKey);
     }
 
-    public static function deleteById(int $metaId): bool
+    public static function deleteById(string $metaType, int $metaId): bool
     {
         self::ensureWordPressIsLoaded();
 
-        return delete_metadata_by_mid('post', $metaId);
+        return delete_metadata_by_mid($metaType, $metaId);
     }
 
     private static function ensureWordPressIsLoaded(): void
