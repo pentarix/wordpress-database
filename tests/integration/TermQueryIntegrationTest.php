@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Pentarix\\WordPressDatabase\\WordPress\\TermQuery;
-use Pentarix\\WordPressDatabase\\WordPress\\TermQueryArg;
+use Pentarix\WordPressDatabase\WordPress\TermQuery;
+use Pentarix\WordPressDatabase\WordPress\TermQueryArg;
 
 final class TermQueryIntegrationTest extends WP_UnitTestCase
 {
