@@ -65,6 +65,114 @@ final class Site
         return get_site($site);
     }
 
+
+    /** Retrieve the current site in the active blog context. */
+    public static function getCurrent(): ?\WP_Site
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_site(get_current_blog_id());
+    }
+
+    /** Retrieve the current site ID. */
+    public static function getCurrentId(): int
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_current_blog_id();
+    }
+
+    /** Switch execution to another site. */
+    public static function switchTo(int $siteId): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return switch_to_blog($siteId);
+    }
+
+    /** Restore the previous site context. */
+    public static function restoreCurrent(): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return restore_current_blog();
+    }
+
+    /** Determine whether the current request has switched site context. */
+    public static function isSwitched(): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return ms_is_switched();
+    }
+
+    /** Retrieve a site's home URL. */
+    public static function getHomeUrl(int $siteId, string $path = '', ?string $scheme = null): string
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_home_url($siteId, $path, $scheme);
+    }
+
+    /** Retrieve a site's WordPress URL. */
+    public static function getSiteUrl(int $siteId, string $path = '', ?string $scheme = null): string
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_site_url($siteId, $path, $scheme);
+    }
+
+    /** Retrieve a site's administrative URL. */
+    public static function getAdminUrl(int $siteId, string $path = '', string $scheme = 'admin'): string
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_admin_url($siteId, $path, $scheme);
+    }
+
+    /** Retrieve an option belonging to a specific site. */
+    public static function getOption(int $siteId, string $option, mixed $default = false): mixed
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_blog_option($siteId, $option, $default);
+    }
+
+    /** Update an option belonging to a specific site. */
+    public static function updateOption(int $siteId, string $option, mixed $value): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return update_blog_option($siteId, $option, $value);
+    }
+
+    /** Delete an option belonging to a specific site. */
+    public static function deleteOption(int $siteId, string $option): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return delete_blog_option($siteId, $option);
+    }
+
+
+    /** Retrieve a network's main site. */
+    public static function getMain(?int $networkId = null): ?\WP_Site
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_site(get_main_site_id($networkId));
+    }
+
+    /** Retrieve the network ID to which a site belongs. */
+    public static function getNetworkId(int|\WP_Site $site): int
+    {
+        self::ensureWordPressIsLoaded();
+
+        $site = $site instanceof \WP_Site ? $site : get_site($site);
+
+        return $site ? (int) $site->network_id : 0;
+    }
+
     private static function ensureWordPressIsLoaded(): void
     {
         if (!function_exists('wp_insert_site')) {

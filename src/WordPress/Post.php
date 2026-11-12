@@ -78,6 +78,122 @@ final class Post
         return get_post($post, $output, $filter);
     }
 
+
+    /** Retrieve a post's permalink. */
+    public static function getPermalink(int|\WP_Post $post, bool $leavename = false): string|false
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_permalink($post, $leavename);
+    }
+
+    /** Retrieve a post field using WordPress's native formatting rules. */
+    public static function getField(string $field, int|\WP_Post $post, string $context = 'display'): mixed
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_post_field($field, $post, $context);
+    }
+
+    /** Retrieve a post's title. */
+    public static function getTitle(int|\WP_Post $post): string
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_the_title($post);
+    }
+
+    /** Retrieve a post's content. */
+    public static function getContent(int|\WP_Post $post): string|false
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_post_field('post_content', $post);
+    }
+
+    /** Retrieve a post's excerpt. */
+    public static function getExcerpt(int|\WP_Post $post): string
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_the_excerpt($post);
+    }
+
+    /** Retrieve a post's status. */
+    public static function getStatus(int|\WP_Post $post): string|false
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_post_status($post);
+    }
+
+    /** Retrieve a post's registered post type. */
+    public static function getType(int|\WP_Post $post): string|false
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_post_type($post);
+    }
+
+    /** Retrieve a post's parent ID. */
+    public static function getParentId(int|\WP_Post $post): int|false
+    {
+        self::ensureWordPressIsLoaded();
+
+        return wp_get_post_parent_id($post);
+    }
+
+    /** Retrieve a post's ancestor IDs. */
+    public static function getAncestors(int|\WP_Post $post): array
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_post_ancestors($post);
+    }
+
+    /** Retrieve child posts using the native get_children() arguments. */
+    public static function getChildren(int|\WP_Post $post, array|string $args = []): array
+    {
+        self::ensureWordPressIsLoaded();
+
+        $args = wp_parse_args($args);
+        $args['post_parent'] = (int) (is_object($post) ? $post->ID : $post);
+
+        return get_children($args);
+    }
+
+    /** Retrieve a post's featured image attachment ID. */
+    public static function getThumbnailId(int|\WP_Post $post): int|false
+    {
+        self::ensureWordPressIsLoaded();
+
+        return get_post_thumbnail_id($post);
+    }
+
+    /** Set a post's featured image. */
+    public static function setThumbnail(int|\WP_Post $post, int $attachmentId): bool|int
+    {
+        self::ensureWordPressIsLoaded();
+
+        return set_post_thumbnail($post, $attachmentId);
+    }
+
+    /** Remove a post's featured image. */
+    public static function deleteThumbnail(int|\WP_Post $post): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return delete_post_thumbnail($post);
+    }
+
+    /** Determine whether a post has a featured image. */
+    public static function hasThumbnail(int|\WP_Post $post): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return has_post_thumbnail($post);
+    }
+
     private static function ensureWordPressIsLoaded(): void
     {
         if (!function_exists('wp_insert_post')) {
