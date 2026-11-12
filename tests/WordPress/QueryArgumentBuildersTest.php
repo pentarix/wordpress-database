@@ -289,13 +289,20 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame(5, $args['posts_per_page']);
         self::assertSame(3, $args['paged']);
         self::assertSame(2, $args['offset']);
-        self::assertSame('ASC', $args['order']);
+        self::assertSame('DESC', $args['order']);
         self::assertSame('ids', $args['fields']);
         self::assertSame($date->toArray(), $args['date_query']);
         self::assertSame($meta->toArray(), $args['meta_query']);
         self::assertSame($tax->toArray(), $args['tax_query']);
         self::assertSame(['one', '2'], $args['post_name__in']);
         self::assertSame(['value' => 2, 'compare' => '>='], $args['comment_count']);
+    }
+
+    public function testPostQueryArgUsesWordPressOrderFallback(): void
+    {
+        self::assertSame(['order' => 'DESC'], PostQueryArg::make(['order' => 'invalid'])->toArray());
+        self::assertSame(['order' => 'DESC'], PostQueryArg::make()->order('invalid')->toArray());
+        self::assertSame(['order' => 'ASC'], PostQueryArg::make()->order('asc')->toArray());
     }
 
     public function testPostQueryArgPreservesScalarPostTypeAndStatusValues(): void
@@ -633,6 +640,13 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame(2, $args[3]['dayofweek']);
         self::assertSame([1, 5], $args[4]['dayofweek_iso']);
             }
+
+    public function testUserQueryArgUsesWordPressOrderFallback(): void
+    {
+        self::assertSame('DESC', UserQueryArg::make(['order' => 'invalid'])->toArray()['order']);
+        self::assertSame('DESC', UserQueryArg::make()->orderBy('ID', 'invalid')->toArray()['order']);
+        self::assertSame('ASC', UserQueryArg::make()->orderBy('ID', 'asc')->toArray()['order']);
+    }
 
     public function testUserQueryArgAcceptsMultipleMetaKeys(): void
     {
