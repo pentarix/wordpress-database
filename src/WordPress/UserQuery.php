@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Pentarix\\WordPressDatabase\\WordPress;
+namespace Pentarix\WordPressDatabase\WordPress;
 
 use InvalidArgumentException;
 use LogicException;
@@ -34,14 +34,14 @@ final class UserQuery
     /**
      * Execute the query and return the native WordPress query object.
      */
-    public function execute(): \\WP_User_Query
+    public function execute(): \WP_User_Query
     {
         $this->ensureWordPressIsLoaded();
 
         // WP_User_Query skips execution when its constructor receives an empty array.
         $queryArguments = $this->queryArguments ?: ['fields' => 'all'];
 
-        return new \\WP_User_Query($queryArguments);
+        return new \WP_User_Query($queryArguments);
     }
 
     /**
@@ -53,7 +53,7 @@ final class UserQuery
     {
         $results = $this->execute()->get_results();
 
-        return \\is_array($results) ? $results : [];
+        return \is_array($results) ? $results : [];
     }
 
     /**
@@ -68,7 +68,7 @@ final class UserQuery
         $queryArguments = $this->queryArguments;
         $queryArguments['number'] = 1;
 
-        $query = new \\WP_User_Query($queryArguments ?: ['number' => 1]);
+        $query = new \WP_User_Query($queryArguments ?: ['number' => 1]);
 
         return $query->get_results()[0] ?? null;
     }
@@ -84,7 +84,7 @@ final class UserQuery
         $queryArguments['number'] = 1;
         $queryArguments['count_total'] = true;
 
-        return (int) (new \\WP_User_Query($queryArguments))->get_total();
+        return (int) (new \WP_User_Query($queryArguments))->get_total();
     }
 
     /**
@@ -94,7 +94,7 @@ final class UserQuery
      * An explicit offset is ignored so that the requested page determines the
      * result offset.
      */
-    public function paginate(int $perPage, int $page = 1): \\WP_User_Query
+    public function paginate(int $perPage, int $page = 1): \WP_User_Query
     {
         if ($perPage < 1) {
             throw new InvalidArgumentException('The per-page value must be greater than zero.');
@@ -113,12 +113,12 @@ final class UserQuery
 
         unset($queryArguments['offset']);
 
-        return new \\WP_User_Query($queryArguments);
+        return new \WP_User_Query($queryArguments);
     }
 
     private function ensureWordPressIsLoaded(): void
     {
-        if (!class_exists(\\WP_User_Query::class)) {
+        if (!class_exists(\WP_User_Query::class)) {
             throw new LogicException('UserQuery requires WordPress to be loaded.');
         }
     }
