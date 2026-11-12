@@ -33,7 +33,7 @@ class IncludeQueryArg implements QueryArg
         $this->includeKey = $includeKey;
 
         if (isset($queryArray[$this->includeKey])) {
-            $this->include((array) $queryArray[$this->includeKey]);
+            $this->include($queryArray[$this->includeKey]);
         }
     }
 
@@ -53,6 +53,10 @@ class IncludeQueryArg implements QueryArg
 
     public function include(int|float|string|array $value): static
     {
+        if ($this->isIdentifier && \is_string($value) && str_contains($value, ',')) {
+            $value = array_map('trim', explode(',', $value));
+        }
+
         $this->mergeIncluded(
             ArrayUtil::castValues($value, fn($item) => $this->cast($item))
         );
