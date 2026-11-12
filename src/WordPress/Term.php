@@ -199,14 +199,6 @@ final class Term
         return wp_count_terms($taxonomy, $args);
     }
 
-    /** Retrieve terms associated with an object, preserving native arguments. */
-    public static function getForObject(int $objectId, string $taxonomy, array $args = []): array|\WP_Error
-    {
-        self::ensureWordPressIsLoaded();
-
-        return wp_get_object_terms($objectId, $taxonomy, $args);
-    }
-
     private static function ensureWordPressIsLoaded(): void
     {
         if (!function_exists('wp_insert_term')) {

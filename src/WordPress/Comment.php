@@ -135,7 +135,9 @@ final class Comment
         $parent = get_comment($commentId);
 
         if (!$parent) {
-            return new \WP_Error('invalid_comment', 'The parent comment does not exist.');
+            return $wpError
+                ? new \WP_Error('invalid_comment', 'The parent comment does not exist.')
+                : false;
         }
 
         $commentData['comment_post_ID'] = (int) $parent->comment_post_ID;

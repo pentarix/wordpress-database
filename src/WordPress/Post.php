@@ -104,7 +104,7 @@ final class Post
     }
 
     /** Retrieve a post's content. */
-    public static function getContent(int|\WP_Post $post): string
+    public static function getContent(int|\WP_Post $post): string|false
     {
         self::ensureWordPressIsLoaded();
 
