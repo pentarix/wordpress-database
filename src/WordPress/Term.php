@@ -70,7 +70,7 @@ final class Term
     public static function get(
         int|object $term,
         string $taxonomy = '',
-        string $output = OBJECT,
+        string $output = 'OBJECT',
         string $filter = 'raw'
     ): mixed {
         self::ensureWordPressIsLoaded();
