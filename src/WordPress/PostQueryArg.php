@@ -92,7 +92,7 @@ class PostQueryArg implements QueryArg
             $this->orderBy = $queryArray['orderby'];
         }
         if (isset($queryArray['order'])) {
-            $this->order = 'DESC' === strtoupper((string) $queryArray['order']) ? 'DESC' : 'ASC';
+            $this->order = 'ASC' === strtoupper((string) $queryArray['order']) ? 'ASC' : 'DESC';
         }
         if (isset($queryArray['name'])) {
             $this->postName = (string) $queryArray['name'];
@@ -209,7 +209,7 @@ class PostQueryArg implements QueryArg
     public function orderBy(string|array $column): self { $this->orderBy = $column;
 
         return $this; }
-    public function order(string $order): self { $this->order = 'DESC' === strtoupper($order) ? 'DESC' : 'ASC';
+    public function order(string $order): self { $this->order = 'ASC' === strtoupper($order) ? 'ASC' : 'DESC';
 
         return $this; }
     public function fields(string $fields): self { $this->fields = $fields;
