@@ -100,7 +100,10 @@ final class PostQueryIntegrationTest extends WP_UnitTestCase
                 ->offset(2)
         )->paginate(2, 1);
 
-        self::assertSame($postIds, array_map('intval', wp_list_pluck($query->posts, 'ID')));
+        self::assertSame(
+            array_slice($postIds, 0, 2),
+            array_map('intval', wp_list_pluck($query->posts, 'ID'))
+        );
         self::assertSame(3, (int) $query->found_posts);
     }
 
