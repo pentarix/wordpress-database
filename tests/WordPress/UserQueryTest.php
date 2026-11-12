@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Pentarix\\WordPressDatabase\\WordPress\\UserQuery;
+use Pentarix\WordPressDatabase\WordPress\UserQuery;
 
-final class UserQueryTest extends PHPUnit\\Framework\\TestCase
+final class UserQueryTest extends PHPUnit\Framework\TestCase
 {
     public function testExecutionRequiresWordPressToBeLoaded(): void
     {
