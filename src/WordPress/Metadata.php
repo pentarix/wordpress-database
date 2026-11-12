@@ -71,6 +71,25 @@ final class Metadata
         return metadata_exists($metaType, $objectId, $metaKey);
     }
 
+    public static function register(
+        string $metaType,
+        string $metaKey,
+        array $args,
+        string $objectSubtype = ''
+    ): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return register_meta($metaType, $metaKey, $args, $objectSubtype);
+    }
+
+    public static function unregister(string $metaType, string $metaKey, string $objectSubtype = ''): bool
+    {
+        self::ensureWordPressIsLoaded();
+
+        return unregister_meta_key($metaType, $metaKey, $objectSubtype);
+    }
+
     public static function getById(string $metaType, int $metaId): ?object
     {
         self::ensureWordPressIsLoaded();
