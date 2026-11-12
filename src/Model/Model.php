@@ -12,7 +12,9 @@ declare(strict_types=1);
 
 namespace Pentarix\WordPressDatabase\Model;
 
+use InvalidArgumentException;
 use LogicException;
+use Pentarix\WordPressDatabase\WordPress\Metadata;
 use Pentarix\WordPressDatabase\WordPress\Post;
 use Pentarix\WordPressDatabase\WordPress\PostQueryArg;
 use Pentarix\WordPressDatabase\WordPress\User;
@@ -20,15 +22,56 @@ use Pentarix\WordPressDatabase\WordPress\User;
 /**
  * Fluent, stateful representation of a registered WordPress post.
  *
- * Subclasses define their post type; persistence and retrieval are delegated
- * to the package's native Post API.
+ * Post-table fields and post metadata share one attribute interface. The
+ * model routes each attribute to the appropriate native WordPress API.
  */
 abstract class Model
 {
     protected static string $postType = 'post';
 
+    /**
+     * Fields stored directly in the wp_posts table.
+     *
+     * ID and post_type are managed separately because they identify and
+     * constrain the model rather than being freely assignable attributes.
+     *
+     * @var array<int, string>
+     */
+    private const POST_FIELDS = [
+        'post_author',
+        'post_date',
+        'post_date_gmt',
+        'post_content',
+        'post_title',
+        'post_excerpt',
+        'post_status',
+        'comment_status',
+        'ping_status',
+        'post_password',
+        'post_name',
+        'to_ping',
+        'pinged',
+        'post_modified',
+        'post_modified_gmt',
+        'post_content_filtered',
+        'post_parent',
+        'guid',
+        'menu_order',
+        'post_mime_type',
+        'comment_count',
+    ];
+
     /** @var array<string, mixed> */
     protected array $attributes = [];
+
+    /** @var array<string, mixed> */
+    private array $metaAttributes = [];
+
+    /** @var array<string, true> */
+    private array $dirtyMetaAttributes = [];
+
+    /** @var array<string, true> */
+    private array $deletedMetaAttributes = [];
 
     protected ?int $postId = null;
 
@@ -87,7 +130,7 @@ abstract class Model
     /** Retrieve the post author through the native User entity API. */
     public function author(): \WP_User|false
     {
-        $authorId = (int) ($this->attributes['post_author'] ?? 0);
+        $authorId = (int) $this->get('post_author', 0);
 
         return 0 < $authorId ? User::get($authorId) : false;
     }
@@ -102,23 +145,80 @@ abstract class Model
         return null !== $this->postId;
     }
 
+    /**
+     * Retrieve a post field or metadata value through one attribute interface.
+     *
+     * Metadata is loaded lazily and cached for the lifetime of this instance.
+     */
     public function get(string $key, mixed $default = null): mixed
     {
-        return $this->attributes[$key] ?? $default;
+        if ('ID' === $key) {
+            return $this->postId ?? $default;
+        }
+
+        if ('post_type' === $key) {
+            return static::$postType;
+        }
+
+        if (in_array($key, self::POST_FIELDS, true)) {
+            return array_key_exists($key, $this->attributes)
+                ? $this->attributes[$key]
+                : $default;
+        }
+
+        if (array_key_exists($key, $this->metaAttributes)) {
+            return $this->metaAttributes[$key];
+        }
+
+        if (null === $this->postId || !Metadata::exists('post', $this->postId, $key)) {
+            return $default;
+        }
+
+        $value = Metadata::get('post', $this->postId, $key, true);
+        $this->metaAttributes[$key] = $value;
+
+        return $value;
     }
 
     public function has(string $key): bool
     {
-        return array_key_exists($key, $this->attributes);
+        if ('ID' === $key) {
+            return null !== $this->postId;
+        }
+
+        if ('post_type' === $key) {
+            return true;
+        }
+
+        if (in_array($key, self::POST_FIELDS, true)) {
+            return array_key_exists($key, $this->attributes);
+        }
+
+        if (array_key_exists($key, $this->metaAttributes)) {
+            return true;
+        }
+
+        return null !== $this->postId && Metadata::exists('post', $this->postId, $key);
     }
 
+    /**
+     * Set a post-table field or metadata value without exposing its storage.
+     */
     public function set(string $key, mixed $value): static
     {
         if ('' === $key || 'ID' === $key || 'post_type' === $key) {
-            throw new \InvalidArgumentException('The model key is empty or managed by the model.');
+            throw new InvalidArgumentException('The model key is empty or managed by the model.');
         }
 
-        $this->attributes[$key] = $value;
+        if (in_array($key, self::POST_FIELDS, true)) {
+            $this->attributes[$key] = $value;
+
+            return $this;
+        }
+
+        $this->metaAttributes[$key] = $value;
+        $this->dirtyMetaAttributes[$key] = true;
+        unset($this->deletedMetaAttributes[$key]);
 
         return $this;
     }
@@ -127,7 +227,7 @@ abstract class Model
     {
         foreach ($attributes as $key => $value) {
             if (!is_string($key)) {
-                throw new \InvalidArgumentException('Model attribute keys must be strings.');
+                throw new InvalidArgumentException('Model attribute keys must be strings.');
             }
 
             $this->set($key, $value);
@@ -136,14 +236,69 @@ abstract class Model
         return $this;
     }
 
-    /** @return array<string, mixed> */
-    public function toArray(): array
+    /**
+     * Remove a metadata attribute when the model is next saved.
+     *
+     * Core post-table fields cannot be removed through this method.
+     */
+    public function removeAttribute(string $key): static
     {
-        return $this->attributes;
+        if (in_array($key, self::POST_FIELDS, true) || 'ID' === $key || 'post_type' === $key) {
+            throw new InvalidArgumentException('Only metadata attributes can be removed.');
+        }
+
+        unset($this->metaAttributes[$key], $this->dirtyMetaAttributes[$key]);
+
+        if (null !== $this->postId) {
+            $this->deletedMetaAttributes[$key] = true;
+        } else {
+            unset($this->deletedMetaAttributes[$key]);
+        }
+
+        return $this;
     }
 
     /**
-     * Persist the model through wp_insert_post() or wp_update_post().
+     * Return core fields and metadata values already loaded or assigned.
+     *
+     * This method does not fetch every metadata row; metadata remains lazy.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return array_merge(
+            [
+                'ID' => $this->postId,
+                'post_type' => static::$postType,
+            ],
+            $this->attributes,
+            $this->metaAttributes
+        );
+    }
+
+    public function __get(string $key): mixed
+    {
+        return $this->get($key);
+    }
+
+    public function __set(string $key, mixed $value): void
+    {
+        $this->set($key, $value);
+    }
+
+    public function __isset(string $key): bool
+    {
+        return null !== $this->get($key);
+    }
+
+    public function __unset(string $key): void
+    {
+        $this->removeAttribute($key);
+    }
+
+    /**
+     * Persist core fields and metadata through their respective Core APIs.
      *
      * @return bool|\WP_Error
      */
@@ -168,8 +323,29 @@ abstract class Model
         }
 
         $this->postId = $result;
+        $knownMetaKeys = array_keys($this->metaAttributes);
 
-        return $this->refresh();
+        foreach ($this->dirtyMetaAttributes as $key => $_) {
+            Metadata::update('post', $this->postId, $key, $this->metaAttributes[$key]);
+        }
+
+        foreach ($this->deletedMetaAttributes as $key => $_) {
+            Metadata::delete('post', $this->postId, $key);
+        }
+
+        $deletedMetaKeys = array_keys($this->deletedMetaAttributes);
+        $this->dirtyMetaAttributes = [];
+        $this->deletedMetaAttributes = [];
+
+        if (!$this->refresh()) {
+            return false;
+        }
+
+        foreach (array_diff($knownMetaKeys, $deletedMetaKeys) as $key) {
+            $this->get($key);
+        }
+
+        return true;
     }
 
     /** Delete the underlying post using WordPress's native deletion behaviour. */
@@ -182,7 +358,7 @@ abstract class Model
         return Post::delete($this->postId, $forceDelete);
     }
 
-    /** Reload the current post and discard unsaved attribute changes. */
+    /** Reload the post and discard unsaved changes to both fields and metadata. */
     public function refresh(): bool
     {
         if (null === $this->postId) {
@@ -202,18 +378,24 @@ abstract class Model
 
     protected function load(int|\WP_Post $post): void
     {
-        $record = Post::get($post);
+        $record = $post instanceof \WP_Post ? $post : Post::get($post);
 
         if (!$record instanceof \WP_Post) {
             throw new LogicException('The supplied post could not be retrieved.');
         }
 
         if (static::$postType !== $record->post_type) {
-            throw new \InvalidArgumentException('The post type does not match this model.');
+            throw new InvalidArgumentException('The post type does not match this model.');
         }
 
         $this->postId = (int) $record->ID;
-        $this->attributes = get_object_vars($record);
-        unset($this->attributes['ID'], $this->attributes['post_type']);
+        $this->attributes = array_intersect_key(
+            get_object_vars($record),
+            array_fill_keys(self::POST_FIELDS, true)
+        );
+
+        $this->metaAttributes = [];
+        $this->dirtyMetaAttributes = [];
+        $this->deletedMetaAttributes = [];
     }
 }
