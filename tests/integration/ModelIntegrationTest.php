@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use LogicException;
 use Pentarix\WordPressDatabase\Model\Model;
 use Pentarix\WordPressDatabase\Model\ModelPaginator;
 
@@ -257,7 +256,7 @@ final class ModelIntegrationTest extends WP_UnitTestCase
         ));
 
         self::assertIsArray($model->addTerms([(int) $secondTerm['term_id']], 'article_topic'));
-        self::assertSame(
+        self::assertEqualsCanonicalizing(
             [(int) $firstTerm['term_id'], (int) $secondTerm['term_id']],
             array_map(
                 static fn (WP_Term $term): int => (int) $term->term_id,
