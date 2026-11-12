@@ -40,7 +40,7 @@ class DateQueryArg implements QueryArg
     public function after(
         string|array $date,
         bool $inclusive = false,
-        string $column = 'post_date'
+        ?string $column = null
     ): self {
         return $this->where(
             [
@@ -166,8 +166,11 @@ class DateQueryArg implements QueryArg
     {
         $clause = [
             $key => $value,
-            'column' => $column,
         ];
+
+        if (null !== $column) {
+            $clause['column'] = $column;
+        }
 
         if ('=' !== $compare) {
             $clause['compare'] = $compare;
