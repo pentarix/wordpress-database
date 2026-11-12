@@ -56,18 +56,14 @@ class IncludeExcludeIsQueryArg extends IncludeExcludeQueryArg
 
     public function is(string|array $value): static
     {
-        if (false === $this->multiValue) {
-            if (!\is_string($value)) {
-                throw new InvalidArgumentException('Is value must be a string in single-value mode.');
-            }
-
+        if (\is_string($value)) {
             $this->is = '' === $value ? null : $value;
 
             return $this;
         }
 
         if (!\is_array($value)) {
-            throw new InvalidArgumentException('Is value must be an array in multi-value mode.');
+            throw new InvalidArgumentException('Is value must be a string or an array.');
         }
 
         $value = ArrayUtil::normalizeUniqueStrings($value);
