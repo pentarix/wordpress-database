@@ -281,7 +281,7 @@ final class QueryArgumentBuildersTest extends TestCase
 
         $additionalClause = [
             'taxonomy' => 'post_tag',
-            'terms' => ['news'],
+            'terms' => 'news',
             'field' => 'slug',
             'operator' => 'IN',
             'include_children' => true,
