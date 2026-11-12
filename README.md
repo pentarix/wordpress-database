@@ -190,8 +190,8 @@ The execution layer requires WordPress to be loaded. Argument builders remain in
 Use `SiteQuery` to execute a native `WP_Site_Query` while retaining its result contract:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\SiteQuery;
-use Pentarix\\WordPressDatabase\\WordPress\\SiteQueryArg;
+use Pentarix\WordPressDatabase\WordPress\SiteQuery;
+use Pentarix\WordPressDatabase\WordPress\SiteQueryArg;
 
 $query = SiteQuery::make(
     SiteQueryArg::make([
