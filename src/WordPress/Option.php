@@ -94,7 +94,7 @@ final class Option
     {
         self::ensureWordPressIsLoaded();
 
-        $default = new \\stdClass();
+        $default = new \stdClass();
 
         return get_site_option($name, $default) !== $default;
     }
@@ -134,7 +134,7 @@ final class Option
     {
         self::ensureWordPressIsLoaded();
 
-        $default = new \\stdClass();
+        $default = new \stdClass();
 
         return get_blog_option($blogId, $name, $default) !== $default;
     }
