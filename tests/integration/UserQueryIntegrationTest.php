@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Pentarix\\WordPressDatabase\\WordPress\\UserQuery;
-use Pentarix\\WordPressDatabase\\WordPress\\UserQueryArg;
+use Pentarix\WordPressDatabase\WordPress\UserQuery;
+use Pentarix\WordPressDatabase\WordPress\UserQueryArg;
 
 final class UserQueryIntegrationTest extends WP_UnitTestCase
 {
