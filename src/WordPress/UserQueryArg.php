@@ -177,9 +177,9 @@ class UserQueryArg implements QueryArg
         }
 
         if (isset($queryArray['order'])) {
-            $this->order = 'DESC' === \strtoupper($queryArray['order'])
-                ? 'DESC'
-                : 'ASC';
+            $this->order = 'ASC' === \strtoupper($queryArray['order'])
+                ? 'ASC'
+                : 'DESC';
         }
 
         if (isset($queryArray['number'])) {
@@ -478,9 +478,9 @@ class UserQueryArg implements QueryArg
     public function orderBy(string|array $field, string $direction = 'ASC'): self
     {
         $this->orderBy = $field;
-        $this->order = 'DESC' === \strtoupper($direction)
-            ? 'DESC'
-            : 'ASC';
+        $this->order = 'ASC' === \strtoupper($direction)
+            ? 'ASC'
+            : 'DESC';
 
         return $this;
     }
