@@ -234,7 +234,12 @@ class TaxQueryArg implements QueryArg
 
     private function isFirstOrderClause(array $query): bool
     {
-        return isset($query['taxonomy']) || isset($query['terms']);
+        return [] === $query
+            || array_key_exists('terms', $query)
+            || array_key_exists('taxonomy', $query)
+            || array_key_exists('include_children', $query)
+            || array_key_exists('field', $query)
+            || array_key_exists('operator', $query);
     }
 
     public function toArray(): array
