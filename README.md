@@ -15,15 +15,15 @@ The package provides WordPress query argument builders and a small execution lay
 composer require pentarix/wordpress-database
 ```
 
-Composer maps the `Pentarix\\WordPressDatabase\\` namespace to `src/` using PSR-4.
+Composer maps the `Pentarix\WordPressDatabase\` namespace to `src/` using PSR-4.
 
 ## Usage
 
 Build arguments independently from WordPress, then pass them to the native query API:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\MetaQueryArg;
-use Pentarix\\WordPressDatabase\\WordPress\\PostQueryArg;
+use Pentarix\WordPressDatabase\WordPress\MetaQueryArg;
+use Pentarix\WordPressDatabase\WordPress\PostQueryArg;
 
 $args = PostQueryArg::make()
     ->postType('product')
@@ -32,14 +32,14 @@ $args = PostQueryArg::make()
     ->metaQuery(MetaQueryArg::make()->where('featured', true))
     ->toArray();
 
-$query = new \\WP_Query($args);
+$query = new \WP_Query($args);
 ```
 
 For a convenient execution API, use `PostQuery`:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\PostQuery;
-use Pentarix\\WordPressDatabase\\WordPress\\PostQueryArg;
+use Pentarix\WordPressDatabase\WordPress\PostQuery;
+use Pentarix\WordPressDatabase\WordPress\PostQueryArg;
 
 $query = PostQuery::make(
     PostQueryArg::make()
@@ -74,6 +74,40 @@ WordPress does not reliably combine an explicit `offset` with `paged` pagination
 
 The execution layer requires WordPress to be loaded. Argument builders remain independently usable without a WordPress runtime.
 
+### User queries
+
+Use `UserQuery` to execute a `WP_User_Query` while retaining WordPress's native result contract:
+
+```php
+use Pentarix\WordPressDatabase\WordPress\UserQuery;
+use Pentarix\WordPressDatabase\WordPress\UserQueryArg;
+
+$query = UserQuery::make(
+    UserQueryArg::make()
+        ->role('editor')
+        ->orderBy('ID', 'ASC')
+        ->limit(20)
+);
+
+$wpQuery = $query->execute(); // WP_User_Query
+$users = $query->get();       // Results for the configured query
+$first = $query->first();     // First result, or null
+$total = $query->count();     // Total matching users
+```
+
+`get()` returns the native results from `WP_User_Query::get_results()`; the result shape follows the configured `fields` argument. `first()` also respects `fields`, while `count()` enables `count_total` and returns `get_total()`, regardless of the configured page size.
+
+For pagination, use the native query object and its result/count methods:
+
+```php
+$results = $query->paginate(perPage: 20, page: 2);
+
+$users = $results->get_results();
+$total = $results->get_total();
+```
+
+`paginate()` sets `number`, `paged`, and `count_total`, and returns the native `WP_User_Query` instance. Both pagination arguments must be positive integers. An existing `offset` is removed because WordPress gives it precedence over the page-based offset calculation; use `execute()` when you need a manually controlled offset.
+
 ## Available builders
 
 - `CommentQueryArg`
@@ -86,7 +120,7 @@ The execution layer requires WordPress to be loaded. Argument builders remain in
 - `TermQueryArg`
 - `UserQueryArg`
 
-Supporting builders (`IncludeQueryArg`, `IncludeExcludeQueryArg`, `IncludeExcludeIsQueryArg`, and `SearchQueryArg`) are also available under `Pentarix\\WordPressDatabase\\WordPress`.
+Supporting builders (`IncludeQueryArg`, `IncludeExcludeQueryArg`, `IncludeExcludeIsQueryArg`, and `SearchQueryArg`) are also available under `Pentarix\WordPressDatabase\WordPress`.
 
 ## Argument coverage
 
@@ -114,9 +148,9 @@ Values are passed to WordPress as supplied. WordPress remains responsible for va
 For example:
 
 ```php
-use Pentarix\\WordPressDatabase\\WordPress\\MetaQueryArg;
-use Pentarix\\WordPressDatabase\\WordPress\\PostQueryArg;
-use Pentarix\\WordPressDatabase\\WordPress\\TaxQueryArg;
+use Pentarix\WordPressDatabase\WordPress\MetaQueryArg;
+use Pentarix\WordPressDatabase\WordPress\PostQueryArg;
+use Pentarix\WordPressDatabase\WordPress\TaxQueryArg;
 
 $args = PostQueryArg::make()
     ->metaQuery(
@@ -131,7 +165,7 @@ $args = PostQueryArg::make()
     )
     ->toArray();
 
-$query = new \\WP_Query($args);
+$query = new \WP_Query($args);
 ```
 
 ## Scope
@@ -145,7 +179,7 @@ The argument builders produce arrays for WordPress query APIs, including:
 - `WP_Site_Query`
 - `WP_Network_Query`
 
-The execution helper currently covers `WP_Query` only. Other query APIs retain their native WordPress execution paths until their distinct result contracts are designed.
+The execution helpers currently cover `WP_Query` and `WP_User_Query`. Other query APIs retain their native WordPress execution paths until their distinct result contracts are designed.
 
 The package does not replace WordPress query classes or bypass the WordPress query lifecycle. Direct SQL, custom-table CRUD, repositories, models, and migrations are outside the current scope.
 
