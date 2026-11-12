@@ -224,6 +224,24 @@ abstract class Model
         return Term::getForObject($this->postId, $taxonomy, $arguments);
     }
 
+    /** Replace all terms assigned to this post in a taxonomy. */
+    public function setTerms(array|string|int $terms, string $taxonomy): array|\WP_Error
+    {
+        return Term::assignToObject($this->requirePersistedPostId(), $terms, $taxonomy);
+    }
+
+    /** Add terms to this post without removing existing assignments. */
+    public function addTerms(array|string|int $terms, string $taxonomy): array|\WP_Error
+    {
+        return Term::assignToObject($this->requirePersistedPostId(), $terms, $taxonomy, true);
+    }
+
+    /** Remove term assignments from this post. */
+    public function removeTerms(array|string|int $terms, string $taxonomy): bool|\WP_Error
+    {
+        return Term::removeFromObject($this->requirePersistedPostId(), $terms, $taxonomy);
+    }
+
     /**
      * Retrieve comments through the native CommentQuery implementation.
      *
@@ -493,6 +511,15 @@ abstract class Model
         $this->load($post);
 
         return true;
+    }
+
+    private function requirePersistedPostId(): int
+    {
+        if (null === $this->postId) {
+            throw new LogicException('Taxonomy terms can only be changed after the model has been saved.');
+        }
+
+        return $this->postId;
     }
 
     protected function load(int|\WP_Post $post): void

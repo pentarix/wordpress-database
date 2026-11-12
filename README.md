@@ -465,9 +465,15 @@ the underlying WordPress entities:
 - `children()` returns child posts hydrated as the current model type and
   accepts native post query arguments.
 - `thumbnail()` returns the native attachment `WP_Post`, or `null`.
-- `terms($taxonomy, $arguments)` delegates to the native Term API.
+- `terms($taxonomy, $arguments)` retrieves terms through the native Term API.
+- `setTerms($terms, $taxonomy)` replaces the post's term assignments.
+- `addTerms($terms, $taxonomy)` appends term assignments.
+- `removeTerms($terms, $taxonomy)` removes selected term assignments.
 - `comments($arguments)` delegates to the existing CommentQuery API and
   preserves native query output options.
+
+Taxonomy mutation methods require a persisted model and preserve the native
+WordPress return values and error behaviour.
 
 These methods return native WordPress objects for related entity types rather
 than introducing parallel User, Term, Comment, or Attachment model hierarchies.
