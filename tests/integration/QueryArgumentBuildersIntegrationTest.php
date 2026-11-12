@@ -42,7 +42,7 @@ final class QueryArgumentBuildersIntegrationTest extends WP_UnitTestCase
 
         $query = new WP_Query($args);
 
-        self::assertSame([$matchingPostId], wp_list_pluck($query->posts, 'ID'));
+        self::assertSame([$matchingPostId], array_map('intval', wp_list_pluck($query->posts, 'ID')));
     }
 
     public function testPostQueryExecutesAnOrTaxonomyClauseFromAnInitialClause(): void
@@ -130,7 +130,7 @@ final class QueryArgumentBuildersIntegrationTest extends WP_UnitTestCase
                 ->toArray()
         );
 
-        self::assertSame([$matchingUserId], wp_list_pluck($query->get_results(), 'ID'));
+        self::assertSame([$matchingUserId], array_map('intval', wp_list_pluck($query->get_results(), 'ID')));
     }
 
     public function testTermQueryExecutesTaxonomyAndSearchArguments(): void
@@ -148,7 +148,7 @@ final class QueryArgumentBuildersIntegrationTest extends WP_UnitTestCase
 
         self::assertSame(
             [(int) $term['term_id']],
-            wp_list_pluck($query->get_terms(), 'term_id')
+            array_map('intval', wp_list_pluck($query->get_terms(), 'term_id'))
         );
     }
 
@@ -175,7 +175,7 @@ final class QueryArgumentBuildersIntegrationTest extends WP_UnitTestCase
             ])->toArray()
         );
 
-        self::assertSame([$commentId], wp_list_pluck($query->get_comments(), 'comment_ID'));
+        self::assertSame([$commentId], array_map('intval', wp_list_pluck($query->get_comments(), 'comment_ID')));
     }
 
     public function testSiteAndNetworkQueriesExecuteTheirArguments(): void
@@ -198,7 +198,7 @@ final class QueryArgumentBuildersIntegrationTest extends WP_UnitTestCase
                 ->toArray()
         );
 
-        self::assertSame([$siteId], wp_list_pluck($sites, 'blog_id'));
-        self::assertSame([$networkId], wp_list_pluck($networks, 'id'));
+        self::assertSame([$siteId], array_map('intval', wp_list_pluck($sites, 'blog_id')));
+        self::assertSame([$networkId], array_map('intval', wp_list_pluck($networks, 'id')));
     }
 }
