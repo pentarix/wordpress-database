@@ -17,7 +17,7 @@ final class DataApiIntegrationTest extends WP_UnitTestCase
         self::assertTrue(Option::exists($name));
         self::assertSame(['enabled' => true], Option::get($name));
         self::assertFalse(Option::add($name, 'duplicate'));
-        
+
         Option::update($name, 'updated');
         self::assertSame('updated', Option::get($name));
         self::assertTrue(Option::delete($name));
@@ -58,12 +58,22 @@ final class DataApiIntegrationTest extends WP_UnitTestCase
     {
         $userId = self::factory()->user->create();
         $commentId = self::factory()->comment->create();
-        
+
         Metadata::add('user', $userId, 'pentarix_user_key', 'user-value');
         Metadata::add('comment', $commentId, 'pentarix_comment_key', 'comment-value');
 
         self::assertSame('user-value', Metadata::get('user', $userId, 'pentarix_user_key', true));
         self::assertSame('comment-value', Metadata::get('comment', $commentId, 'pentarix_comment_key', true));
+    }
+
+    public function testMetadataSupportsTermObjectTypes(): void
+    {
+        $termId = self::factory()->term->create();
+
+        Metadata::add('term', $termId, 'pentarix_term_key', 'term-value');
+
+        self::assertSame('term-value', Metadata::get('term', $termId, 'pentarix_term_key', true));
+        self::assertTrue(Metadata::exists('term', $termId, 'pentarix_term_key'));
     }
 
     public function testMetadataCanRetrieveAndUpdateMetadataById(): void
