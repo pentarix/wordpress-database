@@ -66,6 +66,19 @@ final class DataApiIntegrationTest extends WP_UnitTestCase
         self::assertSame('comment-value', Metadata::get('comment', $commentId, 'pentarix_comment_key', true));
     }
 
+    public function testMetadataCanRegisterAndUnregisterObjectTypeMetadata(): void
+    {
+        $metaKey = 'pentarix_registered_meta';
+
+        self::assertTrue(Metadata::register('post', $metaKey, [
+            'type' => 'string',
+            'single' => true,
+            'show_in_rest' => false,
+        ], 'post'));
+
+        self::assertTrue(Metadata::unregister('post', $metaKey, 'post'));
+    }
+
     public function testMetadataSupportsTermObjectTypes(): void
     {
         $termId = self::factory()->term->create();
