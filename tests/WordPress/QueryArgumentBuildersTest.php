@@ -274,8 +274,7 @@ final class QueryArgumentBuildersTest extends TestCase
             ->excludeIds(1)
             ->postType('book')
             ->postTypesIn('page')
-            ->postStatus('draft')
-            ->postStatusesNotIn('private')
+            ->postStatusesIn(['draft', 'private'])
             ->authorsIn('8')
             ->parentsNotIn(9)
             ->search('updated')
@@ -299,6 +298,7 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame(3, $args['paged']);
         self::assertSame(2, $args['offset']);
         self::assertSame('DESC', $args['order']);
+        self::assertSame(['draft', 'private'], $args['post_status']);
         self::assertSame('ids', $args['fields']);
         self::assertSame($date->toArray(), $args['date_query']);
         self::assertSame($meta->toArray(), $args['meta_query']);
@@ -312,6 +312,10 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame(['order' => 'DESC'], PostQueryArg::make(['order' => 'invalid'])->toArray());
         self::assertSame(['order' => 'DESC'], PostQueryArg::make()->order('invalid')->toArray());
         self::assertSame(['order' => 'ASC'], PostQueryArg::make()->order('asc')->toArray());
+
+        $orders = ['title' => 'DESC', 'menu_order' => 'ASC'];
+        self::assertSame(['order' => $orders], PostQueryArg::make(['order' => $orders])->toArray());
+        self::assertSame(['order' => $orders], PostQueryArg::make()->order($orders)->toArray());
     }
 
     public function testPostQueryArgPreservesScalarPostTypeAndStatusValues(): void
@@ -513,6 +517,18 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame(['include' => [1, 2, 3], 'exclude' => [4, 5]], TermQueryArg::make(['include' => '1,2,3', 'exclude' => '4,5'])->toArray());
     }
 
+    public function testTermQueryArgRequiresAStringOrderByValue(): void
+    {
+        self::expectException(\\InvalidArgumentException::class);
+
+        TermQueryArg::make(['orderby' => ['name' => 'ASC']]);
+    }
+
+    public function testTermQueryArgSupportsFluentOrderBy(): void
+    {
+        self::assertSame(['orderby' => 'name'], TermQueryArg::make()->orderBy('name')->toArray());
+    }
+
     public function testUserQueryArgMapsIdentitySearchMetaAndPagination(): void
     {
         $query = UserQueryArg::make([
@@ -658,6 +674,19 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame(2, $args[3]['dayofweek']);
         self::assertSame([1, 5], $args[4]['dayofweek_iso']);
             }
+
+    public function testDateQueryArgWrapsAnExistingSingleClauseBeforeAppending(): void
+    {
+        self::assertSame(
+            [['year' => 2020], ['month' => 6]],
+            DateQueryArg::make(['year' => 2020])->month(6)->toArray()
+        );
+
+        self::assertSame(
+            ['relation' => 'OR', ['year' => 2020], ['month' => 6]],
+            DateQueryArg::make(['year' => 2020])->orWhere(['month' => 6])->toArray()
+        );
+    }
 
     public function testUserQueryArgUsesWordPressOrderFallback(): void
     {
