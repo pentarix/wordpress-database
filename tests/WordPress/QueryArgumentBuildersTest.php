@@ -368,7 +368,6 @@ final class QueryArgumentBuildersTest extends TestCase
         $query = NetworkQueryArg::make([
             'network__in' => [1],
             'network__not_in' => [2],
-            'network_id' => '3',
             'domain' => 'example.com',
             'path' => '/',
             'number' => 10,
