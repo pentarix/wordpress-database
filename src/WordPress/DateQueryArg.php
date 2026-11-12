@@ -81,80 +81,54 @@ class DateQueryArg implements QueryArg
         );
     }
 
-    public function year(int|array $year, string $column = 'post_date'): self
+    public function year(int|array $year, string $column = 'post_date', string $compare = '='): self
     {
-        return $this->where([
-            'year'   => $year,
-            'column' => $column,
-        ]);
+        return $this->datePart('year', $year, $column, $compare);
     }
 
-    public function month(int|array $month, string $column = 'post_date'): self
+    public function month(int|array $month, string $column = 'post_date', string $compare = '='): self
     {
-        return $this->where([
-            'month'  => $month,
-            'column' => $column,
-        ]);
+        return $this->datePart('month', $month, $column, $compare);
     }
 
-    public function week(int|array $week, string $column = 'post_date'): self
+    public function week(int|array $week, string $column = 'post_date', string $compare = '='): self
     {
-        return $this->where([
-            'week'   => $week,
-            'column' => $column,
-        ]);
+        return $this->datePart('week', $week, $column, $compare);
     }
 
-    public function day(int|array $day, string $column = 'post_date'): self
+    public function day(int|array $day, string $column = 'post_date', string $compare = '='): self
     {
-        return $this->where([
-            'day'    => $day,
-            'column' => $column,
-        ]);
+        return $this->datePart('day', $day, $column, $compare);
     }
 
-    public function hour(int|array $hour, string $column = 'post_date'): self
+    public function hour(int|array $hour, string $column = 'post_date', string $compare = '='): self
     {
-        return $this->where([
-            'hour'   => $hour,
-            'column' => $column,
-        ]);
+        return $this->datePart('hour', $hour, $column, $compare);
     }
 
-    public function minute(int|array $minute, string $column = 'post_date'): self
+    public function minute(int|array $minute, string $column = 'post_date', string $compare = '='): self
     {
-        return $this->where([
-            'minute' => $minute,
-            'column' => $column,
-        ]);
+        return $this->datePart('minute', $minute, $column, $compare);
     }
 
-    public function second(int|array $second, string $column = 'post_date'): self
+    public function second(int|array $second, string $column = 'post_date', string $compare = '='): self
     {
-        return $this->where([
-            'second' => $second,
-            'column' => $column,
-        ]);
+        return $this->datePart('second', $second, $column, $compare);
     }
 
-    public function dayOfYear(int|array $day, string $column = 'post_date'): self
+    public function dayOfYear(int|array $day, string $column = 'post_date', string $compare = '='): self
     {
-        return $this->where(['dayofyear' => $day, 'column' => $column]);
+        return $this->datePart('dayofyear', $day, $column, $compare);
     }
 
-    public function dayOfWeek(int|array $day, string $column = 'post_date'): self
+    public function dayOfWeek(int|array $day, string $column = 'post_date', string $compare = '='): self
     {
-        return $this->where(['dayofweek' => $day, 'column' => $column]);
+        return $this->datePart('dayofweek', $day, $column, $compare);
     }
 
-    public function dayOfWeekIso(int|array $day, string $column = 'post_date'): self
+    public function dayOfWeekIso(int|array $day, string $column = 'post_date', string $compare = '='): self
     {
-        return $this->where(['dayofweek_iso' => $day, 'column' => $column]);
-    }
-
-    public function compare(string $operator): self
-    {
-        return $this->where(['compare' => $operator]);
+        return $this->datePart('dayofweek_iso', $day, $column, $compare);
     }
 
     public function whereGroup(
@@ -186,6 +160,20 @@ class DateQueryArg implements QueryArg
         string $boolean = 'AND'
     ): self {
         return $this->addClause($clause, $boolean);
+    }
+
+    private function datePart(string $key, int|array $value, string $column, string $compare): self
+    {
+        $clause = [
+            $key => $value,
+            'column' => $column,
+        ];
+
+        if ('=' !== $compare) {
+            $clause['compare'] = $compare;
+        }
+
+        return $this->where($clause);
     }
 
     private function addClause(array $clause, string $boolean): self
