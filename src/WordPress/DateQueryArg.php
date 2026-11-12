@@ -192,6 +192,10 @@ class DateQueryArg implements QueryArg
     {
         $boolean = 'OR' === strtoupper($boolean) ? 'OR' : 'AND';
 
+        if ($this->isFirstOrderClause($this->query)) {
+            $this->query = [$this->query];
+        }
+
         if ([] === $this->query) {
             $this->query = [$clause];
 
@@ -223,6 +227,28 @@ class DateQueryArg implements QueryArg
         }
 
         return $this;
+    }
+
+    private function isFirstOrderClause(array $query): bool
+    {
+        $dateKeys = [
+            'after',
+            'before',
+            'year',
+            'month',
+            'monthnum',
+            'week',
+            'w',
+            'dayofyear',
+            'day',
+            'dayofweek',
+            'dayofweek_iso',
+            'hour',
+            'minute',
+            'second',
+        ];
+
+        return [] !== array_intersect($dateKeys, array_keys($query));
     }
 
     private function addGroup(
