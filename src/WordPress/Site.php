@@ -139,11 +139,11 @@ final class Site
     }
 
     /** Update an option belonging to a specific site. */
-    public static function updateOption(int $siteId, string $option, mixed $value, mixed $deprecated = ''): bool
+    public static function updateOption(int $siteId, string $option, mixed $value): bool
     {
         self::ensureWordPressIsLoaded();
 
-        return update_blog_option($siteId, $option, $value, $deprecated);
+        return update_blog_option($siteId, $option, $value);
     }
 
     /** Delete an option belonging to a specific site. */

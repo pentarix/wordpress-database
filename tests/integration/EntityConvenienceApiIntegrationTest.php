@@ -72,7 +72,7 @@ final class EntityConvenienceApiIntegrationTest extends WP_UnitTestCase
 
         self::assertContains((int) $child['term_id'], Term::getChildren((int) $parent['term_id'], 'category'));
         self::assertSame([(int) $parent['term_id']], Term::getAncestors((int) $child['term_id'], 'category'));
-        self::assertContains($postId, Term::getObjectIds((int) $child['term_id'], 'category'));
+        self::assertContains((string) $postId, Term::getObjectIds((int) $child['term_id'], 'category'));
         self::assertInstanceOf(WP_Taxonomy::class, Term::getTaxonomy('category'));
         self::assertIsNumeric(Term::count('category', ['hide_empty' => false]));
         self::assertIsString(Term::getLink((int) $child['term_id'], 'category'));
@@ -111,7 +111,7 @@ final class EntityConvenienceApiIntegrationTest extends WP_UnitTestCase
         self::assertTrue(Attachment::isImage($attachmentId));
         self::assertSame('image/jpeg', Attachment::getMimeType($attachmentId));
         self::assertSame(0, Attachment::getParentId($attachmentId));
-        self::assertTrue(Attachment::updateAlt($attachmentId, 'A field of canola'));
+        self::assertNotFalse(Attachment::updateAlt($attachmentId, 'A field of canola'));
         self::assertSame('A field of canola', Attachment::getAlt($attachmentId));
         self::assertIsString(Attachment::getCaption($attachmentId));
         self::assertIsString(Attachment::getDescription($attachmentId));

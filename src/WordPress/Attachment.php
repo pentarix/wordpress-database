@@ -267,7 +267,7 @@ final class Attachment
         string $fileId,
         int $postId = 0,
         array $postData = [],
-        array $overrides = []
+        array $overrides = ['test_form' => false]
     ): int|\WP_Error {
         self::ensureWordPressIsLoaded();
 
@@ -302,7 +302,7 @@ final class Attachment
             );
         }
 
-        return media_handle_sideload($file, $postId, $description, $postData, $overrides);
+        return media_handle_sideload($file, $postId, $description, $postData);
     }
 
     private static function ensureWordPressIsLoaded(): void

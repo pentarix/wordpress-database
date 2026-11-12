@@ -175,7 +175,11 @@ final class Term
         return get_ancestors($termId, $taxonomy, 'taxonomy');
     }
 
-    /** Retrieve object IDs associated with a term. */
+    /**
+     * Retrieve object IDs associated with a term.
+     *
+     * @return string[]|\WP_Error
+     */
     public static function getObjectIds(int $termId, string $taxonomy, array $args = []): array|\WP_Error
     {
         self::ensureWordPressIsLoaded();
