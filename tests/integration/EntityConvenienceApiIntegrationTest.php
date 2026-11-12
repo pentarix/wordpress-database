@@ -88,6 +88,8 @@ final class EntityConvenienceApiIntegrationTest extends WP_UnitTestCase
 
         $replyId = Comment::reply($commentId, [
             'comment_author' => 'Reply author',
+            'comment_author_email' => 'reply@example.test',
+            'comment_author_IP' => '127.0.0.2',
             'comment_content' => 'Reply content',
         ], true);
 
