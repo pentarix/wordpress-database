@@ -81,6 +81,7 @@ final class TermQueryIntegrationTest extends WP_UnitTestCase
                 'orderby' => 'term_id',
                 'order' => 'ASC',
                 'number' => 20,
+                'fields' => 'ids',
             ])
         )->paginate(2, 2);
 
@@ -107,6 +108,7 @@ final class TermQueryIntegrationTest extends WP_UnitTestCase
             'orderby' => 'term_id',
             'order' => 'ASC',
             'offset' => 1,
+            'fields' => 'ids',
         ])->paginate(2, 2);
 
         self::assertSame(3, (int) $query->query_vars['offset']);
