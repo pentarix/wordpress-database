@@ -577,21 +577,20 @@ final class QueryArgumentBuildersTest extends TestCase
     public function testDateQueryArgSupportsCompleteDatePartsAndArrayValues(): void
     {
         $args = DateQueryArg::make()
-            ->year([2022, 2024])
+            ->year([2022, 2024], 'post_date', 'IN')
             ->month([1, 6])
             ->dayOfYear([10, 20])
             ->dayOfWeek(2)
             ->dayOfWeekIso([1, 5])
-            ->compare('>=')
             ->toArray();
 
         self::assertSame([2022, 2024], $args[0]['year']);
+        self::assertSame('IN', $args[0]['compare']);
         self::assertSame([1, 6], $args[1]['month']);
         self::assertSame([10, 20], $args[2]['dayofyear']);
         self::assertSame(2, $args[3]['dayofweek']);
         self::assertSame([1, 5], $args[4]['dayofweek_iso']);
-        self::assertSame('>=', $args[5]['compare']);
-    }
+            }
 
     public function testUserQueryArgSupportsEmptyAndAlternativeSearchMethods(): void
     {
