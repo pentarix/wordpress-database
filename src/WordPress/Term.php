@@ -94,13 +94,13 @@ final class Term
     /**
      * Check whether a term exists in a taxonomy.
      *
-     * @return array|int|\\WP_Error|null Native term existence result.
+     * @return array|int|\WP_Error|null Native term existence result.
      */
     public static function exists(
         string|int $term,
         string $taxonomy = '',
         ?int $parent = null
-    ): array|int|\\WP_Error|null {
+    ): array|int|\WP_Error|null {
         self::ensureWordPressIsLoaded();
 
         return term_exists($term, $taxonomy, $parent);
@@ -109,14 +109,14 @@ final class Term
     /**
      * Assign terms to an object.
      *
-     * @return array|\\WP_Error Term taxonomy IDs or a WordPress error.
+     * @return array|\WP_Error Term taxonomy IDs or a WordPress error.
      */
     public static function assignToObject(
         int $objectId,
         array|string|int $terms,
         string $taxonomy,
         bool $append = false
-    ): array|\\WP_Error {
+    ): array|\WP_Error {
         self::ensureWordPressIsLoaded();
 
         return wp_set_object_terms($objectId, $terms, $taxonomy, $append);
@@ -125,13 +125,13 @@ final class Term
     /**
      * Retrieve terms assigned to an object.
      *
-     * @return array|\\WP_Error Native term results or a WordPress error.
+     * @return array|\WP_Error Native term results or a WordPress error.
      */
     public static function getForObject(
         int $objectId,
         string $taxonomy,
         array $args = []
-    ): array|\\WP_Error {
+    ): array|\WP_Error {
         self::ensureWordPressIsLoaded();
 
         return wp_get_object_terms($objectId, $taxonomy, $args);
@@ -144,7 +144,7 @@ final class Term
         int $objectId,
         array|string|int $terms,
         string $taxonomy
-    ): bool|\\WP_Error {
+    ): bool|\WP_Error {
         self::ensureWordPressIsLoaded();
 
         return wp_remove_object_terms($objectId, $terms, $taxonomy);
