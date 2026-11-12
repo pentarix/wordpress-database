@@ -15,7 +15,7 @@ The package provides WordPress query argument builders and a small execution lay
 composer require pentarix/wordpress-database
 ```
 
-Composer maps the `Pentarix\WordPressDatabase` namespace to `src/` using PSR-4.
+Composer maps the `Pentarix\WordPressDatabase\` namespace to `src/` using PSR-4.
 
 ## Usage
 
@@ -457,10 +457,26 @@ final class Product extends Model
 }
 ```
 
-The model exposes its author through the existing native `User` entity API.
-It remains a lightweight post model rather than a general ORM: it does not
-provide automatic casts, mass-assignment policies, an event system, or
-relationships beyond the explicitly implemented helpers.
+The model exposes common post relationships without taking ownership of
+the underlying WordPress entities:
+
+- `author()` returns the native `WP_User` through the User API.
+- `parent()` returns a parent of the same model type, or `null`.
+- `children()` returns child posts hydrated as the current model type and
+  accepts native post query arguments.
+- `thumbnail()` returns the native attachment `WP_Post`, or `null`.
+- `terms($taxonomy, $arguments)` delegates to the native Term API.
+- `comments($arguments)` delegates to the existing CommentQuery API and
+  preserves native query output options.
+
+These methods return native WordPress objects for related entity types rather
+than introducing parallel User, Term, Comment, or Attachment model hierarchies.
+Post parent and child relationships remain model-aware and enforce the
+current model's post type.
+
+The model remains a lightweight post model rather than a general ORM: it does
+not provide automatic casts, mass-assignment policies, or an Active Record
+event system.
 
 ### Options API
 
@@ -756,7 +772,7 @@ All these wrappers delegate to WordPress Core. They do not create package-specif
 
 WordPress still exposes a separate Links (Bookmarks) API. The package wraps it for compatibility with existing installations, but it is a legacy feature and should not be selected for new content models:
 
-```php
+\`\`\`php
 use Pentarix\WordPressDatabase\WordPress\Link;
 
 $linkId = Link::create([
@@ -774,6 +790,6 @@ Link::update([
 ]);
 
 Link::delete($linkId);
-```
+\`\`\`
 
-The retrieval methods use the front-end bookmark API. Creation, updates, and deletion require the caller to load `wp-admin/includes/bookmark.php`, because WordPress defines those functions in its administrative bookmark module.
+The retrieval methods use the front-end bookmark API. Creation, updates, and deletion require the caller to load \`wp-admin/includes/bookmark.php\`, because WordPress defines those functions in its administrative bookmark module.
