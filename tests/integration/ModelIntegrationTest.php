@@ -120,14 +120,14 @@ final class ModelIntegrationTest extends WP_UnitTestCase
 
         self::assertSame('Attribute example', get_post_field('post_title', $postId));
         self::assertSame('A metadata value', get_post_meta($postId, 'subtitle', true));
-        self::assertFalse(get_post_meta($postId, 'featured', true));
+        self::assertSame('', get_post_meta($postId, 'featured', true));
         self::assertSame(['layout' => 'wide'], get_post_meta($postId, 'settings', true));
 
         $found = ArticleModel::find($postId);
 
         self::assertSame('Attribute example', $found->get('post_title'));
         self::assertSame('A metadata value', $found->get('subtitle'));
-        self::assertFalse($found->get('featured', true));
+        self::assertSame('', $found->get('featured', true));
         self::assertSame(['layout' => 'wide'], $found->settings);
         self::assertTrue($found->has('featured'));
         self::assertSame($postId, $found->get('ID'));
