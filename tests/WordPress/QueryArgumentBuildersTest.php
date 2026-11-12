@@ -447,13 +447,22 @@ final class QueryArgumentBuildersTest extends TestCase
             ])->toArray()
         );
 
-        self::assertSame([], SiteQueryArg::make([
-            'public' => null,
-            'archived' => null,
-            'mature' => null,
-            'spam' => null,
-            'deleted' => null,
-        ])->toArray());
+        self::assertSame(
+            [
+                'public' => null,
+                'archived' => null,
+                'mature' => null,
+                'spam' => null,
+                'deleted' => null,
+            ],
+            SiteQueryArg::make([
+                'public' => null,
+                'archived' => null,
+                'mature' => null,
+                'spam' => null,
+                'deleted' => null,
+            ])->toArray()
+        );
     }
 
     public function testTermQueryArgMapsTaxonomyAndTermOptions(): void
