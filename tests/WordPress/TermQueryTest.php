@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Pentarix\\WordPressDatabase\\WordPress\\TermQuery;
+use Pentarix\WordPressDatabase\WordPress\TermQuery;
 
-final class TermQueryTest extends PHPUnit\\Framework\\TestCase
+final class TermQueryTest extends PHPUnit\Framework\TestCase
 {
     public function testExecutionRequiresWordPressToBeLoaded(): void
     {
