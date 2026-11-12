@@ -17,7 +17,6 @@ class TermQueryArg implements QueryArg
     use SupportsQueryArguments;
 
     private IncludeExcludeQueryArg $termIds;
-    private ?int $termId = null;
     private ?int $parent = null;
     private string|array|null $taxonomy = null;
     private string|array|null $name = null;
@@ -41,9 +40,6 @@ class TermQueryArg implements QueryArg
     {
         $this->initialiseQueryArguments($queryArray);
         $this->termIds = IncludeExcludeQueryArg::make(['include' => $queryArray['include'] ?? [], 'exclude' => $queryArray['exclude'] ?? []], ['includeKey' => 'include', 'excludeKey' => 'exclude']);
-        if (array_key_exists('term_id', $queryArray)) {
-            $this->termId = (int) $queryArray['term_id'];
-        }
         if (array_key_exists('parent', $queryArray)) {
             $this->parent = (int) $queryArray['parent'];
         }
@@ -138,7 +134,6 @@ class TermQueryArg implements QueryArg
         $args = [];
         $args += $this->termIds->toArray();
         $values = [
-            'term_id' => $this->termId,
             'parent' => $this->parent,
             'taxonomy' => $this->taxonomy,
             'name' => $this->name,
