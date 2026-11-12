@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Pentarix\\WordPressDatabase\\WordPress\\CommentQuery;
-use Pentarix\\WordPressDatabase\\WordPress\\CommentQueryArg;
+use Pentarix\WordPressDatabase\WordPress\CommentQuery;
+use Pentarix\WordPressDatabase\WordPress\CommentQueryArg;
 
 final class CommentQueryIntegrationTest extends WP_UnitTestCase
 {
