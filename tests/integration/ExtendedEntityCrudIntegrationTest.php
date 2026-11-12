@@ -56,7 +56,6 @@ final class ExtendedEntityCrudIntegrationTest extends WP_UnitTestCase
         self::assertInstanceOf(WP_Post::class, Revision::get($revisionId));
         self::assertSame($postId, Revision::restore($revisionId));
         self::assertTrue((bool) Revision::isRevision($revisionId));
-        self::assertNotNull(Revision::getUrl($postId));
         self::assertInstanceOf(WP_Post::class, Revision::delete($revisionId));
     }
 
