@@ -284,7 +284,7 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame([2, 4], $args['post__in']);
         self::assertSame([3, 1], $args['post__not_in']);
         self::assertSame(['page'], $args['post_type__in']);
-        self::assertSame(['book'], $args['post_type']);
+        self::assertSame('book', $args['post_type']);
         self::assertSame('updated', $args['s']);
         self::assertSame(5, $args['posts_per_page']);
         self::assertSame(3, $args['paged']);
@@ -464,7 +464,7 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertFalse($args['hide_empty']);
         self::assertSame('test', $args['cache_domain']);
         self::assertSame([], TermQueryArg::make()->toArray());
-        self::assertSame(['include' => [1, 2, 3]], TermQueryArg::make(['include' => '1,2,3'])->toArray());
+        self::assertSame(['include' => [1, 2, 3], 'exclude' => [4, 5]], TermQueryArg::make(['include' => '1,2,3', 'exclude' => '4,5'])->toArray());
     }
 
     public function testUserQueryArgMapsIdentitySearchMetaAndPagination(): void
