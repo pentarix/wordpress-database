@@ -172,6 +172,10 @@ class TaxQueryArg implements QueryArg
             return $this;
         }
 
+        if ($this->isFirstOrderClause($this->query)) {
+            $this->query = [$this->query];
+        }
+
         if ('OR' === $boolean) {
             if (isset($this->query['relation']) && 'OR' === $this->query['relation']) {
                 $this->query[] = $clause;
@@ -226,6 +230,11 @@ class TaxQueryArg implements QueryArg
         }
 
         return $this->addClause($query, $boolean);
+    }
+
+    private function isFirstOrderClause(array $query): bool
+    {
+        return isset($query['taxonomy']) || isset($query['terms']);
     }
 
     public function toArray(): array
