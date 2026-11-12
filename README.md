@@ -336,6 +336,16 @@ Term::delete($termId, 'category');
 
 The taxonomy must already be registered. Term methods preserve the native arrays, booleans, integers, and `WP_Error` values returned by WordPress.
 
+Term relationships are handled through the same native taxonomy APIs:
+
+```php
+Term::assignToObject($postId, [$termId], 'category');
+$assignedTerms = Term::getForObject($postId, 'category');
+Term::removeFromObject($postId, [$termId], 'category');
+$exists = Term::exists($termId, 'category');
+```
+
+
 #### Comments
 
 ```php

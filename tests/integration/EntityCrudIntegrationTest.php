@@ -83,6 +83,11 @@ final class EntityCrudIntegrationTest extends WP_UnitTestCase
 
         self::assertIsArray($updated);
         self::assertSame($name . ' Updated', Term::get($termId, 'category')->name);
+        $postId = self::factory()->post->create();
+        self::assertIsArray(Term::assignToObject($postId, [$termId], 'category'));
+        self::assertSame($termId, (int) Term::getForObject($postId, 'category')[0]->term_id);
+        self::assertNotFalse(Term::exists($termId, 'category'));
+        self::assertTrue(Term::removeFromObject($postId, [$termId], 'category'));
         self::assertTrue(Term::delete($termId, 'category'));
         self::assertNull(Term::get($termId, 'category'));
     }
