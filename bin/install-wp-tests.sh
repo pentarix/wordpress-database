@@ -312,5 +312,15 @@ install_db() {
 
 install_wp
 install_test_suite
+
+# Enable multisite so site and network query builders can be tested.
+if grep -q "^// define( 'WP_TESTS_MULTISITE', true );" "$WP_TESTS_DIR"/wp-tests-config.php; then
+    if [[ $(uname -s) == "Darwin" ]]; then
+        sed -i '' "s#// define( 'WP_TESTS_MULTISITE', true );#define( 'WP_TESTS_MULTISITE', true );#" "$WP_TESTS_DIR"/wp-tests-config.php
+    else
+        sed -i "s#// define( 'WP_TESTS_MULTISITE', true );#define( 'WP_TESTS_MULTISITE', true );#" "$WP_TESTS_DIR"/wp-tests-config.php
+    fi
+fi
+
 install_db
 echo -e "${GREEN}Done.${RESET}"
