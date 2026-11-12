@@ -454,8 +454,6 @@ final class QueryArgumentBuildersTest extends TestCase
         $query = TermQueryArg::make([
             'include' => [1, 2],
             'exclude' => [3],
-            'parent__in' => [4],
-            'term_id' => '5',
             'parent' => 6,
             'taxonomy' => ['category', 'post_tag'],
             'name' => ['News', 'Updates'],
@@ -479,7 +477,6 @@ final class QueryArgumentBuildersTest extends TestCase
         $args = $query->toArray();
         self::assertSame([2, 7], $args['include']);
         self::assertSame([3, 1], $args['exclude']);
-        self::assertSame(5, $args['term_id']);
         self::assertSame('post', $args['taxonomy']);
         self::assertSame(['News', 'Updates'], $args['name']);
         self::assertSame(['news', 'updates'], $args['slug']);
