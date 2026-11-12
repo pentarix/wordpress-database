@@ -14,6 +14,8 @@ namespace Pentarix\WordPressDatabase\WordPress;
 
 class TermQueryArg implements QueryArg
 {
+    use SupportsQueryArguments;
+
     private IncludeExcludeQueryArg $termIds;
     private IncludeExcludeQueryArg $parentIds;
     private ?int $termId = null;
@@ -38,6 +40,7 @@ class TermQueryArg implements QueryArg
 
     public function __construct(array $queryArray = [])
     {
+        $this->initialiseQueryArguments($queryArray);
         $this->termIds = IncludeExcludeQueryArg::make(['include' => $queryArray['include'] ?? [], 'exclude' => $queryArray['exclude'] ?? []], ['includeKey' => 'include', 'excludeKey' => 'exclude']);
         $this->parentIds = IncludeExcludeQueryArg::make(['parent__in' => $queryArray['parent__in'] ?? [], 'parent__not_in' => $queryArray['parent__not_in'] ?? []], ['includeKey' => 'parent__in', 'excludeKey' => 'parent__not_in']);
         if (array_key_exists('term_id', $queryArray)) {
@@ -164,6 +167,6 @@ class TermQueryArg implements QueryArg
             }
         }
 
-        return $args;
+        return $this->mergeQueryArguments($args);
     }
 }
