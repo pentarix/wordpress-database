@@ -22,7 +22,7 @@ final class Revision
     /**
      * Save a revision for a post when revisions are supported and enabled.
      */
-    public static function save(int $postId): int|\WP_Error|false
+    public static function save(int $postId): int|\WP_Error|null
     {
         self::ensureWordPressIsLoaded();
 
@@ -30,45 +30,78 @@ final class Revision
     }
 
     /**
-     * Retrieve a revision by ID.
+     * Retrieve a revision using the native output and filter options.
      */
-    public static function get(int $revisionId): \WP_Post|false
-    {
+    public static function get(
+        int|\WP_Post $revision,
+        string $output = 'OBJECT',
+        string $filter = 'raw'
+    ): \WP_Post|array|null {
         self::ensureWordPressIsLoaded();
 
-        return wp_get_post_revision($revisionId);
+        return wp_get_post_revision($revision, $output, $filter);
     }
 
     /**
      * Retrieve revisions belonging to a post.
      *
-     * @return array<int, \WP_Post>
+     * @return array<int, \WP_Post|int>
      */
-    public static function all(int $postId, array $queryArguments = []): array
+    public static function all(int|\WP_Post $post, ?array $queryArguments = null): array
     {
         self::ensureWordPressIsLoaded();
 
-        return wp_get_post_revisions($postId, $queryArguments);
+        return wp_get_post_revisions($post, $queryArguments);
     }
 
     /**
-     * Restore a revision to its parent post.
+     * Restore a revision, optionally limiting the fields restored.
      */
-    public static function restore(int $revisionId): bool|int|\WP_Error
+    public static function restore(int|\WP_Post $revision, ?array $fields = null): int|false|null
     {
         self::ensureWordPressIsLoaded();
 
-        return wp_restore_post_revision($revisionId);
+        return wp_restore_post_revision($revision, $fields);
     }
 
     /**
      * Delete a revision.
      */
-    public static function delete(int $revisionId): \WP_Post|false|null
+    public static function delete(int|\WP_Post $revision): \WP_Post|false|null
     {
         self::ensureWordPressIsLoaded();
 
-        return wp_delete_post_revision($revisionId);
+        return wp_delete_post_revision($revision);
+    }
+
+    /**
+     * Retrieve the revisions interface URL for a post or revision.
+     */
+    public static function getUrl(int|\WP_Post $post): ?string
+    {
+        self::ensureWordPressIsLoaded();
+
+        return wp_get_post_revisions_url($post);
+    }
+
+    /**
+     * Determine whether a post is a revision.
+     */
+    public static function isRevision(int|\WP_Post $post): int|false
+    {
+        self::ensureWordPressIsLoaded();
+
+        return wp_is_post_revision($post);
+    }
+
+    /**
+     * Determine whether a post is an autosave revision.
+     */
+    public static function isAutosave(int|\WP_Post $post): int|false
+    {
+        self::ensureWordPressIsLoaded();
+
+        return wp_is_post_autosave($post);
     }
 
     private static function ensureWordPressIsLoaded(): void

@@ -20,6 +20,14 @@ final class ExtendedEntityCrudIntegrationTest extends WP_UnitTestCase
         self::assertIsString(Attachment::getUrl($attachmentId));
         self::assertIsString(Attachment::getFile($attachmentId));
         self::assertIsArray(Attachment::getMetadata($attachmentId));
+        self::assertSame(
+            $attachmentId,
+            Attachment::update([
+                'ID' => $attachmentId,
+                'post_title' => 'Updated attachment title',
+            ])
+        );
+        self::assertSame('Updated attachment title', Attachment::get($attachmentId)->post_title);
 
         self::assertInstanceOf(WP_Post::class, Attachment::delete($attachmentId, true));
         self::assertNull(Attachment::get($attachmentId));
@@ -44,7 +52,9 @@ final class ExtendedEntityCrudIntegrationTest extends WP_UnitTestCase
 
         $revisionId = (int) array_key_first($revisions);
         self::assertInstanceOf(WP_Post::class, Revision::get($revisionId));
-        self::assertNotFalse(Revision::restore($revisionId));
+        self::assertSame($postId, Revision::restore($revisionId));
+        self::assertTrue((bool) Revision::isRevision($revisionId));
+        self::assertNotNull(Revision::getUrl($postId));
         self::assertInstanceOf(WP_Post::class, Revision::delete($revisionId));
     }
 

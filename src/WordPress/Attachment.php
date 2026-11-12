@@ -88,7 +88,7 @@ final class Attachment
     /**
      * Update the attachment metadata array.
      */
-    public static function updateMetadata(int $attachmentId, array $metadata): bool
+    public static function updateMetadata(int $attachmentId, array $metadata): int|bool
     {
         self::ensureWordPressIsLoaded();
 
