@@ -14,6 +14,8 @@ namespace Pentarix\WordPressDatabase\WordPress;
 
 class UserQueryArg implements QueryArg
 {
+    use SupportsQueryArguments;
+
     public const USER_COLUMNS = [
         'ID',
         'user_login',
@@ -79,6 +81,7 @@ class UserQueryArg implements QueryArg
 
     public function __construct(array $queryArray = [])
     {
+        $this->initialiseQueryArguments($queryArray);
         $this->idQuery = IncludeExcludeQueryArg::make(
             [
                 'included' => $queryArray['include'] ?? [],
@@ -831,6 +834,6 @@ class UserQueryArg implements QueryArg
             $args['meta_query'] = $metaQuery;
         }
 
-        return $args;
+        return $this->mergeQueryArguments($args);
     }
 }
