@@ -26,7 +26,7 @@ use Pentarix\WordPressDatabase\WordPress\TermQueryArg;
 use Pentarix\WordPressDatabase\WordPress\UserQueryArg;
 use PHPUnit\Framework\TestCase;
 
-final class WordPressQueryArgTest extends TestCase
+final class QueryArgumentBuildersTest extends TestCase
 {
     public function testQueryArgContractAndIncludeQueryArg(): void
     {
