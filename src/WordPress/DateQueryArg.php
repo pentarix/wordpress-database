@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Pentarix\WordPressDatabase\WordPress;
+namespace Pentarix\\WordPressDatabase\\WordPress;
 
 class DateQueryArg implements QueryArg
 {
@@ -75,7 +75,7 @@ class DateQueryArg implements QueryArg
         string|array $after,
         string|array $before,
         bool $inclusive = true,
-        string $column = 'post_date'
+        ?string $column = null
     ): self {
         $clause = [
             'after' => $after,
@@ -90,52 +90,52 @@ class DateQueryArg implements QueryArg
         return $this->where($clause);
     }
 
-    public function year(int|array $year, string $column = 'post_date', string $compare = '='): self
+    public function year(int|array $year, ?string $column = null, string $compare = '='): self
     {
         return $this->datePart('year', $year, $column, $compare);
     }
 
-    public function month(int|array $month, string $column = 'post_date', string $compare = '='): self
+    public function month(int|array $month, ?string $column = null, string $compare = '='): self
     {
         return $this->datePart('month', $month, $column, $compare);
     }
 
-    public function week(int|array $week, string $column = 'post_date', string $compare = '='): self
+    public function week(int|array $week, ?string $column = null, string $compare = '='): self
     {
         return $this->datePart('week', $week, $column, $compare);
     }
 
-    public function day(int|array $day, string $column = 'post_date', string $compare = '='): self
+    public function day(int|array $day, ?string $column = null, string $compare = '='): self
     {
         return $this->datePart('day', $day, $column, $compare);
     }
 
-    public function hour(int|array $hour, string $column = 'post_date', string $compare = '='): self
+    public function hour(int|array $hour, ?string $column = null, string $compare = '='): self
     {
         return $this->datePart('hour', $hour, $column, $compare);
     }
 
-    public function minute(int|array $minute, string $column = 'post_date', string $compare = '='): self
+    public function minute(int|array $minute, ?string $column = null, string $compare = '='): self
     {
         return $this->datePart('minute', $minute, $column, $compare);
     }
 
-    public function second(int|array $second, string $column = 'post_date', string $compare = '='): self
+    public function second(int|array $second, ?string $column = null, string $compare = '='): self
     {
         return $this->datePart('second', $second, $column, $compare);
     }
 
-    public function dayOfYear(int|array $day, string $column = 'post_date', string $compare = '='): self
+    public function dayOfYear(int|array $day, ?string $column = null, string $compare = '='): self
     {
         return $this->datePart('dayofyear', $day, $column, $compare);
     }
 
-    public function dayOfWeek(int|array $day, string $column = 'post_date', string $compare = '='): self
+    public function dayOfWeek(int|array $day, ?string $column = null, string $compare = '='): self
     {
         return $this->datePart('dayofweek', $day, $column, $compare);
     }
 
-    public function dayOfWeekIso(int|array $day, string $column = 'post_date', string $compare = '='): self
+    public function dayOfWeekIso(int|array $day, ?string $column = null, string $compare = '='): self
     {
         return $this->datePart('dayofweek_iso', $day, $column, $compare);
     }
