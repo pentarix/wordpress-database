@@ -95,6 +95,7 @@ final class EntityConvenienceApiIntegrationTest extends WP_UnitTestCase
 
         self::assertIsInt($replyId);
         self::assertCount(1, Comment::getChildren($commentId));
+        self::assertTrue(Comment::approve($replyId));
         self::assertTrue(Comment::hold($replyId));
         self::assertTrue(Comment::approve($replyId));
         self::assertTrue(Comment::spam($replyId));
