@@ -81,7 +81,7 @@ class DateQueryArg implements QueryArg
         );
     }
 
-    public function year(int $year, string $column = 'post_date'): self
+    public function year(int|array $year, string $column = 'post_date'): self
     {
         return $this->where([
             'year'   => $year,
@@ -89,7 +89,7 @@ class DateQueryArg implements QueryArg
         ]);
     }
 
-    public function month(int $month, string $column = 'post_date'): self
+    public function month(int|array $month, string $column = 'post_date'): self
     {
         return $this->where([
             'month'  => $month,
@@ -97,7 +97,7 @@ class DateQueryArg implements QueryArg
         ]);
     }
 
-    public function week(int $week, string $column = 'post_date'): self
+    public function week(int|array $week, string $column = 'post_date'): self
     {
         return $this->where([
             'week'   => $week,
@@ -105,7 +105,7 @@ class DateQueryArg implements QueryArg
         ]);
     }
 
-    public function day(int $day, string $column = 'post_date'): self
+    public function day(int|array $day, string $column = 'post_date'): self
     {
         return $this->where([
             'day'    => $day,
@@ -113,7 +113,7 @@ class DateQueryArg implements QueryArg
         ]);
     }
 
-    public function hour(int $hour, string $column = 'post_date'): self
+    public function hour(int|array $hour, string $column = 'post_date'): self
     {
         return $this->where([
             'hour'   => $hour,
@@ -121,7 +121,7 @@ class DateQueryArg implements QueryArg
         ]);
     }
 
-    public function minute(int $minute, string $column = 'post_date'): self
+    public function minute(int|array $minute, string $column = 'post_date'): self
     {
         return $this->where([
             'minute' => $minute,
@@ -129,12 +129,32 @@ class DateQueryArg implements QueryArg
         ]);
     }
 
-    public function second(int $second, string $column = 'post_date'): self
+    public function second(int|array $second, string $column = 'post_date'): self
     {
         return $this->where([
             'second' => $second,
             'column' => $column,
         ]);
+    }
+
+    public function dayOfYear(int|array $day, string $column = 'post_date'): self
+    {
+        return $this->where(['dayofyear' => $day, 'column' => $column]);
+    }
+
+    public function dayOfWeek(int|array $day, string $column = 'post_date'): self
+    {
+        return $this->where(['dayofweek' => $day, 'column' => $column]);
+    }
+
+    public function dayOfWeekIso(int|array $day, string $column = 'post_date'): self
+    {
+        return $this->where(['dayofweek_iso' => $day, 'column' => $column]);
+    }
+
+    public function compare(string $operator): self
+    {
+        return $this->where(['compare' => $operator]);
     }
 
     public function whereGroup(
