@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Pentarix\\WordPressDatabase\\WordPress\\SiteQuery;
+use Pentarix\WordPressDatabase\WordPress\SiteQuery;
 
-final class SiteQueryTest extends PHPUnit\\Framework\\TestCase
+final class SiteQueryTest extends PHPUnit\Framework\TestCase
 {
     public function testExecutionRequiresWordPressToBeLoaded(): void
     {
