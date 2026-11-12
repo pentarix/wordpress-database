@@ -1,6 +1,6 @@
 {
     "name": "pentarix/wordpress-database",
-    "description": "WordPress query argument builders with a fluent, Composer-autoloadable API.",
+    "description": "WordPress query argument builders and native query execution helpers with a fluent API.",
     "type": "library",
     "license": "MIT",
     "require": {
