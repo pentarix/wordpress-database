@@ -15,7 +15,7 @@ The package provides WordPress query argument builders and a small execution lay
 composer require pentarix/wordpress-database
 ```
 
-Composer maps the `Pentarix\WordPressDatabase\` namespace to `src/` using PSR-4.
+Composer maps the `Pentarix\WordPressDatabase` namespace to `src/` using PSR-4.
 
 ## Usage
 
@@ -756,7 +756,7 @@ All these wrappers delegate to WordPress Core. They do not create package-specif
 
 WordPress still exposes a separate Links (Bookmarks) API. The package wraps it for compatibility with existing installations, but it is a legacy feature and should not be selected for new content models:
 
-\`\`\`php
+```php
 use Pentarix\WordPressDatabase\WordPress\Link;
 
 $linkId = Link::create([
@@ -774,6 +774,6 @@ Link::update([
 ]);
 
 Link::delete($linkId);
-\`\`\`
+```
 
-The retrieval methods use the front-end bookmark API. Creation, updates, and deletion require the caller to load \`wp-admin/includes/bookmark.php\`, because WordPress defines those functions in its administrative bookmark module.
+The retrieval methods use the front-end bookmark API. Creation, updates, and deletion require the caller to load `wp-admin/includes/bookmark.php`, because WordPress defines those functions in its administrative bookmark module.
