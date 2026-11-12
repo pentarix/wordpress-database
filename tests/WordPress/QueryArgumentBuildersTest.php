@@ -83,21 +83,12 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame([], $multi->is([])->toArray());
     }
 
-    public function testIncludeExcludeIsQueryArgRejectsWrongIsValueShape(): void
-    {
-        $single = new IncludeExcludeIsQueryArg([], false);
-        $multi = new IncludeExcludeIsQueryArg([], false, true);
-
-        $this->expectException(InvalidArgumentException::class);
-        $single->is(['publish']);
-    }
-
-    public function testIncludeExcludeIsQueryArgRejectsScalarInMultiValueMode(): void
+    public function testIncludeExcludeIsQueryArgPreservesScalarAndArrayValuesInMultiValueMode(): void
     {
         $query = new IncludeExcludeIsQueryArg([], false, true);
 
-        $this->expectException(InvalidArgumentException::class);
-        $query->is('publish');
+        self::assertSame(['is' => 'any'], $query->is('any')->toArray());
+        self::assertSame(['is' => ['post', 'page']], $query->is(['post', 'page'])->toArray());
     }
 
     public function testSearchQueryArgValidatesAndNormalizesSearchColumns(): void
@@ -246,6 +237,7 @@ final class QueryArgumentBuildersTest extends TestCase
             'post__not_in' => [3],
             'author__in' => [7],
             'post_type' => ['post', 'page'],
+            'comment_count' => ['value' => 2, 'compare' => '>='], 
             'post_status' => ['publish'],
             's' => 'hello',
             'posts_per_page' => 10,
@@ -291,6 +283,7 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame($meta->toArray(), $args['meta_query']);
         self::assertSame($tax->toArray(), $args['tax_query']);
         self::assertSame(['one', '2'], $args['post_name__in']);
+        self::assertSame(['value' => 2, 'compare' => '>='], $args['comment_count']);
     }
 
     public function testPostQueryArgAcceptsArrayNestedQueriesAndEmptyDefaults(): void
@@ -328,7 +321,7 @@ final class QueryArgumentBuildersTest extends TestCase
             'orderby' => 'date',
             'order' => 'DESC',
             'fields' => 'ids',
-            'hierarchical' => false,
+            'hierarchical' => 'threaded',
             'count' => true,
             'no_found_rows' => true,
             'update_comment_meta_cache' => false,
@@ -341,9 +334,15 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame([6], $args['author__in']);
         self::assertSame(10, $args['post_id']);
         self::assertSame('term', $args['search']);
-        self::assertFalse($args['hierarchical']);
+        self::assertSame('threaded', $args['hierarchical']);
         self::assertTrue($args['update_comment_post_cache']);
         self::assertSame([], CommentQueryArg::make()->toArray());
+        self::assertSame(['type' => ['review', 'rating'], 'status' => ['approve', 'hold'], 'hierarchical' => 'threaded'], CommentQueryArg::make([
+            'type' => ['review', 'rating'],
+            'status' => ['approve', 'hold'],
+            'hierarchical' => 'threaded',
+            'user__in' => [2, 3],
+        ])->toArray());
     }
 
     public function testNetworkQueryArgMapsIdsAndOptions(): void
@@ -361,12 +360,12 @@ final class QueryArgumentBuildersTest extends TestCase
             'fields' => 'ids',
             'count' => false,
             'update_network_cache' => true,
-        ])->includeNetworks(4)->excludeNetworks(1)->networkId(5);
+        ])->includeNetworks(4)->excludeNetworks(1);
 
         $args = $query->toArray();
         self::assertSame([4], $args['network__in']);
         self::assertSame([2, 1], $args['network__not_in']);
-        self::assertSame(5, $args['network_id']);
+        self::assertArrayNotHasKey('network_id', $args);
         self::assertFalse($args['count']);
         self::assertTrue($args['update_network_cache']);
         self::assertSame([], NetworkQueryArg::make()->toArray());
@@ -417,8 +416,8 @@ final class QueryArgumentBuildersTest extends TestCase
             'term_id' => '5',
             'parent' => 6,
             'taxonomy' => ['category', 'post_tag'],
-            'name' => 'News',
-            'slug' => 'news',
+            'name' => ['News', 'Updates'],
+            'slug' => ['news', 'updates'], 
             'search' => 'news',
             'name__like' => 'new',
             'description__like' => 'latest',
@@ -430,7 +429,7 @@ final class QueryArgumentBuildersTest extends TestCase
             'hide_empty' => false,
             'hierarchical' => true,
             'pad_counts' => false,
-            'get' => true,
+            'get' => 'all',
             'update_term_meta_cache' => false,
             'cache_domain' => 'test',
         ])->includeTerms(7)->excludeTerms(1)->taxonomy('post')->search('updated');
@@ -440,10 +439,14 @@ final class QueryArgumentBuildersTest extends TestCase
         self::assertSame([3, 1], $args['exclude']);
         self::assertSame(5, $args['term_id']);
         self::assertSame('post', $args['taxonomy']);
+        self::assertSame(['News', 'Updates'], $args['name']);
+        self::assertSame(['news', 'updates'], $args['slug']);
+        self::assertSame('all', $args['get']);
         self::assertSame('updated', $args['search']);
         self::assertFalse($args['hide_empty']);
         self::assertSame('test', $args['cache_domain']);
         self::assertSame([], TermQueryArg::make()->toArray());
+        self::assertSame(['include' => [1, 2, 3]], TermQueryArg::make(['include' => '1,2,3'])->toArray());
     }
 
     public function testUserQueryArgMapsIdentitySearchMetaAndPagination(): void
