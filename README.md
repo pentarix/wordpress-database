@@ -630,7 +630,7 @@ The argument builders produce arrays for WordPress query APIs, including:
 
 The execution helpers currently cover `WP_Query`, `WP_User_Query`, `WP_Comment_Query`, `WP_Term_Query`, `WP_Site_Query`, and `WP_Network_Query`.
 
-The package does not replace WordPress query classes or bypass the WordPress query lifecycle. Direct SQL, custom-table CRUD, repositories, models, and migrations are outside the current scope.
+The package does not replace WordPress query classes or bypass the WordPress query lifecycle. The lightweight post `Model` is not a general ORM. `CustomTable` provides prepared access to application-owned tables only; schema management, migrations, repositories, and separate database connections remain outside the scope.
 
 ### Entity convenience APIs
 
