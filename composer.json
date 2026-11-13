@@ -1,6 +1,6 @@
 {
     "name": "pentarix/wordpress-database",
-    "description": "WordPress query helpers and wrappers for native WordPress data APIs.",
+    "description": "WordPress data API wrappers, query helpers, and prepared access to application-owned tables.",
     "type": "library",
     "license": "MIT",
     "require": {

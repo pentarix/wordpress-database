@@ -1,8 +1,8 @@
 # Pentarix WordPress Database
 
-Composer-installable WordPress query argument builders and native query execution helpers with a fluent API.
+Composer-installable WordPress data access package with fluent query argument builders, native Core query and entity wrappers, a lightweight post model, and prepared access to application-owned tables.
 
-The package provides WordPress query argument builders and a small execution layer that delegates to WordPress Core query classes. It does not provide an ORM or replace the WordPress query lifecycle.
+Core data operations delegate to WordPress APIs and preserve their lifecycle and return-value contracts. The package does not replace the WordPress query lifecycle or provide a general-purpose ORM.
 
 ## Requirements
 
@@ -15,7 +15,7 @@ The package provides WordPress query argument builders and a small execution lay
 composer require pentarix/wordpress-database
 ```
 
-Composer maps the `Pentarix\WordPressDatabase\` namespace to `src/` using PSR-4.
+Composer maps the `Pentarix\WordPressDatabase\` namespace to `src/` using PSR-4. See [API contracts](docs/api-contracts.md) for runtime requirements, return-value guarantees, and custom-table boundaries.
 
 ## Usage
 
@@ -630,7 +630,7 @@ The argument builders produce arrays for WordPress query APIs, including:
 
 The execution helpers currently cover `WP_Query`, `WP_User_Query`, `WP_Comment_Query`, `WP_Term_Query`, `WP_Site_Query`, and `WP_Network_Query`.
 
-The package does not replace WordPress query classes or bypass the WordPress query lifecycle. Direct SQL, custom-table CRUD, repositories, models, and migrations are outside the current scope.
+The package does not replace WordPress query classes or bypass the WordPress query lifecycle. The lightweight post `Model` is not a general ORM. `CustomTable` provides prepared access to application-owned tables only; schema management, migrations, repositories, and separate database connections remain outside the scope.
 
 ### Entity convenience APIs
 
@@ -672,6 +672,35 @@ $replyId = Comment::reply($commentId, [
 
 The wrappers do not add their own validation or permission policy. Callers remain responsible for capability checks and for loading administrative WordPress modules when a native function is not loaded in the current request.
 
+
+### Custom tables
+
+Use `CustomTable` only for tables owned by the consuming application. Core entities must continue to use their native wrappers.
+
+```php
+use Pentarix\WordPressDatabase\WordPress\CustomTable;
+
+$table = CustomTable::forSite('inventory');
+
+$id = $table->insert([
+    'sku' => 'ABC-123',
+    'quantity' => 12,
+]);
+
+$row = $table->getRow(
+    'SELECT * FROM %i WHERE %i = %s',
+    [$table->getTableName(), 'sku', 'ABC-123']
+);
+
+$table->update(['quantity' => 10], ['id' => $id]);
+$table->delete(['id' => $id]);
+```
+
+`forSite()` prefixes the suffix with the current site's WordPress table prefix. Use `forNetwork()` for a network-wide table, which uses the Multisite base prefix. The suffix must contain only letters, numbers, and underscores.
+
+The CRUD methods delegate to `wpdb::insert()`, `wpdb::update()`, and `wpdb::delete()`. Query methods delegate to `wpdb::prepare()`, `wpdb::query()`, `wpdb::get_results()`, `wpdb::get_row()`, and `wpdb::get_var()`. Use WordPress placeholders (`%d`, `%f`, `%s`, and `%i` for identifiers) rather than concatenating values or identifiers into SQL. A zero affected-row result is distinct from a database failure (`false`).
+
+This is deliberately a small table gateway, not a SQL query builder or ORM. It does not create tables, manage schemas, run migrations, infer relationships, or provide a separate database connection. Use WordPress's schema tools such as `dbDelta()` for table installation and upgrades.
 
 ## Development
 
