@@ -1,8 +1,8 @@
 # Pentarix WordPress Database
 
-Composer-installable WordPress query argument builders and native query execution helpers with a fluent API.
+Composer-installable WordPress data access package with fluent query argument builders, native Core query and entity wrappers, a lightweight post model, and prepared access to application-owned tables.
 
-The package provides WordPress query argument builders and a small execution layer that delegates to WordPress Core query classes. It does not provide an ORM or replace the WordPress query lifecycle.
+Core data operations delegate to WordPress APIs and preserve their lifecycle and return-value contracts. The package does not replace the WordPress query lifecycle or provide a general-purpose ORM.
 
 ## Requirements
 

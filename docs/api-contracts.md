@@ -72,7 +72,7 @@ Do not use `CustomTable` to read or write WordPress Core tables. Use the relevan
 
 - Native `WP_Error`, `false`, `null`, IDs, counts, and objects are preserved where the underlying Core API returns them.
 - Wrappers throw `LogicException` when called before the required WordPress runtime is loaded.
-- `CustomTable` throws `InvalidArgumentException` for invalid table suffixes and invalid placeholder/argument combinations.
+- `CustomTable` throws `InvalidArgumentException` for invalid table suffixes, missing arguments for placeholders, and supplied arguments when a query has no placeholders. WordPress remains responsible for validating the placeholder count and formatting.
 - The package does not silently convert database failures into empty result sets or success values.
 
 ## Explicit non-goals
