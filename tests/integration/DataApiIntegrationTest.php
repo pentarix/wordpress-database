@@ -126,6 +126,26 @@ final class DataApiIntegrationTest extends WP_UnitTestCase
         self::assertSame('comment-value', Metadata::get('comment', $commentId, 'pentarix_comment_key', true));
     }
 
+    public function testMetadataSupportsSiteObjectTypes(): void
+    {
+        if (!is_multisite()) {
+            self::markTestSkipped('Site metadata requires WordPress Multisite.');
+        }
+
+        $siteId = self::factory()->blog->create();
+        $metaKey = 'pentarix_site_meta_' . wp_generate_uuid4();
+
+        self::assertNotFalse(Metadata::add('blog', $siteId, $metaKey, ['enabled' => true], true));
+        self::assertTrue(Metadata::exists('blog', $siteId, $metaKey));
+        self::assertSame(['enabled' => true], Metadata::get('blog', $siteId, $metaKey, true));
+
+        self::assertTrue(Metadata::update('blog', $siteId, $metaKey, ['enabled' => false]));
+        self::assertSame(['enabled' => false], Metadata::get('blog', $siteId, $metaKey, true));
+
+        self::assertTrue(Metadata::delete('blog', $siteId, $metaKey));
+        self::assertFalse(Metadata::exists('blog', $siteId, $metaKey));
+    }
+
     public function testMetadataCanRegisterAndUnregisterObjectTypeMetadata(): void
     {
         $metaKey = 'pentarix_registered_meta_' . wp_generate_uuid4();
