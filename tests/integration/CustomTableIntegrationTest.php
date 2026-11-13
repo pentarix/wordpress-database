@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Pentarix\\WordPressDatabase\\WordPress\\CustomTable;
+use Pentarix\WordPressDatabase\WordPress\CustomTable;
 
 final class CustomTableIntegrationTest extends WP_UnitTestCase
 {
