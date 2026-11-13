@@ -110,7 +110,7 @@ final class CustomTableIntegrationTest extends WP_UnitTestCase
     {
         $table = CustomTable::forSite('pentarix_prepare_test');
         $prepared = $table->prepare(
-            "SELECT '%1$s', %2$d, %3$05d, %4
+            "SELECT '%1$s', %2$d, %3$05d, %4$'#5s",
             ['numbered value', 42, 7, 'pad']
         );
 
