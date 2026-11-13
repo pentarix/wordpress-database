@@ -146,6 +146,27 @@ final class DataApiIntegrationTest extends WP_UnitTestCase
         self::assertFalse(Metadata::exists('blog', $siteId, $metaKey));
     }
 
+    public function testMetadataSupportsNetworkObjectTypes(): void
+    {
+        if (!is_multisite()) {
+            self::markTestSkipped('Network metadata requires WordPress Multisite.');
+        }
+
+        $networkId = get_current_network_id();
+        $metaKey = 'pentarix_network_meta_' . wp_generate_uuid4();
+
+        self::assertFalse(Metadata::exists('site', $networkId, $metaKey));
+        self::assertNotFalse(Metadata::add('site', $networkId, $metaKey, ['enabled' => true], true));
+        self::assertTrue(Metadata::exists('site', $networkId, $metaKey));
+        self::assertSame(['enabled' => true], Metadata::get('site', $networkId, $metaKey, true));
+
+        self::assertNotFalse(Metadata::update('site', $networkId, $metaKey, ['enabled' => false]));
+        self::assertSame(['enabled' => false], Metadata::get('site', $networkId, $metaKey, true));
+
+        self::assertTrue(Metadata::delete('site', $networkId, $metaKey));
+        self::assertFalse(Metadata::exists('site', $networkId, $metaKey));
+    }
+
     public function testMetadataCanRegisterAndUnregisterObjectTypeMetadata(): void
     {
         $metaKey = 'pentarix_registered_meta_' . wp_generate_uuid4();

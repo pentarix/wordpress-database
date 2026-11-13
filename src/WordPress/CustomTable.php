@@ -23,7 +23,7 @@ use LogicException;
  */
 final class CustomTable
 {
-    private const PLACEHOLDER_PATTERN = '/(?<!%)%(?:[1-9][0-9]*\\$)?[-+0-9]*(?:\\.[0-9]+)?[sdfFi]/';
+    private const PLACEHOLDER_PATTERN = '/(?<!%)(?:%%)*%(?:[1-9][0-9]*\$)?[-+0-9]*(?: |0|\'.)?[-+0-9]*(?:\.[0-9]+)?[sdfFi]/';
     private \wpdb $database;
 
     private string $tableName;
