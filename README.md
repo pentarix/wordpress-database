@@ -673,6 +673,35 @@ $replyId = Comment::reply($commentId, [
 The wrappers do not add their own validation or permission policy. Callers remain responsible for capability checks and for loading administrative WordPress modules when a native function is not loaded in the current request.
 
 
+### Custom tables
+
+Use `CustomTable` only for tables owned by the consuming application. Core entities must continue to use their native wrappers.
+
+```php
+use Pentarix\WordPressDatabase\WordPress\CustomTable;
+
+$table = CustomTable::forSite('inventory');
+
+$id = $table->insert([
+    'sku' => 'ABC-123',
+    'quantity' => 12,
+]);
+
+$row = $table->getRow(
+    'SELECT * FROM %i WHERE %i = %s',
+    [$table->getTableName(), 'sku', 'ABC-123']
+);
+
+$table->update(['quantity' => 10], ['id' => $id]);
+$table->delete(['id' => $id]);
+```
+
+`forSite()` prefixes the suffix with the current site's WordPress table prefix. Use `forNetwork()` for a network-wide table, which uses the Multisite base prefix. The suffix must contain only letters, numbers, and underscores.
+
+The CRUD methods delegate to `wpdb::insert()`, `wpdb::update()`, and `wpdb::delete()`. Query methods delegate to `wpdb::prepare()`, `wpdb::query()`, `wpdb::get_results()`, `wpdb::get_row()`, and `wpdb::get_var()`. Use WordPress placeholders (`%d`, `%f`, `%s`, and `%i` for identifiers) rather than concatenating values or identifiers into SQL. A zero affected-row result is distinct from a database failure (`false`).
+
+This is deliberately a small table gateway, not a SQL query builder or ORM. It does not create tables, manage schemas, run migrations, infer relationships, or provide a separate database connection. Use WordPress's schema tools such as `dbDelta()` for table installation and upgrades.
+
 ## Development
 
 Install dependencies and run the standalone unit tests:
