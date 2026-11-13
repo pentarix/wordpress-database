@@ -33,6 +33,8 @@ The `Model` API is a lightweight stateful post model. It is not a general ORM. I
 
 The `Menu` and `MenuItem` wrappers cover classic navigation menus. Menu item queries return the decorated objects produced by `wp_get_nav_menu_items()`; `MenuItem::get()` returns the underlying `WP_Post`.
 
+Menu creation, updates, and item mutations accept ordinary unslashed input. The wrappers apply WordPress's required slashing internally. `Menu::update()` accepts `name` as a convenience alias for the native `menu-name` key; it returns the native menu ID or `WP_Error` from `wp_update_nav_menu_object()`.
+
 ## Custom tables
 
 `CustomTable::forSite($suffix)` creates a helper for a table using the current site's prefix. `CustomTable::forNetwork($suffix)` uses the Multisite base prefix.
@@ -55,6 +57,7 @@ An affected-row count of `0` is not a database error. It means that no rows were
 
 - Use `%d`, `%f`, and `%s` for values.
 - Use `%i` for identifiers. This placeholder is available from WordPress 6.2.
+- Numbered placeholders and WordPress formatting modifiers are supported by the underlying `wpdb::prepare()` implementation.
 - Pass placeholders and values separately in the `$args` array.
 - Do not concatenate untrusted values or identifiers into SQL.
 - If a query contains placeholders, arguments are required. Supplying arguments without placeholders is rejected.

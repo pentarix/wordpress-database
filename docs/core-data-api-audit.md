@@ -22,10 +22,10 @@ The remaining gaps are mostly boundaries between database records and other Word
 | Sites (blogs) | `Site` and `SiteQuery` | Covered for native site operations, context switching, URLs, and site options. |
 | Networks | `Network` and `NetworkQuery` | Read operations and network options are covered. Core does not provide a corresponding general-purpose network create/update/delete API. |
 | Options | `Option` | Covered for current-site, network-wide, and per-blog options. |
-| Metadata | `Metadata` | Covered through the generic Metadata API for supported Core object types, including posts, comments, terms, users, and sites (the `blog` meta type). |
+| Metadata | `Metadata` | Covered through the generic Metadata API for supported Core object types, including posts, comments, terms, users, individual sites (the `blog` meta type), and networks (the `site` meta type). |
 | Transients | `Transient` | Covered for site and network transients. |
 | Legacy bookmarks | `Link` | Covered through the legacy Bookmarks API. This API is retained for compatibility and is not a recommended foundation for new navigation features. |
-| Custom tables | Planned separately | The next implementation stage adds a small `$wpdb`-based API. It will not replace the Core entity wrappers. |
+| Custom tables | `CustomTable` | Covered for application-owned tables through the active `$wpdb` connection, including prefixed site/network table selection, CRUD, and prepared queries. Schema management and migrations remain outside scope. |
 
 ## Deliberate boundaries
 
@@ -57,7 +57,7 @@ WordPress exposes network retrieval and network options, but no general native A
 
 ## Custom-table boundary
 
-The Custom Table API is intentionally separate from the Core entity wrappers:
+The Custom Table API is implemented and intentionally separate from the Core entity wrappers:
 
 - Core posts, users, terms, comments, sites, and networks continue to use WordPress's native APIs.
 - Custom tables use the active `$wpdb` connection and its prepared-query and CRUD methods.
@@ -68,4 +68,4 @@ Schema creation and migrations require a separate design decision and are not pa
 
 ## Audit decision
 
-No additional general-purpose ORM or duplicate Core entity layer is required. The only implementation gap identified for the agreed scope is custom-table access, which is addressed independently in the next stage. Authentication, theme configuration, registration, caching, and scheduling remain explicit integration boundaries rather than missing database wrappers.
+No additional general-purpose ORM or duplicate Core entity layer is required. The agreed persistent data-access scope is implemented. Custom-table schema management and migrations remain intentionally outside this package's scope. Authentication, theme configuration, registration, caching, and scheduling remain explicit integration boundaries rather than missing database wrappers.

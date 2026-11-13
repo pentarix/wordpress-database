@@ -25,6 +25,8 @@ final class MenuItem
     /**
      * Create a menu item.
      *
+     * Menu item data is accepted unslashed and normalised for WordPress Core.
+     *
      * @return int|\WP_Error The new menu item post ID or a WordPress error.
      */
     public static function create(
@@ -34,11 +36,13 @@ final class MenuItem
     ): int|\WP_Error {
         self::ensureWordPressIsLoaded();
 
-        return wp_update_nav_menu_item($menuId, 0, $args, $fireAfterHooks);
+        return wp_update_nav_menu_item($menuId, 0, wp_slash($args), $fireAfterHooks);
     }
 
     /**
      * Update an existing menu item.
+     *
+     * Menu item data is accepted unslashed and normalised for WordPress Core.
      *
      * @return int|\WP_Error The menu item post ID or a WordPress error.
      */
@@ -50,7 +54,7 @@ final class MenuItem
     ): int|\WP_Error {
         self::ensureWordPressIsLoaded();
 
-        return wp_update_nav_menu_item($menuId, $itemId, $args, $fireAfterHooks);
+        return wp_update_nav_menu_item($menuId, $itemId, wp_slash($args), $fireAfterHooks);
     }
 
     /**

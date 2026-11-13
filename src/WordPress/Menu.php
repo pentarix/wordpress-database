@@ -25,25 +25,39 @@ final class Menu
     /**
      * Create a navigation menu.
      *
-     * @return int|\WP_Error The new menu term ID or a WordPress error.
+     * The supplied name is an ordinary, unslashed string.
+     *
+     * @return int|\WP_Error The new menu ID or a WordPress error.
      */
     public static function create(string $name): int|\WP_Error
     {
         self::ensureWordPressIsLoaded();
 
-        return wp_create_nav_menu($name);
+        return wp_create_nav_menu(wp_slash($name));
     }
 
     /**
-     * Update a navigation menu's term data.
+     * Update a navigation menu.
      *
-     * @return array|\WP_Error The updated term data or a WordPress error.
+     * Accepts unslashed menu data. The convenient `name` key is mapped to
+     * WordPress's native `menu-name` key; all other native keys pass through.
+     *
+     * @return int|\WP_Error The updated menu ID or a WordPress error.
      */
-    public static function update(int $menuId, array $args): array|\WP_Error
+    public static function update(int $menuId, array $args): int|\WP_Error
     {
         self::ensureWordPressIsLoaded();
 
-        return wp_update_term($menuId, 'nav_menu', $args);
+        if (array_key_exists('name', $args)) {
+            $args['menu-name'] = $args['menu-name'] ?? $args['name'];
+            unset($args['name']);
+        }
+
+        if (!array_key_exists('menu-name', $args)) {
+            throw new \InvalidArgumentException('A menu name is required to update a navigation menu.');
+        }
+
+        return wp_update_nav_menu_object($menuId, wp_slash($args));
     }
 
     /**

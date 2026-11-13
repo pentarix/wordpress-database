@@ -535,7 +535,7 @@ $exists = Metadata::exists('post', $postId, 'featured');
 Metadata::delete('post', $postId, 'featured');
 ```
 
-The object type is explicit and is passed to WordPress unchanged. This supports the object types handled by the Core Metadata API, including posts, users, comments, and terms. Use `register()` and `unregister()` to manage registered metadata keys, optionally specifying an object subtype. The wrapper also exposes the native metadata-by-ID operations through `getById()`, `updateById()`, and `deleteById()`; each requires the metadata object type.
+The object type is explicit and is passed to WordPress unchanged. This supports the object types handled by the Core Metadata API, including posts, users, comments, and terms. In Multisite, use the `blog` object type with a site ID for individual site metadata, and the `site` object type with a network ID for network metadata. Use `register()` and `unregister()` to manage registered metadata keys, optionally specifying an object subtype. The wrapper also exposes the native metadata-by-ID operations through `getById()`, `updateById()`, and `deleteById()`; each requires the metadata object type.
 
 ### Transients API
 

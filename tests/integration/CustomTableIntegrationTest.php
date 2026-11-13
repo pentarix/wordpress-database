@@ -106,6 +106,28 @@ final class CustomTableIntegrationTest extends WP_UnitTestCase
         self::assertStringContainsString('42', $prepared);
     }
 
+    public function testPrepareSupportsNumberedAndFormattedPlaceholders(): void
+    {
+        $table = CustomTable::forSite('pentarix_prepare_test');
+        $prepared = $table->prepare(
+            'SELECT \'%1$s\', %2$d, %3$05d, %4$\'#5s',
+            ['numbered value', 42, 7, 'pad']
+        );
+
+        self::assertStringContainsString("'numbered value'", $prepared);
+        self::assertStringContainsString('42', $prepared);
+        self::assertStringContainsString('00007', $prepared);
+        self::assertStringContainsString('##pad', $prepared);
+    }
+
+    public function testPrepareIgnoresEscapedPlaceholdersAndLiteralPercentages(): void
+    {
+        $table = CustomTable::forSite('pentarix_prepare_test');
+
+        self::assertSame('SELECT %%s, 100%', $table->prepare('SELECT %%s, 100%'));
+        self::assertSame("SELECT 'value'", $table->prepare('SELECT %s', ['value']));
+    }
+
     public function testPrepareRequiresArgumentsForPlaceholders(): void
     {
         $table = CustomTable::forSite('pentarix_prepare_test');
@@ -122,4 +144,5 @@ final class CustomTableIntegrationTest extends WP_UnitTestCase
         $this->expectException(InvalidArgumentException::class);
 
         $table->prepare('SELECT 1', ['unused']);
-    }}
+    }
+}
