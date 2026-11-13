@@ -369,6 +369,42 @@ These wrappers intentionally remain separate by WordPress object type. Posts, us
 
 The entity wrappers require WordPress to be loaded. They return native WordPress objects and values rather than package-specific entity instances.
 
+### Navigation menus
+
+Use `Menu` and `MenuItem` to manage classic WordPress navigation menus through the native Navigation Menu API:
+
+```php
+use Pentarix\WordPressDatabase\WordPress\Menu;
+use Pentarix\WordPressDatabase\WordPress\MenuItem;
+
+$menuId = Menu::create('Main Menu');
+
+$itemId = MenuItem::create($menuId, [
+    'menu-item-title' => 'Home',
+    'menu-item-type' => 'custom',
+    'menu-item-url' => home_url('/'),
+    'menu-item-status' => 'publish',
+]);
+
+$menu = Menu::get($menuId); // WP_Term|false
+$items = Menu::items($menuId); // Decorated menu item objects
+
+MenuItem::update($menuId, $itemId, [
+    'menu-item-title' => 'Homepage',
+    'menu-item-url' => home_url('/'),
+    'menu-item-status' => 'publish',
+]);
+
+MenuItem::delete($itemId); // Permanently deletes the menu item
+Menu::delete($menuId); // Deletes the menu and its remaining items
+```
+
+`Menu::create()` returns the new menu term ID. Menu retrieval returns native `WP_Term` objects. Menu items are stored internally as `nav_menu_item` posts, but `MenuItem::get()` returns the raw `WP_Post` while `Menu::items()` and `MenuItem::getForMenu()` return the decorated objects produced by `wp_get_nav_menu_items()`. These decorated objects expose menu-specific properties such as `title`, `url`, `type`, `object_id`, and `menu_item_parent`.
+
+Menu item creation and updates accept the native hyphenated `menu-item-*` arguments documented by WordPress. The wrappers preserve native IDs, objects, and `WP_Error` results. Deleting a menu delegates to WordPress, which also deletes its items and clears assignments to theme locations. Theme location registration and assignment remain the responsibility of the active theme and WordPress Theme API; they are not modelled as menu records.
+
+The menu wrappers require WordPress to be loaded.
+
 ### Fluent models
 
 Extend the abstract `Model` class to represent a registered post type. A model
