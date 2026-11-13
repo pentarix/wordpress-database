@@ -15,7 +15,7 @@ Core data operations delegate to WordPress APIs and preserve their lifecycle and
 composer require pentarix/wordpress-database
 ```
 
-Composer maps the `Pentarix\WordPressDatabase\` namespace to `src/` using PSR-4.
+Composer maps the `Pentarix\WordPressDatabase\` namespace to `src/` using PSR-4. See [API contracts](docs/api-contracts.md) for runtime requirements, return-value guarantees, and custom-table boundaries.
 
 ## Usage
 
