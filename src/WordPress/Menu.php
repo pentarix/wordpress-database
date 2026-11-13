@@ -51,9 +51,9 @@ final class Menu
      *
      * WordPress also removes the menu from any registered theme locations.
      *
-     * @return array|false|\WP_Error The native term deletion result.
+     * @return bool|\WP_Error True on success, false when the menu does not exist.
      */
-    public static function delete(int|string|\WP_Term $menu): array|false|\WP_Error
+    public static function delete(int|string|\WP_Term $menu): bool|\WP_Error
     {
         self::ensureWordPressIsLoaded();
 

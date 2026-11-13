@@ -30,7 +30,7 @@ final class NavigationMenuIntegrationTest extends WP_UnitTestCase
             Menu::all()
         ));
 
-        self::assertIsArray(Menu::delete($menuId));
+        self::assertTrue(Menu::delete($menuId));
         self::assertFalse(Menu::get($menuId));
     }
 
